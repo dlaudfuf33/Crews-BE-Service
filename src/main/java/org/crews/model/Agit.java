@@ -35,24 +35,30 @@ public class Agit extends BaseTimeEntity {
     private boolean isDeleted;
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     List<Membership> memberships = new ArrayList<>();
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     List<Introducing> introducings = new ArrayList<>();
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     List<RegularCrewing> regularCrewings = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     private List<AgitAndAccount> agitAndAccounts = new ArrayList<>();
 
 }
