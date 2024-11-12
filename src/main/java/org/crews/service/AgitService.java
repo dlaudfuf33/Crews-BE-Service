@@ -2,15 +2,13 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.dto.core.IdentityRequest;
 import org.crews.model.*;
-import org.crews.repository.AccountRepository;
-import org.crews.repository.AgitRepository;
-import org.crews.repository.BankRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.*;
 import org.crews.util.AES;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
@@ -28,6 +26,7 @@ public class AgitService {
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
     private final MemberShipRepository memberShipRepository;
+    private final MemberRepository memberRepository;
     private final WebClient webClient;
 
     private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
@@ -70,7 +69,10 @@ public class AgitService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId) {
+    public AccountIssuedResponse accountIssued(Long agitId, MemberIdDto memberIdDto) {
+        Member member = memberRepository.findById(memberIdDto.getMemberId()).orElseThrow(
+                () -> new IllegalStateException("해당하는 번호의 멤버가 없습니다.")
+        );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new IllegalStateException("해당하는 번호의 아지트가 없습니다.")
         );
@@ -78,7 +80,9 @@ public class AgitService {
                 () -> new IllegalStateException("아지트에 모임장이 존재하지 않습니다.")
         );
         String identityCode = membership.getMember().getIdentityCode();
-
+        if(!member.getIdentityCode().equals(identityCode)){
+            throw new IllegalStateException("모임장이기 때문에 모임통장을 생성할 수 없습니다.");
+        }
         try {
             AccountIssuedResponse response = webClient.post()
                     .uri("/v1/accounts")

@@ -2,6 +2,7 @@ package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.model.Account;
@@ -21,7 +22,8 @@ public class AgitController {
     }
 
     @PostMapping("/{agits-id}/accounts")
-    public AccountIssuedResponse accountIssued(@PathVariable("agits-id") Long agitId){
-        return agitService.accountIssued(agitId);
+    public AccountIssuedResponse accountIssued(@PathVariable("agits-id") Long agitId,
+                                               @RequestBody MemberIdDto memberIdDto){
+        return agitService.accountIssued(agitId, memberIdDto);
     }
 }
