@@ -2,18 +2,17 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.config.AESConfig;
 import org.crews.dto.MemberDetails;
 import org.crews.model.Member;
 import org.crews.repository.MemberRepository;
 import org.crews.utils.AESUtil;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -22,28 +21,27 @@ import java.util.Optional;
 public class CustomUserDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AESUtil aesUtil;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.info("로그인 시도 이메일: {}", email);
-        String encryptedEmail = null;
+        String encryptedEmail;
         try {
-            encryptedEmail = AESUtil.encrypt(email);
+            encryptedEmail = aesUtil.encrypt(email);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to encrypt email", e);
         }
-        log.info("암호화된 이메일: {}", encryptedEmail);
 
-        Optional<Member> optionalMember = null;
+        Optional<Member> optionalMember = Optional.empty();
         try{
             optionalMember = memberRepository.findByEmail(encryptedEmail);
+            log.info(String.valueOf(optionalMember));
         } catch (Exception e) {
             log.error(String.valueOf(e));
         }
 
-        if (optionalMember.isPresent()) {
-            log.info("DB에서 조회된 사용자: {}", optionalMember.get());
-        } else {
+        if (!optionalMember.isPresent()) {
             log.info("사용자를 찾을 수 없음");
             throw new UsernameNotFoundException("User not found with email: " + email);
         }

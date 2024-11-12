@@ -1,8 +1,10 @@
 package org.crews.config;
 
+import org.crews.jwt.CustomLogoutFilter;
 import org.crews.jwt.JWTFilter;
 import org.crews.jwt.JWTUtil;
 import org.crews.jwt.LoginFilter;
+import org.crews.repository.RefreshRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +16,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -21,11 +27,13 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
 
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
     }
 
     @Bean
@@ -42,54 +50,60 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors
+                                .configurationSource(request -> {
+                                    CorsConfiguration configuration = new CorsConfiguration();
+                                    configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                                    configuration.setAllowedMethods(Collections.singletonList("*"));
+                                    configuration.setAllowCredentials(true);
+                                    configuration.setAllowedHeaders(Collections.singletonList("*"));
+                                    configuration.setMaxAge(3600L);
+                                    configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
+                                    return configuration;
+                                }));
         //csrf disable
         http
-                .csrf((auth) -> auth.disable());
+                .csrf(AbstractHttpConfigurer::disable);
 
         //From 로그인 방식 disable
         http
-                .formLogin((auth) -> auth.disable());
+                .formLogin(AbstractHttpConfigurer::disable);
 
         //http basic 인증 방식 disable
         http
-                .httpBasic((auth) -> auth.disable());
+                .httpBasic(AbstractHttpConfigurer::disable);
 
 
         // 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html/",
                         "/v2/api-docs", "/webjars/**", "/swagger-resources/**"
                 ).permitAll()
-                .requestMatchers("/members/signup", "/members/login", "/login").permitAll()
+                .requestMatchers("/members/signup", "/members/login", "members/reissue").permitAll()
                 .anyRequest().authenticated()
         );
 
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(loginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         //세션 설정
         http
-                .sessionManagement((session) -> session
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http.apply(new Custom());
 
         return http.build();
     }
 
-    public class Custom extends AbstractHttpConfigurer<Custom, HttpSecurity> {
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-            LoginFilter jwtAuthenticationFilter = new LoginFilter(authenticationManager, jwtUtil);
-            jwtAuthenticationFilter.setFilterProcessesUrl("/members/login");
-            http
-                    .addFilter(jwtAuthenticationFilter);
-
-        }
+    public LoginFilter loginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, refreshRepository);
+        loginFilter.setFilterProcessesUrl("/members/login");
+        return loginFilter;
     }
 }
