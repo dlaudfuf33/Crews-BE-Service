@@ -52,7 +52,7 @@ public class Agit extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
 
-    @OneToMany(mappedBy = "agit")
-    private List<AgitAndAccount> agitAndAccounts = new ArrayList<>();
+    @OneToOne(mappedBy = "agit")
+    private AgitAndAccount agitAndAccount;
 
 }

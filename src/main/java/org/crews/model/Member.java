@@ -34,6 +34,9 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
+    @Column(nullable = false)
+    private String identityCode;
+
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
