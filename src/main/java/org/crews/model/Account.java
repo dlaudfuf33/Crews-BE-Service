@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class Account extends BaseTimeEntity{
     private String accountNumber;
 
     @ColumnDefault("0")
-    private Long balance;
+    private BigDecimal balance;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -39,9 +40,6 @@ public class Account extends BaseTimeEntity{
 
     @Column(nullable = false)
     private String fintecNumber;
-
-    @Column(nullable = false)
-    private String identifiedNumber;
 
     @OneToOne(mappedBy = "account")
     private AgitAndAccount agitAndAccount;

@@ -2,12 +2,11 @@ package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
+import org.crews.model.Account;
 import org.crews.service.AgitService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,5 +18,10 @@ public class AgitController {
     @GetMapping("/{agits-id}/accounts")
     public AccountOneResponse accountInfo(@PathVariable("agits-id") Long agitId){
         return agitService.accountInfo(agitId);
+    }
+
+    @PostMapping("/{agits-id}/accounts")
+    public AccountIssuedResponse accountIssued(@PathVariable("agits-id") Long agitId){
+        return agitService.accountIssued(agitId);
     }
 }

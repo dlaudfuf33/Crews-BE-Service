@@ -2,11 +2,16 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
-import org.crews.model.Agit;
-import org.crews.model.AgitAndAccount;
+import org.crews.dto.core.IdentityRequest;
+import org.crews.model.*;
+import org.crews.repository.AccountRepository;
 import org.crews.repository.AgitRepository;
+import org.crews.repository.BankRepository;
+import org.crews.repository.MemberShipRepository;
+import org.crews.util.AES;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,9 @@ import org.springframework.web.reactive.function.client.WebClientException;
 public class AgitService {
 
     private final AgitRepository agitRepository;
+    private final BankRepository bankRepository;
+    private final AccountRepository accountRepository;
+    private final MemberShipRepository memberShipRepository;
     private final WebClient webClient;
 
     private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
@@ -59,5 +67,58 @@ public class AgitService {
             log.warn("클라이언트 통신 중 오류가 발생했습니다.");
             throw new WebServerException("클라이언트 통신 중 오류가 발생했습니다.", ex);
         }
+    }
+
+    @Transactional
+    public AccountIssuedResponse accountIssued(Long agitId) {
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new IllegalStateException("해당하는 번호의 아지트가 없습니다.")
+        );
+        Membership membership = memberShipRepository.findByAgitAndRole(agit, MemberRole.LEADER).orElseThrow(
+                () -> new IllegalStateException("아지트에 모임장이 존재하지 않습니다.")
+        );
+        String identityCode = membership.getMember().getIdentityCode();
+
+        try {
+            AccountIssuedResponse response = webClient.post()
+                    .uri("/v1/accounts")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(IdentityRequest.builder().identityCode(identityCode).build()) //
+                    .retrieve()
+                    .bodyToMono(AccountIssuedResponse.class)
+                    .block();
+            if(response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+
+            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
+                    () -> new IllegalStateException("잘못된 뱅크코드 번호 입니다.")
+            );
+
+            Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
+                    .accountNumber(AES.encrypt_AES(response.getAccountNumber())).balance(response.getBalance()).
+                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+            Account savedAccount = accountRepository.save(account);
+            return AccountIssuedResponse.from(savedAccount);
+        }
+        catch (WebClientException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.");
+            throw new WebServerException("클라이언트 통신 중 오류가 발생했습니다.", ex);
+        }
+    }
+
+    private String maskedAccountNumber(String accountNumber){
+        String maskingResult = "";
+
+        if (accountNumber.length() >= 7) {
+            maskingResult = accountNumber.replaceAll("(?<=.{4}).(?=.{2})", "*");
+        } else {
+            maskingResult = accountNumber;
+        }
+
+        return maskingResult;
+
     }
 }
