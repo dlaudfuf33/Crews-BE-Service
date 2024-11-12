@@ -4,7 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class MemberIdDto {
+public class AccountLinkRequest {
     @NotBlank
     private Long memberId;
+
+    @NotBlank
+    private String fintechUseNum;
+
 }

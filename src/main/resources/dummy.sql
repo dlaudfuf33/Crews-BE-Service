@@ -1,6 +1,6 @@
 insert into member(email,name,nick_name,password,phone_number,identity_code) values('1234@gmail.com','sws','sw2','1234','010-0000-0000','ID001');
 
-insert into account(account_number, fintec_number, identified_number, masked_account_number, account_type, member_id) value('110-1234-5678','FNUM001','ID001','110-1234-5678','CREW',1);
+insert into account(account_number, fintec_number, masked_account_number, account_type, member_id) value('110-1234-5678','FNUM001','110-1234-5678','CREW',1);
 
 
 
