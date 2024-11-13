@@ -6,6 +6,7 @@ import org.crews.dto.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.model.*;
+import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;

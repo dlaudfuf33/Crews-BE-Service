@@ -3,6 +3,7 @@ package org.crews.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.AddressType;
 
 @Getter
 @Setter

@@ -1,7 +1,7 @@
 package org.crews.dto.core;
 
 import lombok.Getter;
-import org.crews.model.AccountType;
+import org.crews.model.constants.AccountType;
 
 
 import java.math.BigDecimal;

@@ -3,6 +3,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.AccountType;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Account extends BaseTimeEntity{
+public class Account extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +30,7 @@ public class Account extends BaseTimeEntity{
     @Column(nullable = false)
     private String maskedAccountNumber;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String accountNumber;
 
     @ColumnDefault("0")

@@ -1,4 +1,4 @@
-package org.crews.model;
+package org.crews.model.constants;
 
 public enum TranType {
     DEPOSIT("입금"),

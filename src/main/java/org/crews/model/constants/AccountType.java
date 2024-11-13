@@ -1,4 +1,4 @@
-package org.crews.model;
+package org.crews.model.constants;
 
 public enum AccountType {
     PERSONAL("개인"), CREW("모임");

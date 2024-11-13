@@ -10,6 +10,7 @@ import org.crews.dto.core.CommonRequest;
 import org.crews.excaption.CustomException;
 import org.crews.excaption.ErrorCode;
 import org.crews.model.*;
+import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;

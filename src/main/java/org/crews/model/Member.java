@@ -38,7 +38,7 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 16)
     private String nickName;
 
     @Column(unique = true, nullable = false)
@@ -55,10 +55,10 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 100)
     private String ci;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 20)
     private String role;
 
     @Column(columnDefinition = "boolean default false")

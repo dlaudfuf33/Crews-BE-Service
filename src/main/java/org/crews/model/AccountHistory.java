@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.TranType;
 
 import java.time.LocalDateTime;
 

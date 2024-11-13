@@ -1,4 +1,4 @@
-package org.crews.model;
+package org.crews.model.constants;
 
 public enum AddressType {
     COMPANY("회사"), HOME("집"), OTHER("관심지역");
