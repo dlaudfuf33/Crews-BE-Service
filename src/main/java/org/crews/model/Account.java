@@ -40,15 +40,15 @@ public class Account extends BaseTimeEntity{
 
     @Column(nullable = false)
     private String fintecNumber;
-
+    
     @OneToOne(mappedBy = "account")
     private AgitAndAccount agitAndAccount;
 
     @OneToOne(mappedBy = "account")
     private AccountHistory accountHistory;
 
-    @OneToMany(mappedBy = "account")
     @Builder.Default
+    @OneToMany(mappedBy = "account")
     private List<Card> cards = new ArrayList<>();
 
 }

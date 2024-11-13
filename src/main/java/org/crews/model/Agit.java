@@ -34,18 +34,22 @@ public class Agit extends BaseTimeEntity {
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
+    @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<Membership> memberships = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToOne(mappedBy = "agit")
     private Introducing introducing;
 
+    @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<RegularCrewing> regularCrewings = new ArrayList<>();
 
