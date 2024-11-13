@@ -1,9 +1,9 @@
 package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.core.AccountResponseDto;
-import org.crews.dto.core.MemberToCoreDto;
+import org.crews.dto.core.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.WebServerException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -125,6 +125,94 @@ public class CoreService {
         } catch (Exception e) {
             log.error("예상치 못한 오류 발생: {}", e.getMessage(), e);
             return List.of(); // 그 외 예기치 못한 오류 처리
+        }
+    }
+
+    public AccountOneResponse accountInfo(CommonRequest commonRequest){
+        try {
+            return webClient.post()
+                    .uri("/v1/accounts/one")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(commonRequest) //
+                    .retrieve()
+                    .bodyToMono(AccountOneResponse.class)
+                    .block();
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public Mono<String> sendCICode(CIRequest ciRequest) {
+        try {
+             return webClient.post()
+                    .uri("/v1/ci")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(ciRequest) //
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
+                    .doOnError(e -> log.error("API 호출 중 오류 발생", e));
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public AccountIssuedResponse accountIssued(String ci){
+        try {
+            AccountIssuedResponse response = webClient.post()
+                    .uri("/v1/accounts")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(CIRequest.builder().ci(ci).build()) //
+                    .retrieve()
+                    .bodyToMono(AccountIssuedResponse.class)
+                    .block();
+            if(response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public CardIssuedResponse cardIssued(CommonRequest commonRequest){
+        try {
+            CardIssuedResponse response = webClient.post()
+                    .uri("/v1/cards")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(commonRequest)
+                    .retrieve()
+                    .bodyToMono(CardIssuedResponse.class)
+                    .block();
+            if(response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
 }

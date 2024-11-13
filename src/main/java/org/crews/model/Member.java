@@ -2,10 +2,30 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.MemberRequest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@NamedEntityGraph(
+        name = "Member.withAddressesAndInterestingsAndSubjects",
+        attributeNodes = {
+                @NamedAttributeNode("addresses"),
+                @NamedAttributeNode(value = "memberAndInterestings", subgraph = "memberAndInterestingsSubgraph")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "memberAndInterestingsSubgraph",
+                        attributeNodes = @NamedAttributeNode(value = "interesting", subgraph = "interestingSubgraph")
+                ),
+                @NamedSubgraph(
+                        name = "interestingSubgraph",
+                        attributeNodes = @NamedAttributeNode("subject")
+                )
+        }
+)
 @Getter
 @Setter
 @Builder
@@ -14,7 +34,8 @@ import java.util.List;
 @Entity
 public class Member extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -34,31 +55,58 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
+    @Column(nullable = false)
+    private String ci;
+
+    @Column(nullable = false)
+    private String role;
+
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
     @OneToMany(mappedBy = "member")
-    private List<Address> addresses = new ArrayList<>();
+    @Builder.Default
+    private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Membership> memberships = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<MemberAndInteresting> memberAndInterestings = new ArrayList<>();
+    @Builder.Default
+    private Set<MemberAndInteresting> memberAndInterestings = new HashSet<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Heart> hearts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<Yaggwan> yaggwans = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Account> accounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Card> cards = new ArrayList<>();
 
+    public static Member from(MemberRequest memberRequest) {
+        return Member.builder()
+                .nickName(memberRequest.getNickName())
+                .email(memberRequest.getEmail())
+                .password(memberRequest.getPassword())
+                .name(memberRequest.getName())
+                .phoneNumber(memberRequest.getPhoneNumber())
+                .profileImage(memberRequest.getProfileImage())
+                .build();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.role == null) {
+            this.role = "ROLE_USER";
+        }
+    }
 }
