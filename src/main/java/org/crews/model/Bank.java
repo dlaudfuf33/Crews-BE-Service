@@ -25,5 +25,6 @@ public class Bank extends BaseTimeEntity{
     private String bankName;
 
     @OneToMany(mappedBy = "bank")
+    @Builder.Default
     private List<Account> accounts = new ArrayList<>();
 }
