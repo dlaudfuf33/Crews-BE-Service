@@ -48,6 +48,7 @@ public class Account extends BaseTimeEntity{
     private AccountHistory accountHistory;
 
     @OneToMany(mappedBy = "account")
+    @Builder.Default
     private List<Card> cards = new ArrayList<>();
 
 }

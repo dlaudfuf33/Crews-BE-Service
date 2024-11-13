@@ -9,8 +9,8 @@ import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.model.*;
 import org.crews.repository.*;
-import org.crews.util.AES;
 
+import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +36,8 @@ public class AccountService {
             throw new IllegalStateException("해당하는 아지트의 모임통장이 없습니다.");
         }
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
-        String identityCode = agitAndAccount.getAccount().getMember().getIdentityCode();
-        CommonRequest commonRequest = CommonRequest.builder().identityCode(identityCode).fintechUseNum(fintecNumber).build();
+        String ci = agitAndAccount.getAccount().getMember().getCi();
+        CommonRequest commonRequest = CommonRequest.builder().ci(ci).fintechUseNum(fintecNumber).build();
         return coreService.accountInfo(commonRequest);
     }
 
@@ -52,16 +52,16 @@ public class AccountService {
         Membership membership = memberShipRepository.findByAgitAndRole(agit, MemberRole.LEADER).orElseThrow(
                 () -> new IllegalStateException("아지트에 모임장이 존재하지 않습니다.")
         );
-        String identityCode = membership.getMember().getIdentityCode();
-        if(!member.getIdentityCode().equals(identityCode)){
+        String ci = membership.getMember().getCi();
+        if(!member.getCi().equals(ci)){
             throw new IllegalStateException("모임통장을 생성할 수 없습니다.");
         }
-        AccountIssuedResponse response = coreService.accountIssued(identityCode);
+        AccountIssuedResponse response = coreService.accountIssued(ci);
         Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
                 () -> new IllegalStateException("잘못된 뱅크코드 입니다.")
         );
         Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                .accountNumber(AES.encrypt_AES(response.getAccountNumber())).balance(response.getBalance()).
+                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
                 accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
         Account savedAccount = accountRepository.save(account);
         return AccountIssuedResponse.from(savedAccount);
@@ -78,15 +78,15 @@ public class AccountService {
         Membership membership = memberShipRepository.findByAgitAndRole(agit, MemberRole.LEADER).orElseThrow(
                 () -> new IllegalStateException("아지트에 모임장이 존재하지 않습니다.")
         );
-        String identityCode = membership.getMember().getIdentityCode();
-        if(!member.getIdentityCode().equals(identityCode)){
+        String ci = membership.getMember().getCi();
+        if(!member.getCi().equals(ci)){
             throw new IllegalStateException("모임통장을 생성할 수 없습니다.");
         }
         Account account = accountRepository.findByFintecNumber(accountLinkRequest.getFintechUseNum()).orElseThrow(
                 () -> new IllegalStateException("핀테크 번호에 해당하는 계좌가 없습니다.")
         );
         AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
-        log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.",agitId, agit.getAgitName(), identityCode);
+        log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.",agitId, agit.getAgitName(), ci);
         return agitAndAccountRepository.save(agitAndAccount);
     }
 

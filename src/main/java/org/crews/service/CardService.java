@@ -7,7 +7,7 @@ import org.crews.dto.core.CardIssuedResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.model.*;
 import org.crews.repository.*;
-import org.crews.util.AES;
+import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,14 +50,14 @@ public class CardService {
             throw new IllegalStateException("카드가 이미 존재해서 카드를 생성할 수 없습니다.");
 
         CommonRequest commonRequest = CommonRequest.builder()
-                .identityCode(member.getIdentityCode())
+                .ci(member.getCi())
                 .fintechUseNum(accountLinkRequest.getFintechUseNum())
                 .build();
 
         CardIssuedResponse response = coreService.cardIssued(commonRequest);
         Card card = Card.builder().account(account).member(member)
                 .maskedCardNumber(cardMasking(response.getCardNumber()))
-                .cardNumber(AES.encrypt_AES(response.getCardName())).registeredAt(response.getCreateAt())
+                .cardNumber(AESUtil.encrypt(response.getCardName())).registeredAt(response.getCreateAt())
                 .isDeleted(false).build();
 
         cardRepository.save(card);

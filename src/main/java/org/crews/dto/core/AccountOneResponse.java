@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 public class AccountOneResponse {
     private String memberName;
-    private String identityCode;
+    private String ci;
     private AccountType accountType;
     private String bankCode;
     private String bankName;
