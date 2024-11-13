@@ -44,12 +44,14 @@ public class Account extends BaseTimeEntity{
     private String identifiedNumber;
 
     @OneToMany(mappedBy = "account")
+    @Builder.Default
     private List<AgitAndAccount> agitAndAccounts = new ArrayList<>();
 
     @OneToOne(mappedBy = "account")
     private AccountHistory accountHistory;
 
     @OneToMany(mappedBy = "account")
+    @Builder.Default
     private List<Card> cards = new ArrayList<>();
 
 }

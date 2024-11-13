@@ -22,6 +22,7 @@ public class Subject extends BaseTimeEntity{
     private String subjectName;
 
     @OneToMany(mappedBy = "subject")
+    @Builder.Default
     private List<Interesting> interestings = new ArrayList<>();
 
 }

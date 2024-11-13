@@ -53,6 +53,7 @@ public class Agit extends BaseTimeEntity {
     private Dues dues;
 
     @OneToMany(mappedBy = "agit")
+    @Builder.Default
     private List<AgitAndAccount> agitAndAccounts = new ArrayList<>();
 
 }

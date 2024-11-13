@@ -37,5 +37,6 @@ public class Feed extends BaseTimeEntity{
     private Member member;
 
     @OneToMany(mappedBy = "feed")
+    @Builder.Default
     private List<Heart> likes = new ArrayList<>();
 }
