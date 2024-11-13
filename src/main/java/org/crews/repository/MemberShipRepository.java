@@ -1,6 +1,7 @@
 package org.crews.repository;
 
 import org.crews.model.Agit;
+import org.crews.model.Member;
 import org.crews.model.MemberRole;
 import org.crews.model.Membership;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface MemberShipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findByAgitAndRole(Agit agit, MemberRole role);
+    Optional<Membership> findByMemberAndAgit(Member member, Agit agit);
 }

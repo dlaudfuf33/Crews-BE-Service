@@ -28,16 +28,7 @@ public class AccountService {
     private final MemberShipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final AgitAndAccountRepository agitAndAccountRepository;
-    private final WebClient webClient;
-
-    private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
-    private static final String HEADER_SECRET_KEY = "X-SECRET-KEY";
-
-    @Value("${bank.core.access-key}")
-    private String accessKey;
-
-    @Value("${bank.core.secret-key}")
-    private String secretKey;
+    private final CoreService coreService;
 
     @Transactional(readOnly = true)
     public AccountOneResponse accountInfo(Long agitId) {
@@ -51,22 +42,7 @@ public class AccountService {
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
         String identityCode = agitAndAccount.getAccount().getMember().getIdentityCode();
         CommonRequest commonRequest = CommonRequest.builder().identityCode(identityCode).fintechUseNum(fintecNumber).build();
-        try {
-            return webClient.post()
-                    .uri("/v1/accounts/one")
-                    .headers(headers -> {
-                        headers.set(HEADER_ACCESS_KEY, accessKey);
-                        headers.set(HEADER_SECRET_KEY, secretKey);
-                    })
-                    .bodyValue(commonRequest) //
-                    .retrieve()
-                    .bodyToMono(AccountOneResponse.class)
-                    .block();
-        }
-        catch (WebClientException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.");
-            throw new WebServerException("클라이언트 통신 중 오류가 발생했습니다.", ex);
-        }
+        return coreService.accountInfo(commonRequest);
     }
 
     @Transactional
@@ -84,34 +60,15 @@ public class AccountService {
         if(!member.getIdentityCode().equals(identityCode)){
             throw new IllegalStateException("모임통장을 생성할 수 없습니다.");
         }
-        try {
-            AccountIssuedResponse response = webClient.post()
-                    .uri("/v1/accounts")
-                    .headers(headers -> {
-                        headers.set(HEADER_ACCESS_KEY, accessKey);
-                        headers.set(HEADER_SECRET_KEY, secretKey);
-                    })
-                    .bodyValue(IdentityRequest.builder().identityCode(identityCode).build()) //
-                    .retrieve()
-                    .bodyToMono(AccountIssuedResponse.class)
-                    .block();
-            if(response == null)
-                throw new IllegalStateException("잘못된 응답값 입니다.");
-
-            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
-                    () -> new IllegalStateException("잘못된 뱅크코드 입니다.")
-            );
-
-            Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                    .accountNumber(AES.encrypt_AES(response.getAccountNumber())).balance(response.getBalance()).
-                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
-            Account savedAccount = accountRepository.save(account);
-            return AccountIssuedResponse.from(savedAccount);
-        }
-        catch (WebClientException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.");
-            throw new WebServerException("클라이언트 통신 중 오류가 발생했습니다.", ex);
-        }
+        AccountIssuedResponse response = coreService.accountIssued(identityCode);
+        Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
+                () -> new IllegalStateException("잘못된 뱅크코드 입니다.")
+        );
+        Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
+                .accountNumber(AES.encrypt_AES(response.getAccountNumber())).balance(response.getBalance()).
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+        Account savedAccount = accountRepository.save(account);
+        return AccountIssuedResponse.from(savedAccount);
     }
 
     @Transactional

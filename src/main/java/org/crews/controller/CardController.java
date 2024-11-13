@@ -2,9 +2,11 @@ package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.AccountLinkRequest;
+import org.crews.dto.core.CardIssuedResponse;
 import org.crews.service.CardService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -12,4 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/agits/{agits-id}/accounts/{accounts-id}/cards")
 public class CardController {
     private final CardService cardService;
+
+    @PostMapping
+    public ResponseEntity<CardIssuedResponse> cardIssued(@PathVariable("agits-id")Long agitId,
+                                                        @PathVariable("accounts-id") Long accountId,
+                                                        @RequestBody AccountLinkRequest accountLinkRequest){
+        return ResponseEntity.ok().body(cardService.cardIssued(agitId, accountId, accountLinkRequest));
+    }
 }
