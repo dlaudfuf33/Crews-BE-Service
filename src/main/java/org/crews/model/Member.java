@@ -36,6 +36,9 @@ public class Member extends BaseTimeEntity {
     private String profileImage;
 
     @Column(nullable = false)
+    private String identityCode;
+
+    @Column(nullable = false)
     private String role;
 
     @Column(columnDefinition = "boolean default false")
@@ -62,11 +65,6 @@ public class Member extends BaseTimeEntity {
     private List<Heart> hearts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    @Builder.Default
-    private List<Yaggwan> yaggwans = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    @Builder.Default
     private List<Account> accounts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
