@@ -7,16 +7,12 @@ import org.crews.dto.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
-import org.crews.dto.core.IdentityRequest;
 import org.crews.model.*;
 import org.crews.repository.*;
 import org.crews.util.AES;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.WebServerException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 
 @Service
 @Slf4j
@@ -92,8 +88,6 @@ public class AccountService {
         AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
         log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.",agitId, agit.getAgitName(), identityCode);
         return agitAndAccountRepository.save(agitAndAccount);
-
-
     }
 
     private String maskedAccountNumber(String accountNumber){
