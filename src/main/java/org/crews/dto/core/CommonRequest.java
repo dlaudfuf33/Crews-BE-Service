@@ -9,7 +9,7 @@ import lombok.Getter;
 public class CommonRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 
     @NotBlank
     private String fintechUseNum;

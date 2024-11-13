@@ -2,12 +2,10 @@ package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
-import org.crews.model.Bank;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
@@ -149,7 +147,32 @@ public class CoreService {
         }
     }
 
-    public AccountIssuedResponse accountIssued(String identityCode){
+    public Mono<String> sendCICode(CIRequest ciRequest) {
+        try {
+             return webClient.post()
+                    .uri("/v1/ci")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(ciRequest) //
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
+                    .doOnError(e -> log.error("API 호출 중 오류 발생", e));
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public AccountIssuedResponse accountIssued(String ci){
         try {
             AccountIssuedResponse response = webClient.post()
                     .uri("/v1/accounts")
@@ -157,7 +180,7 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(IdentityRequest.builder().identityCode(identityCode).build()) //
+                    .bodyValue(CIRequest.builder().ci(ci).build()) //
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
                     .block();

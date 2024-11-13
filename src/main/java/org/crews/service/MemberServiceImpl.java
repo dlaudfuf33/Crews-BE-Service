@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.MemberRequest;
 import org.crews.dto.MemberResponse;
 import org.crews.dto.core.AccountResponseDto;
+import org.crews.dto.core.CIRequest;
 import org.crews.dto.core.MemberToCoreDto;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.Member;
@@ -13,26 +14,32 @@ import org.crews.model.RefreshEntity;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.RefreshRepository;
 import org.crews.utils.AESUtil;
+import org.crews.utils.CIGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberServiceImpl implements MemberService{
 
+    private static final Random RANDOM = new Random();
+
     private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final AESUtil aesUtil;
+    private final CoreService coreService;
+
 
 //    private final MemberRepository memberRepository;
 //    private final CoreService coreService;
@@ -45,6 +52,7 @@ public class MemberServiceImpl implements MemberService{
 //    }
 
     @Override
+    @Transactional
     public MemberResponse signUp(MemberRequest memberRequest) {
         try {
             // 이메일 중복 확인
@@ -60,9 +68,17 @@ public class MemberServiceImpl implements MemberService{
             member.setName(aesUtil.encrypt(member.getName()));
             member.setPhoneNumber(aesUtil.encrypt(member.getPhoneNumber()));
             member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
-
+            String jumin = createNumber(13,"");
+            String ci = CIGenerator.generateCI(jumin);
+            member.setCi(ci);
             // 회원 저장
             Member savedMember = memberRepository.save(member);
+
+            CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
+                    .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
+            Mono<String> stringMono = coreService.sendCICode(ciRequest);
+            if(!stringMono.block().equals("ok"))
+                throw new IllegalStateException("다시 회원가입을 진행 해 주세요.");
             return MemberResponse.from(savedMember);
 
         } catch (Exception e) {
@@ -137,4 +153,14 @@ public class MemberServiceImpl implements MemberService{
         return tokens;
     }
 
+
+    private String createNumber(int count, String prefix) {
+        StringBuilder randomNum = new StringBuilder();
+        randomNum.append(prefix);
+        for (int i = 0; i < count; i++) {
+            int createNum = RANDOM.nextInt(10); // 0~9 사이의 랜덤 숫자 생성
+            randomNum.append(createNum);
+        }
+        return randomNum.toString();
+    }
 }
