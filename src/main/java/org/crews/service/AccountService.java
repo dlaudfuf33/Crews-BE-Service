@@ -8,6 +8,7 @@ import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.excaption.CustomException;
+import org.crews.excaption.ErrorCode;
 import org.crews.model.*;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
@@ -54,7 +55,7 @@ public class AccountService {
         );
         String ci = membership.getMember().getCi();
         if(!member.getCi().equals(ci)){
-            throw new CustomException(ErrorCode.NAUTHORIZED_ACCOUNT_CREATION);
+            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
         AccountIssuedResponse response = coreService.accountIssued(ci);
         Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
@@ -80,7 +81,7 @@ public class AccountService {
         );
         String ci = membership.getMember().getCi();
         if(!member.getCi().equals(ci)){
-            throw new CustomException(ErrorCode.NAUTHORIZED_ACCOUNT_CREATION);
+            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
         Account account = accountRepository.findByFintecNumber(accountLinkRequest.getFintechUseNum()).orElseThrow(
                 () -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_FINNUM)
