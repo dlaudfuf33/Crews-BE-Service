@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -205,6 +206,28 @@ public class CoreService {
                     .bodyValue(commonRequest)
                     .retrieve()
                     .bodyToMono(CardIssuedResponse.class)
+                    .block();
+            if(response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public MessageResponse cardRemove(CoreCardRemoveRequest coreCardRemoveRequest) {
+        try {
+            MessageResponse response = webClient.method(HttpMethod.DELETE)
+                    .uri("/v1/cards")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(coreCardRemoveRequest)
+                    .retrieve()
+                    .bodyToMono(MessageResponse.class)
                     .block();
             if(response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
