@@ -34,7 +34,7 @@ public class AccountService {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
         AgitAndAccount agitAndAccount = agit.getAgitAndAccount();
-        if(agitAndAccount == null){
+        if (agitAndAccount == null) {
             throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
         }
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
@@ -55,7 +55,7 @@ public class AccountService {
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
-        if(!member.getCi().equals(ci)){
+        if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
         AccountIssuedResponse response = coreService.accountIssued(ci);
@@ -81,18 +81,18 @@ public class AccountService {
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
-        if(!member.getCi().equals(ci)){
+        if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
         Account account = accountRepository.findByFintecNumber(accountLinkRequest.getFintechUseNum()).orElseThrow(
-                () -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND_BY_FINNUM)
+                () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
         );
         AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
-        log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.",agitId, agit.getAgitName(), ci);
+        log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
         return agitAndAccountRepository.save(agitAndAccount);
     }
 
-    private String maskedAccountNumber(String accountNumber){
+    private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
 
         if (accountNumber.length() >= 7) {

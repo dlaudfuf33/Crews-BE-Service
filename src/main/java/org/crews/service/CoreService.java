@@ -2,6 +2,8 @@ package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
+import org.crews.excaption.CustomException;
+import org.crews.excaption.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ import java.util.List;
 public class CoreService {
     private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
     private static final String HEADER_SECRET_KEY = "X-SECRET-KEY";
+    private static final String CALL_FAILURE_MESSAGE = "호출 실패: ";
+    private static final String WEBCLIENT_COMMUNICATION_ERROR = "WebClient 통신중 오류 발생: ";
+
     private static final String INITAL_ACCOUNT = "/v1/accounts/info/init";
 
     private final WebClient webClient;
@@ -54,8 +59,8 @@ public class CoreService {
                     .bodyToMono(String.class)
                     .block();  // 블로킹 방식으로 Mono 값을 얻음
         } catch (WebClientResponseException e) {
-            log.error("API 호출 중 오류 발생", e);
-            return "호출 실패: " + e.getMessage();
+            log.error(CALL_FAILURE_MESSAGE, e);
+            return CALL_FAILURE_MESSAGE + e.getMessage();
         }
     }
 
@@ -78,7 +83,7 @@ public class CoreService {
                             return retrySignal.failure();
                         })
                 )
-                .doOnError(e -> log.error("API 호출 중 오류 발생", e));
+                .doOnError(e -> log.error(WEBCLIENT_COMMUNICATION_ERROR, e));
     }
 
     // 사용자의 모든 계좌 조회 - 블로킹 방식
@@ -87,11 +92,11 @@ public class CoreService {
             // Null 체크 추가
             if (memberDto == null || memberDto.getName() == null || memberDto.getPhoneNumber() == null) {
                 log.info("{}", memberDto);
-                throw new IllegalArgumentException("이름과 연락처는 Null이면 안됩니다.");
+                throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
             }
             log.info("블로킹 방식 모든 계좌 호출 시작 - {} / {}", accessKey, secretKey);
             if (accessKey == null || secretKey == null) {
-                throw new IllegalArgumentException("AccessKey or SecretKey 이 null 입니다.");
+                throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
             }
 
             AccountResponseDto[] response = webClient.post()
@@ -128,7 +133,7 @@ public class CoreService {
         }
     }
 
-    public AccountOneResponse accountInfo(CommonRequest commonRequest){
+    public AccountOneResponse accountInfo(CommonRequest commonRequest) {
         try {
             return webClient.post()
                     .uri("/v1/accounts/one")
@@ -140,16 +145,15 @@ public class CoreService {
                     .retrieve()
                     .bodyToMono(AccountOneResponse.class)
                     .block();
-        }
-        catch (WebClientResponseException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
 
     public Mono<String> sendCICode(CIRequest ciRequest) {
         try {
-             return webClient.post()
+            return webClient.post()
                     .uri("/v1/ci")
                     .headers(headers -> {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
@@ -165,14 +169,13 @@ public class CoreService {
                             })
                     )
                     .doOnError(e -> log.error("API 호출 중 오류 발생", e));
-        }
-        catch (WebClientResponseException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
 
-    public AccountIssuedResponse accountIssued(String ci){
+    public AccountIssuedResponse accountIssued(String ci) {
         try {
             AccountIssuedResponse response = webClient.post()
                     .uri("/v1/accounts")
@@ -184,17 +187,16 @@ public class CoreService {
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
                     .block();
-            if(response == null)
-                throw new IllegalStateException("잘못된 응답값 입니다.");
+            if (response == null)
+                throw new CustomException(ErrorCode.WRONG_RESPONSE);
             return response;
-        }
-        catch (WebClientResponseException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
 
-    public CardIssuedResponse cardIssued(CommonRequest commonRequest){
+    public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
         try {
             CardIssuedResponse response = webClient.post()
                     .uri("/v1/cards")
@@ -206,12 +208,11 @@ public class CoreService {
                     .retrieve()
                     .bodyToMono(CardIssuedResponse.class)
                     .block();
-            if(response == null)
-                throw new IllegalStateException("잘못된 응답값 입니다.");
+            if (response == null)
+                throw new CustomException(ErrorCode.WRONG_RESPONSE);
             return response;
-        }
-        catch (WebClientResponseException ex){
-            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }

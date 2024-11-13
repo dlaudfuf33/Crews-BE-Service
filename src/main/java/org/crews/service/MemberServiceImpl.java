@@ -53,7 +53,7 @@ public class MemberServiceImpl implements MemberService {
             boolean isExist = memberRepository.existsByEmail(aesUtil.encrypt(memberRequest.getEmail()));
             log.info(String.valueOf(isExist));
             if (isExist) {
-                return null;
+                throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
             }
 
             // 회원 정보 설정
@@ -72,11 +72,11 @@ public class MemberServiceImpl implements MemberService {
                     .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<String> stringMono = coreService.sendCICode(ciRequest);
             if (!stringMono.block().equals("ok"))
-                throw new IllegalStateException("다시 회원가입을 진행 해 주세요.");
+                throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
             return MemberResponse.from(savedMember);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to access the database", e);
+            throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
         }
     }
 
@@ -150,7 +150,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public List<AccountResponseDto> getAccountInfoFromCore(Long id) {
         Member member = memberRepository
-                .findById(id).orElseThrow(() -> new IllegalStateException("해당 회원을을 찾을 수 없습니다."));
+                .findById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         log.info("{} : {}", member.getName(), member.getPhoneNumber());
         return coreService.findCoreSideAccounts(MemberToCoreDto.fromEntity(member));
     }
@@ -185,7 +185,7 @@ public class MemberServiceImpl implements MemberService {
     public List<InterestingResponseDto> getMyInterests(String memberEmail) {
         return memberRepository
                 .findByEmailWithInterestings(memberEmail)
-                .orElseThrow(NoSuchElementException::new)
+                .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
                 .getMemberAndInterestings().stream()
                 .map(MemberAndInteresting::getInteresting)
                 .map(InterestingResponseDto::of)

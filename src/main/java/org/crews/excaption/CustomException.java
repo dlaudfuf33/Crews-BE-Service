@@ -10,4 +10,15 @@ public class CustomException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
+
+    public CustomException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);  // cause를 포함
+        this.errorCode = errorCode;
+    }
+
+    public CustomException(ErrorCode errorCode, String additionalInfo) {
+        super(errorCode.getMessage() + ": " + additionalInfo);  // 추가 정보 포함
+        this.errorCode = errorCode;
+    }
+
 }
