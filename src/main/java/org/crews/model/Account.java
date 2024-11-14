@@ -30,7 +30,7 @@ public class Account extends BaseTimeEntity {
     @Column(nullable = false)
     private String maskedAccountNumber;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 14)
     private String accountNumber;
 
     @ColumnDefault("0")
