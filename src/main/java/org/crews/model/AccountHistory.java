@@ -27,7 +27,7 @@ public class AccountHistory extends BaseTimeEntity{
     @Column(nullable = false)
     private LocalDateTime transactionTime;
 
-    @Column(nullable = true,length = 16)
+    @Column(length = 16)
     private String cardNumber;
 
     @Column(nullable = false)
