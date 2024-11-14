@@ -2,8 +2,9 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.config.AESConfig;
 import org.crews.dto.MemberDetails;
+import org.crews.excaption.CustomException;
+import org.crews.excaption.ErrorCode;
 import org.crews.model.Member;
 import org.crews.repository.MemberRepository;
 import org.crews.utils.AESUtil;
@@ -30,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         try {
             encryptedEmail = aesUtil.encrypt(email);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to encrypt email", e);
+            throw new CustomException(ErrorCode.EMAIL_ENCRYPTION_FAILED,e);
         }
 
         Optional<Member> optionalMember = Optional.empty();
@@ -43,7 +44,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if (!optionalMember.isPresent()) {
             log.info("사용자를 찾을 수 없음");
-            throw new UsernameNotFoundException("User not found with email: " + email);
+            throw new CustomException(ErrorCode.USER_NOT_FOUND,email);
         }
 
         Member member = optionalMember.get();

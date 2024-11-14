@@ -41,4 +41,5 @@ public class TestController {
         memberToCoreDto.setPhoneNumber("010-1234-5678");
         return coreService.postTestNonBlocking(memberToCoreDto);
     }
+
 }

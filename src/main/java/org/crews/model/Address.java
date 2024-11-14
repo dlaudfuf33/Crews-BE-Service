@@ -1,7 +1,9 @@
 package org.crews.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.AddressType;
 
 @Getter
 @Setter
@@ -14,6 +16,7 @@ public class Address extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 

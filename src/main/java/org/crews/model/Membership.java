@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.MemberRole;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;

@@ -8,7 +8,10 @@ import org.crews.dto.CardRemoveRequest;
 import org.crews.dto.core.CommonRequest;
 import org.crews.dto.core.CoreCardRemoveRequest;
 import org.crews.dto.core.MessageResponse;
+import org.crews.excaption.CustomException;
+import org.crews.excaption.ErrorCode;
 import org.crews.model.*;
+import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
@@ -34,23 +37,23 @@ public class CardService {
     @Transactional
     public CardIssuedResponse cardIssued(Long agitId, Long accountId, AccountLinkRequest accountLinkRequest) {
         Member member = memberRepository.findById(accountLinkRequest.getMemberId()).orElseThrow(
-                () -> new IllegalStateException("해당하는 번호의 멤버가 없습니다.")
+                () -> new CustomException(ErrorCode.MEMBER_NOT_MATCHED)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
-                () -> new IllegalStateException("해당하는 번호의 아지트가 없습니다.")
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
         Account account = accountRepository.findByIdAndFintecNumber(accountId, accountLinkRequest.getFintechUseNum()).orElseThrow(
-                () -> new IllegalStateException("핀테크 번호에 해당하는 계좌가 없습니다.")
+                () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
         );
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
-                () -> new IllegalStateException("해당하는 아지트의 멤버가 아닙니다.")
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getRole().equals(MemberRole.MEMBER)){
-            throw new IllegalStateException("모임장이나 공동모임장만 카드를 발급 할 수 있습니다.");
+            throw new CustomException(ErrorCode.CREW_ROLE_NOT_AUTHORIZED);
         }
         List<Card> cardList = cardRepository.findByAccountAndMemberAndIsDeletedFalse(account, member);
         if(!cardList.isEmpty())
-            throw new IllegalStateException("카드가 이미 존재해서 카드를 생성할 수 없습니다.");
+            throw new CustomException(ErrorCode.CARD_ALREADY_EXISTS);
 
         CommonRequest commonRequest = CommonRequest.builder()
                 .ci(member.getCi())

@@ -1,93 +1,103 @@
 insert into member(email,name,nick_name,password,phone_number,ci, role) values('1234@gmail.com','sws','sw2','1234','010-0000-0000','ID001','ROLE_USER');
+-- Bank 테이블에 더미 데이터 삽입
+INSERT INTO bank (created_at, updated_at, bank_code, bank_name)
+VALUES (NOW(), NOW(), '001', '우리은행'),
+       (NOW(), NOW(), '002', '하나은행');
 
-insert into account(account_number, fintec_number, masked_account_number, account_type, member_id) value('110-1234-5678','FNUM001','110-1234-5678','CREW',1);
+-- Member 테이블에 더미 데이터 삽입
+INSERT INTO member (is_deleted, created_at, updated_at, ci, email, name, nick_name, password, phone_number,
+                    profile_image, role)
+VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동', 'password123', '01012345678', 'profile1.png',
+        'ROLE_USER'),
+       (FALSE, NOW(), NOW(), 'CI002', 'user2@example.com', '김영희', '영희', 'password456', '01056781234', 'profile2.png',
+        'ROLE_ADMIN');
+
+-- Account 테이블에 더미 데이터 삽입
+INSERT INTO account (balance, bank_id, created_at, member_id, updated_at, account_number, fintec_number,
+                     masked_account_number, account_type)
+VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSONAL'),
+       (250000.00, 2, NOW(), 2, NOW(), '9876543210', 'FT002', '*****210', 'CREW');
+
+-- Account History 테이블에 더미 데이터 삽입
+INSERT INTO account_history (account_id, after_balance_amount, created_at, transaction_amount, transaction_time,
+                             updated_at, card_number, description, tran_type)
+VALUES (1, 90000, NOW(), 10000, NOW(), NOW(), '1234567890121234', 'ATM Withdrawal', 'WITHDRAW'),
+       (2, 260000, NOW(), 10000, NOW(), NOW(), '9876543210981234', 'Direct Deposit', 'DEPOSIT');
+
+-- Address 테이블에 더미 데이터 삽입
+INSERT INTO address (created_at, member_id, updated_at, address_do, address_dong, address_gu_gun, address_si,
+                     address_type)
+VALUES (NOW(), 1, NOW(), '서울특별시', '중구', '명동', '서울', 'HOME'),
+       (NOW(), 2, NOW(), '경기도', '수원시', '팔달구', '수원', 'COMPANY');
+
+-- Dues 테이블에 더미 데이터 삽입
+INSERT INTO dues (due_date, created_at, due_amount, updated_at, member_data)
+VALUES (5, NOW(), 1000, NOW(), '회원1'),
+       (10, NOW(), 2000, NOW(), '회원2');
+
+-- Agit 테이블에 더미 데이터 삽입
+INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, updated_at, agit_name)
+VALUES (1, FALSE, 1, 10, NOW(), 1, NOW(), 'Agit 1'),
+       (2, FALSE, 0, 15, NOW(), 2, NOW(), 'Agit 2');
+
+-- Card 테이블에 더미 데이터 삽입
+INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
+                  masked_card_number)
+VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234567812345678', '********12345678'),
+       (FALSE, 2, NOW(), 2, NOW(), NOW(), '9876543298765432', '********98765432');
+
+-- Feed 테이블에 더미 데이터 삽입
+INSERT INTO feed (is_deleted, agit_id, created_at, member_id, updated_at, content, image, like_count)
+VALUES (FALSE, 1, NOW(), 1, NOW(), '첫 번째 피드 내용입니다.', 'feed1.png', '10'),
+       (FALSE, 2, NOW(), 2, NOW(), '두 번째 피드 내용입니다.', 'feed2.png', '20');
+
+-- Heart 테이블에 더미 데이터 삽입
+INSERT INTO heart (created_at, feed_id, member_id, updated_at)
+VALUES (NOW(), 1, 1, NOW()),
+       (NOW(), 2, 2, NOW());
+
+-- Subject 테이블에 더미 데이터 삽입
+INSERT INTO subject (id, created_at, updated_at, subject_name)
+VALUES (1, NOW(), NOW(), '프로그래밍'),
+       (2, NOW(), NOW(), '디자인'),
+       (3, NOW(), NOW(), '마케팅');
+
+-- Interesting 테이블에 더미 데이터 삽입
+
+INSERT INTO interesting (id, created_at, subject_id, updated_at, name)
+VALUES (1, NOW(), 1, NOW(), '알고리즘 최적화'),
+       (2, NOW(), 1, NOW(), '인공지능 연구'),
+       (3, NOW(), 1, NOW(), '데이터베이스 설계'),
+       (4, NOW(), 2, NOW(), 'UX/UI 디자인'),
+       (5, NOW(), 2, NOW(), '브랜드 아이덴티티'),
+       (6, NOW(), 2, NOW(), '그래픽 디자인'),
+       (7, NOW(), 3, NOW(), '콘텐츠 마케팅'),
+       (8, NOW(), 3, NOW(), '디지털 마케팅 전략'),
+       (9, NOW(), 3, NOW(), 'SNS 마케팅');
+
+-- Interesting And Agit 테이블에 더미 데이터 삽입
+INSERT INTO interesting_and_agit (agit_id, interesting_id, created_at, updated_at)
+VALUES (1, 1, NOW(), NOW()),
+       (2, 2, NOW(), NOW());
+
+-- Introducing 테이블에 더미 데이터 삽입
+INSERT INTO introducing (agit_id, created_at, updated_at, content, image, introduce)
+VALUES (1, NOW(), NOW(), '첫 번째 소개글입니다.', 'intro1.png', '첫 번째 소개'),
+       (2, NOW(), NOW(), '두 번째 소개글입니다.', 'intro2.png', '두 번째 소개');
+
+-- Member And Interesting 테이블에 더미 데이터 삽입
+INSERT INTO member_and_interesting (interesting_id, member_id, created_at, updated_at)
+VALUES (1, 1, NOW(), NOW()),
+       (2, 2, NOW(), NOW());
+
+-- Membership 테이블에 더미 데이터 삽입
+INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, role)
+VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
+       (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
 
 
-
-insert into agit(agit_name, max_person, current_person, is_due) value('아지트1', 10, 3, 1);
-
-
-
-insert into agit_and_account(account_id, agit_id) values(1,1);
-
-insert into membership(agit_id, member_id, role, joined_at) values(1, 1, 'LEADER', '2023-11-11T21:10:31');
-
-
-
-
-
-
-INSERT INTO bank (bank_code, bank_name)
-VALUES ('001', '한국은행'),
-       ('002', '산업은행'),
-       ('003', '가상계좌 채번가능 기업은행'),
-       ('004', '가상계좌 채번가능 국민은행'),
-       ('005', '외환은행'),
-       ('007', '수협은행'),
-       ('008', '수출입은행'),
-       ('011', '가상계좌 채번가능 농협은행'),
-       ('012', '농협회원조합'),
-       ('020', '가상계좌 채번가능 우리은행'),
-       ('023', '가상계좌 채번가능 SC제일은행'),
-       ('026', '서울은행'),
-       ('027', '한국씨티은행'),
-       ('031', '가상계좌 채번가능 대구은행'),
-       ('032', '가상계좌 채번가능 부산은행'),
-       ('034', '가상계좌 채번가능 광주은행'),
-       ('035', '제주은행'),
-       ('037', '전북은행'),
-       ('039', '경남은행'),
-       ('045', '새마을금고연합회'),
-       ('048', '신협중앙회'),
-       ('050', '상호저축은행'),
-       ('051', '기타 외국계은행'),
-       ('052', '모건스탠리은행'),
-       ('054', 'HSBC은행'),
-       ('055', '도이치은행'),
-       ('056', '알비에스피엘씨은행'),
-       ('057', '제이피모간체이스은행'),
-       ('058', '미즈호코퍼레이트은행'),
-       ('059', '미쓰비시도쿄UFJ은행'),
-       ('060', 'BOA'),
-       ('061', '비엔피파리바은행'),
-       ('062', '중국공상은행'),
-       ('063', '중국은행'),
-       ('064', '산림조합'),
-       ('065', '대화은행'),
-       ('071', '가상계좌 채번가능 우체국'),
-       ('076', '신용보증기금'),
-       ('077', '기술신용보증기금'),
-       ('081', '가상계좌 채번가능 하나은행'),
-       ('088', '가상계좌 채번가능 신한은행'),
-       ('089', '가상계좌 채번가능 케이뱅크'),
-       ('090', '카카오뱅크'),
-       ('092', '토스뱅크'),
-       ('093', '한국주택금융공사'),
-       ('094', '서울보증보험'),
-       ('095', '경찰청'),
-       ('099', '금융결제원'),
-       ('209', '동양종합금융증권'),
-       ('218', '현대증권'),
-       ('230', '미래에셋증권'),
-       ('238', '대우증권'),
-       ('240', '삼성증권'),
-       ('243', '한국투자증권'),
-       ('247', 'NH투자증권'),
-       ('261', '교보증권'),
-       ('262', '하이투자증권'),
-       ('263', '에이치엠씨투자증권'),
-       ('264', '키움증권'),
-       ('265', '이트레이드증권'),
-       ('266', 'SK증권'),
-       ('267', '대신증권'),
-       ('268', '솔로몬투자증권'),
-       ('269', '한화증권'),
-       ('270', '하나대투증권'),
-       ('278', '신한금융투자'),
-       ('279', '동부증권'),
-       ('280', '유진투자증권'),
-       ('287', '메리츠증권'),
-       ('289', '엔에이치투자증권'),
-       ('290', '부국증권'),
-       ('291', '신영증권'),
-       ('292', '엘아이지투자증권');
+-- Regular Crewing 테이블에 더미 데이터 삽입
+INSERT INTO regular_crewing (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place,
+                             place_address, regular_name)
+VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '서울시 중구', '정기 크루잉 1'),
+       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '경기도 수원시', '정기 크루잉 2');
