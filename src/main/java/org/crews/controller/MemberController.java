@@ -6,11 +6,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.crews.dto.MemberRequest;
 import org.crews.dto.MemberResponse;
+import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.response.MyProfileResponse;
+import org.crews.dto.response.MyinfoResponse;
 import org.crews.service.MemberService;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -71,5 +75,29 @@ public class MemberController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping("/me")
+    public ResponseEntity<MyinfoResponse> getMyinfo() {
+        // TODO: JWT ( role , email , expired )
+        String memberEmail = "johndoe@example.com";
+        MyinfoResponse myinfo = memberService.getMyinfo(memberEmail);
+        return ResponseEntity.ok(myinfo);
+    }
 
+    @GetMapping("/me/profile")
+    public ResponseEntity<MyProfileResponse> getMyProfile() {
+        // TODO: JWT ( role , email , expired )
+        String memberEmail = "johndoe@example.com";
+        MyProfileResponse profile = memberService.getMyProfile(memberEmail);
+        return ResponseEntity.ok(profile);
+    }
+
+    @GetMapping("/me/interests")
+    public ResponseEntity<List<InterestingResponseDto>> getMyInterestings() {
+        // TODO: JWT ( role , email , expired )
+        String memberEmail = "johndoe@example.com";
+        return ResponseEntity.ok(memberService.getMyInterests(memberEmail));
+    }
 }
+
+
+

@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.model.constants.TranType;
 
 import java.time.LocalDateTime;
 
@@ -26,6 +27,7 @@ public class AccountHistory extends BaseTimeEntity{
     @Column(nullable = false)
     private LocalDateTime transactionTime;
 
+    @Column(length = 16)
     private String cardNumber;
 
     @Column(nullable = false)

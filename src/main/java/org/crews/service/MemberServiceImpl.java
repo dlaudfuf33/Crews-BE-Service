@@ -1,6 +1,7 @@
 package org.crews.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.MemberRequest;
@@ -8,8 +9,14 @@ import org.crews.dto.MemberResponse;
 import org.crews.dto.core.AccountResponseDto;
 import org.crews.dto.core.CIRequest;
 import org.crews.dto.core.MemberToCoreDto;
+import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.response.MyProfileResponse;
+import org.crews.dto.response.MyinfoResponse;
+import org.crews.excaption.CustomException;
+import org.crews.excaption.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.Member;
+import org.crews.model.MemberAndInteresting;
 import org.crews.model.RefreshEntity;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.RefreshRepository;
@@ -19,17 +26,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 
-import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
 
     private static final Random RANDOM = new Random();
 
@@ -41,16 +45,6 @@ public class MemberServiceImpl implements MemberService{
     private final CoreService coreService;
 
 
-//    private final MemberRepository memberRepository;
-//    private final CoreService coreService;
-//
-//    public List<AccountResponseDto> getAccountInfoFromCore(Long id) {
-//        Member member = memberRepository
-//                .findById(id).orElseThrow(() -> new IllegalStateException("해당 회원을을 찾을 수 없습니다."));
-//        log.info("{} : {}",member.getName(),member.getPhoneNumber());
-//        return coreService.findCoreSideAccounts(MemberToCoreDto.fromEntity(member));
-//    }
-
     @Override
     @Transactional
     public MemberResponse signUp(MemberRequest memberRequest) {
@@ -59,7 +53,7 @@ public class MemberServiceImpl implements MemberService{
             boolean isExist = memberRepository.existsByEmail(aesUtil.encrypt(memberRequest.getEmail()));
             log.info(String.valueOf(isExist));
             if (isExist) {
-                return null;
+                throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
             }
 
             // 회원 정보 설정
@@ -68,7 +62,7 @@ public class MemberServiceImpl implements MemberService{
             member.setName(aesUtil.encrypt(member.getName()));
             member.setPhoneNumber(aesUtil.encrypt(member.getPhoneNumber()));
             member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
-            String jumin = createNumber(13,"");
+            String jumin = createNumber(13, "");
             String ci = CIGenerator.generateCI(jumin);
             member.setCi(ci);
             // 회원 저장
@@ -77,12 +71,12 @@ public class MemberServiceImpl implements MemberService{
             CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
                     .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<String> stringMono = coreService.sendCICode(ciRequest);
-            if(!stringMono.block().equals("ok"))
-                throw new IllegalStateException("다시 회원가입을 진행 해 주세요.");
+            if (!stringMono.block().equals("ok"))
+                throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
             return MemberResponse.from(savedMember);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to access the database", e);
+            throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
         }
     }
 
@@ -153,6 +147,13 @@ public class MemberServiceImpl implements MemberService{
         return tokens;
     }
 
+    @Override
+    public List<AccountResponseDto> getAccountInfoFromCore(Long id) {
+        Member member = memberRepository
+                .findById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        log.info("{} : {}", member.getName(), member.getPhoneNumber());
+        return coreService.findCoreSideAccounts(MemberToCoreDto.fromEntity(member));
+    }
 
     private String createNumber(int count, String prefix) {
         StringBuilder randomNum = new StringBuilder();
@@ -163,4 +164,32 @@ public class MemberServiceImpl implements MemberService{
         }
         return randomNum.toString();
     }
+
+    @Override
+    public MyProfileResponse getMyProfile(String memberEmail) {
+        return MyProfileResponse.of(
+                memberRepository
+                        .findByEmailWithInterestings(memberEmail)
+                        .orElseThrow(NoSuchElementException::new));
+    }
+
+    @Override
+    public MyinfoResponse getMyinfo(String memberEmail) {
+        return MyinfoResponse.of(
+                memberRepository
+                        .findByEmailWithAddresses(memberEmail)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
+    }
+
+    @Override
+    public List<InterestingResponseDto> getMyInterests(String memberEmail) {
+        return memberRepository
+                .findByEmailWithInterestings(memberEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
+                .getMemberAndInterestings().stream()
+                .map(MemberAndInteresting::getInteresting)
+                .map(InterestingResponseDto::of)
+                .toList();
+    }
+
 }

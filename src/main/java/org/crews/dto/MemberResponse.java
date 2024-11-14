@@ -28,7 +28,7 @@ public class MemberResponse {
                 .email(member.getEmail())
                 .phoneNumber(member.getPhoneNumber())
                 .profileImage(member.getProfileImage())
-                .address(member.getAddresses())
+                .address(member.getAddresses().stream().toList())
                 .build();
     }
 }

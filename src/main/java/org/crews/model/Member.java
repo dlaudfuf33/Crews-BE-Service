@@ -5,20 +5,40 @@ import lombok.*;
 import org.crews.dto.MemberRequest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@NamedEntityGraph(
+        name = "Member.withAddressesAndInterestingsAndSubjects",
+        attributeNodes = {
+                @NamedAttributeNode("addresses"),
+                @NamedAttributeNode(value = "memberAndInterestings", subgraph = "memberAndInterestingsSubgraph")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "memberAndInterestingsSubgraph",
+                        attributeNodes = @NamedAttributeNode(value = "interesting", subgraph = "interestingSubgraph")
+                ),
+                @NamedSubgraph(
+                        name = "interestingSubgraph",
+                        attributeNodes = @NamedAttributeNode("subject")
+                )
+        }
+)
 @Getter
 @Setter
 @Builder
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Member extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 16)
     private String nickName;
 
     @Column(unique = true, nullable = false)
@@ -30,15 +50,15 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 11)
     private String phoneNumber;
 
     private String profileImage;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 88)
     private String ci;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 20)
     private String role;
 
     @Column(columnDefinition = "boolean default false")
@@ -46,7 +66,7 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member")
     @Builder.Default
-    private List<Address> addresses = new ArrayList<>();
+    private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "member")
     @Builder.Default
@@ -54,7 +74,7 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member")
     @Builder.Default
-    private List<MemberAndInteresting> memberAndInterestings = new ArrayList<>();
+    private Set<MemberAndInteresting> memberAndInterestings = new HashSet<>();
 
     @OneToMany(mappedBy = "member")
     @Builder.Default

@@ -1,10 +1,14 @@
 package org.crews.utils;
+
+import org.crews.excaption.HMACGenerationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
@@ -30,10 +34,15 @@ public class CIGenerator {
 
     // HMAC-SHA512 알고리즘을 사용해 해시 생성
     public static byte[] generateHMAC(byte[] key, byte[] data) throws Exception {
-        Mac mac = Mac.getInstance(algorithm);
-        SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
-        mac.init(keySpec);
-        return mac.doFinal(data);
+        try {
+            Mac mac = Mac.getInstance("HmacSHA512"); // 알고리즘 이름이 올바른지 확인
+            SecretKeySpec keySpec = new SecretKeySpec(key, "HmacSHA512"); // 알고리즘 일치 확인
+            mac.init(keySpec);
+            return mac.doFinal(data);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            // 커스텀 예외로 포장하여 던지기
+            throw new HMACGenerationException("암호화 과정에서 오류가 발생하여 HMAC 생성에 실패했습니다.", e);
+        }
     }
 
     // 주민등록번호(RN) + Padding + Sa 준비

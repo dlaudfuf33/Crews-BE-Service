@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.crews.model.Account;
-import org.crews.model.AccountType;
+import org.crews.model.constants.AccountType;
 
 
 import java.math.BigDecimal;
