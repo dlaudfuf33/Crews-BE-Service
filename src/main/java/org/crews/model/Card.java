@@ -26,7 +26,7 @@ public class Card extends BaseTimeEntity{
     @Column(nullable = false)
     private String maskedCardNumber;
 
-    @Column(nullable = false,length = 16)
+    @Column(nullable = false)
     private String cardNumber;
 
     @Column(nullable = false)
