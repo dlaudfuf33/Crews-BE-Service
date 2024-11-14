@@ -67,7 +67,7 @@ public class CardService {
         return response;
     }
 
-
+    @Transactional
     public MessageResponse cardRemove(Long agitId, Long accountId, CardRemoveRequest cardReissuedRequest) {
         Member member = memberRepository.findById(cardReissuedRequest.getMemberId()).orElseThrow(
                 () -> new IllegalStateException("해당하는 번호의 멤버가 없습니다.")
@@ -87,7 +87,13 @@ public class CardService {
         CoreCardRemoveRequest coreCardRemoveRequest = CoreCardRemoveRequest.builder().ci(member.getCi())
                 .fintechUseNum(cardReissuedRequest.getFintechUseNum())
                 .cardNumber(cardReissuedRequest.getCardNumber()).build();
-        return coreService.cardRemove(coreCardRemoveRequest);
+        MessageResponse response = coreService.cardRemove(coreCardRemoveRequest);
+        Card card = cardRepository.findByCardNumberAndIsDeletedFalse(coreCardRemoveRequest.getCardNumber()).orElse(null);
+        if(card != null){
+            cardRepository.delete(card);
+        }
+        return response;
+
     }
 
 

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.crews.model.Account;
 import org.crews.model.AccountType;
+import org.crews.utils.AESUtil;
 
 
 import java.math.BigDecimal;
@@ -35,7 +36,7 @@ public class AccountIssuedResponse {
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())
-                .accountNumber(account.getAccountNumber())
+                .accountNumber(AESUtil.decrypt(account.getAccountNumber()))
                 .createAt(account.getCreatedAt())
                 .updateAt(account.getUpdatedAt())
                 .balance(account.getBalance())
