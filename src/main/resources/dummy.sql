@@ -6,9 +6,9 @@ VALUES (NOW(), NOW(), '001', '우리은행'),
 -- Member 테이블에 더미 데이터 삽입
 INSERT INTO member (is_deleted, created_at, updated_at, ci, email, name, nick_name, password, phone_number,
                     profile_image, role)
-VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동', 'password123', '010-1234-5678', 'profile1.png',
+VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동', 'password123', '01012345678', 'profile1.png',
         'ROLE_USER'),
-       (FALSE, NOW(), NOW(), 'CI002', 'user2@example.com', '김영희', '영희', 'password456', '010-5678-1234', 'profile2.png',
+       (FALSE, NOW(), NOW(), 'CI002', 'user2@example.com', '김영희', '영희', 'password456', '01056781234', 'profile2.png',
         'ROLE_ADMIN');
 
 -- Account 테이블에 더미 데이터 삽입
@@ -20,8 +20,8 @@ VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSO
 -- Account History 테이블에 더미 데이터 삽입
 INSERT INTO account_history (account_id, after_balance_amount, created_at, transaction_amount, transaction_time,
                              updated_at, card_number, description, tran_type)
-VALUES (1, 90000, NOW(), 10000, NOW(), NOW(), '1234-5678-9012', 'ATM Withdrawal', 'WITHDRAW'),
-       (2, 260000, NOW(), 10000, NOW(), NOW(), '9876-5432-1098', 'Direct Deposit', 'DEPOSIT');
+VALUES (1, 90000, NOW(), 10000, NOW(), NOW(), '1234567890121234', 'ATM Withdrawal', 'WITHDRAW'),
+       (2, 260000, NOW(), 10000, NOW(), NOW(), '9876543210981234', 'Direct Deposit', 'DEPOSIT');
 
 -- Address 테이블에 더미 데이터 삽입
 INSERT INTO address (created_at, member_id, updated_at, address_do, address_dong, address_gu_gun, address_si,
@@ -42,8 +42,8 @@ VALUES (1, FALSE, 1, 10, NOW(), 1, NOW(), 'Agit 1'),
 -- Card 테이블에 더미 데이터 삽입
 INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
                   masked_card_number)
-VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234-5678-1234-5678', '****-****-1234-5678'),
-       (FALSE, 2, NOW(), 2, NOW(), NOW(), '9876-5432-9876-5432', '****-****-9876-5432');
+VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234567812345678', '********12345678'),
+       (FALSE, 2, NOW(), 2, NOW(), NOW(), '9876543298765432', '********98765432');
 
 -- Feed 테이블에 더미 데이터 삽입
 INSERT INTO feed (is_deleted, agit_id, created_at, member_id, updated_at, content, image, like_count)
