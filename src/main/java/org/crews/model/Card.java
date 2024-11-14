@@ -23,10 +23,10 @@ public class Card extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false)
     private String maskedCardNumber;
 
-    @Column(nullable = false,length = 16)
+    @Column(nullable = false)
     private String cardNumber;
 
     @Column(nullable = false)

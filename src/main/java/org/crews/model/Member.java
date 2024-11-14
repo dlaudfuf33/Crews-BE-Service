@@ -50,7 +50,7 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false,length = 11)
+    @Column(nullable = false)
     private String phoneNumber;
 
     private String profileImage;
