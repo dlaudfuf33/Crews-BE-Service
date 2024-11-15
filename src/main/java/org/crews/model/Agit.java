@@ -2,7 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,10 @@ public class Agit extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
 
-    @OneToOne(mappedBy = "agit")
+    @OneToOne()
     private AgitAndAccount agitAndAccount;
 
+    @OneToOne
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 }
