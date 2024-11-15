@@ -1,7 +1,7 @@
 package org.crews.service;
 
-import org.crews.dto.MemberRequest;
-import org.crews.dto.MemberResponse;
+import org.crews.dto.request.MemberRequest;
+import org.crews.dto.response.MemberResponse;
 import org.crews.dto.core.AccountResponseDto;
 import org.crews.dto.response.InterestingResponseDto;
 import org.crews.dto.response.MyProfileResponse;

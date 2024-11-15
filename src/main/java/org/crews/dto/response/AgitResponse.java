@@ -1,4 +1,4 @@
-package org.crews.dto;
+package org.crews.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

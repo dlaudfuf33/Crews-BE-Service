@@ -1,7 +1,7 @@
 package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crews.dto.AgitResponse;
+import org.crews.dto.response.AgitResponse;
 import org.crews.repository.AgitRepository;
 import org.crews.service.AgitService;
 import org.springframework.web.bind.annotation.*;

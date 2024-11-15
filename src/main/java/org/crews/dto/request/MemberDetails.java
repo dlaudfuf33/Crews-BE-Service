@@ -1,4 +1,4 @@
-package org.crews.dto;
+package org.crews.dto.request;
 
 import org.crews.model.Member;
 import org.springframework.security.core.GrantedAuthority;

@@ -2,7 +2,7 @@ package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.AccountLinkRequest;
+import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
 import org.crews.service.CardService;
 import org.springframework.http.ResponseEntity;

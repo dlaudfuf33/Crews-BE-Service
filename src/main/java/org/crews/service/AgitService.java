@@ -2,7 +2,7 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.AgitResponse;
+import org.crews.dto.response.AgitResponse;
 import org.crews.repository.AgitRepository;
 import org.springframework.stereotype.Service;
 

@@ -2,7 +2,7 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.AccountLinkRequest;
+import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
 import org.crews.dto.core.CommonRequest;
 import org.crews.excaption.CustomException;
