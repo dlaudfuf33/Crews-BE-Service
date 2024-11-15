@@ -99,7 +99,15 @@ CREATE TABLE dues
     member_data VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
-
+-- Subject 테이블
+CREATE TABLE subject
+(
+    id           BIGINT       NOT NULL AUTO_INCREMENT,
+    created_at   DATETIME(6),
+    updated_at   DATETIME(6),
+    subject_name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
 -- Agit 테이블
 CREATE TABLE agit
 (
@@ -110,11 +118,13 @@ CREATE TABLE agit
     max_person     INT     DEFAULT 10,
     created_at     DATETIME(6),
     dues_id        BIGINT,
+    subject_id     BIGINT,
     updated_at     DATETIME(6),
     agit_name      VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
-    FOREIGN KEY (dues_id) REFERENCES dues (id)
+    FOREIGN KEY (dues_id) REFERENCES dues (id),
+    FOREIGN KEY (subject_id) REFERENCES subject (id)
 );
 
 -- Agit And Account 테이블
@@ -178,15 +188,7 @@ CREATE TABLE heart
     FOREIGN KEY (feed_id) REFERENCES feed (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
--- Subject 테이블
-CREATE TABLE subject
-(
-    id           BIGINT       NOT NULL AUTO_INCREMENT,
-    created_at   DATETIME(6),
-    updated_at   DATETIME(6),
-    subject_name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
+
 -- Interesting 테이블
 CREATE TABLE interesting
 (

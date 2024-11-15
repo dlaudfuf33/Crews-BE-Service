@@ -34,10 +34,16 @@ INSERT INTO dues (due_date, created_at, due_amount, updated_at, member_data)
 VALUES (5, NOW(), 1000, NOW(), '회원1'),
        (10, NOW(), 2000, NOW(), '회원2');
 
+-- Subject 테이블에 더미 데이터 삽입
+INSERT INTO subject (id, created_at, updated_at, subject_name)
+VALUES (1, NOW(), NOW(), '프로그래밍'),
+       (2, NOW(), NOW(), '디자인'),
+       (3, NOW(), NOW(), '마케팅');
+
 -- Agit 테이블에 더미 데이터 삽입
-INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, updated_at, agit_name)
-VALUES (1, FALSE, 1, 10, NOW(), 1, NOW(), 'Agit 1'),
-       (2, FALSE, 0, 15, NOW(), 2, NOW(), 'Agit 2');
+INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, subject_id, updated_at, agit_name)
+VALUES (1, FALSE, 1, 10, NOW(), 1, 1,NOW(), 'Agit 1'),
+       (2, FALSE, 0, 15, NOW(), 2, 2,NOW(), 'Agit 2');
 
 -- Card 테이블에 더미 데이터 삽입
 INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
@@ -55,12 +61,6 @@ INSERT INTO heart (created_at, feed_id, member_id, updated_at)
 VALUES (NOW(), 1, 1, NOW()),
        (NOW(), 2, 2, NOW());
 
--- Subject 테이블에 더미 데이터 삽입
-INSERT INTO subject (id, created_at, updated_at, subject_name)
-VALUES (1, NOW(), NOW(), '프로그래밍'),
-       (2, NOW(), NOW(), '디자인'),
-       (3, NOW(), NOW(), '마케팅');
-
 -- Interesting 테이블에 더미 데이터 삽입
 
 INSERT INTO interesting (id, created_at, subject_id, updated_at, name)
@@ -77,7 +77,11 @@ VALUES (1, NOW(), 1, NOW(), '알고리즘 최적화'),
 -- Interesting And Agit 테이블에 더미 데이터 삽입
 INSERT INTO interesting_and_agit (agit_id, interesting_id, created_at, updated_at)
 VALUES (1, 1, NOW(), NOW()),
-       (2, 2, NOW(), NOW());
+       (2, 2, NOW(), NOW()),
+       (1, 3, NOW(), NOW()),
+       (1, 8, NOW(), NOW()),
+       (2, 4, NOW(), NOW()),
+       (2, 6, NOW(), NOW());
 
 -- Introducing 테이블에 더미 데이터 삽입
 INSERT INTO introducing (agit_id, created_at, updated_at, content, image, introduce)
