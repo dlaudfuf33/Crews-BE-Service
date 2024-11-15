@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.LoginRequest;
+import org.crews.dto.MemberDetails;
 import org.crews.model.RefreshEntity;
 import org.crews.repository.RefreshRepository;
 import org.springframework.http.HttpStatus;
@@ -67,9 +68,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+        Long memberId = memberDetails.getMember().getId();
 
-        String access = jwtUtil.createJwt("access", email, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", email, role, 864000000L);
+        String access = jwtUtil.createJwt("access", email, role, memberId,600000L);
+        String refresh = jwtUtil.createJwt("refresh", email, role, memberId,864000000L);
 
         //Refresh 토큰 저장
         addRefreshEntity(email, refresh, 86400000L);
