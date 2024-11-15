@@ -125,9 +125,10 @@ public class MemberServiceImpl implements MemberService {
 
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
+        Long memberId = jwtUtil.getMemberId(refresh);
 
-        String newAccessToken = jwtUtil.createJwt(accessTokenName, username, role, 600000L);
-        String newRefreshToken = jwtUtil.createJwt(refreshTokenName, username, role, 86400000L);
+        String newAccessToken = jwtUtil.createJwt(accessTokenName, username, role, memberId, 600000L);
+        String newRefreshToken = jwtUtil.createJwt(refreshTokenName, username, role, memberId, 86400000L);
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
