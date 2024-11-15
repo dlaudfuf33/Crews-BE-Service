@@ -4,8 +4,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.MemberRequest;
-import org.crews.dto.MemberResponse;
+import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.MemberRequest;
+import org.crews.dto.response.MemberResponse;
 import org.crews.dto.core.AccountResponseDto;
 import org.crews.dto.core.CIRequest;
 import org.crews.dto.core.MemberToCoreDto;
@@ -191,6 +192,11 @@ public class MemberServiceImpl implements MemberService {
                 .map(MemberAndInteresting::getInteresting)
                 .map(InterestingResponseDto::of)
                 .toList();
+    }
+
+    @Override
+    public boolean validateEmail(EmailRequest request) {
+        return memberRepository.existsByEmail(aesUtil.encrypt(request.getEmail()));
     }
 
 }
