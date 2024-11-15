@@ -15,7 +15,6 @@ import java.util.List;
 public class AgitService {
     private final AgitRepository agitRepository;
 
-//    @Transactional(readOnly = true)
     public List<AgitResponse> getAllAgits(){
         return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::FROM).toList();
     }
