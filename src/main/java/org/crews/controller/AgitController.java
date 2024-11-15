@@ -3,7 +3,6 @@ package org.crews.controller;
 import lombok.RequiredArgsConstructor;
 import org.crews.dto.AgitRequest;
 import org.crews.dto.AgitResponse;
-import org.crews.repository.AgitRepository;
 import org.crews.service.AgitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import java.util.List;
 @RequestMapping("/agits")
 public class AgitController {
     private final AgitService agitService;
-    private final AgitRepository agitRepository;
 
     @GetMapping
     public List<AgitResponse> getAllAgits(){
