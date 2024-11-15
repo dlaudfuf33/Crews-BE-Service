@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
+import org.crews.dto.CardRemoveRequest;
 import org.crews.dto.core.CommonRequest;
+import org.crews.dto.core.CoreCardRemoveRequest;
+import org.crews.dto.core.MessageResponse;
 import org.crews.excaption.CustomException;
 import org.crews.excaption.ErrorCode;
 import org.crews.model.*;
@@ -65,6 +68,35 @@ public class CardService {
 
         cardRepository.save(card);
         return response;
+    }
+
+    @Transactional
+    public MessageResponse cardRemove(Long agitId, Long accountId, CardRemoveRequest cardReissuedRequest) {
+        Member member = memberRepository.findById(cardReissuedRequest.getMemberId()).orElseThrow(
+                () -> new IllegalStateException("해당하는 번호의 멤버가 없습니다.")
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new IllegalStateException("해당하는 번호의 아지트가 없습니다.")
+        );
+        accountRepository.findByIdAndFintecNumber(accountId, cardReissuedRequest.getFintechUseNum()).orElseThrow(
+                () -> new IllegalStateException("핀테크 번호에 해당하는 계좌가 없습니다.")
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new IllegalStateException("해당하는 아지트의 멤버가 아닙니다.")
+        );
+        if(membership.getRole().equals(MemberRole.MEMBER)){
+            throw new IllegalStateException("모임장이나 공동모임장만 카드를 해지 할 수 있습니다.");
+        }
+        CoreCardRemoveRequest coreCardRemoveRequest = CoreCardRemoveRequest.builder().ci(member.getCi())
+                .fintechUseNum(cardReissuedRequest.getFintechUseNum())
+                .cardNumber(cardReissuedRequest.getCardNumber()).build();
+        MessageResponse response = coreService.cardRemove(coreCardRemoveRequest);
+        Card card = cardRepository.findByCardNumberAndIsDeletedFalse(coreCardRemoveRequest.getCardNumber()).orElse(null);
+        if(card != null){
+            cardRepository.delete(card);
+        }
+        return response;
+
     }
 
 
