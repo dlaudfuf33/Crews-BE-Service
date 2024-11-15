@@ -33,6 +33,8 @@ public class MemberDetails implements UserDetails, Serializable {
         return member.getEmail();
     }
 
+    public Member getMember(){ return member; }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
