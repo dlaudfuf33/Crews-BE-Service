@@ -262,7 +262,7 @@ CREATE TABLE refresh_entity
 (
     id         BIGINT NOT NULL AUTO_INCREMENT,
     expiration VARCHAR(255),
-    refresh    VARCHAR(255),
+    refresh    VARCHAR(2048),
     username   VARCHAR(255),
     PRIMARY KEY (id)
 );
