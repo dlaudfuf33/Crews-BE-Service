@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.crews.dto.request.EmailRequest;
 import org.crews.dto.request.MemberRequest;
 import org.crews.dto.response.MemberResponse;
 import org.crews.dto.response.InterestingResponseDto;
@@ -75,10 +76,15 @@ public class MemberController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @GetMapping("/signup/validate-email")
-    public ResponseEntity<String> validateEmail() {
 
-        return ResponseEntity.ok("ok");
+    @GetMapping("/signup/validate-email")
+    public ResponseEntity<String> validateEmail(@RequestBody EmailRequest request) {
+        boolean isExist = memberService.validateEmail(request);
+        if(isExist) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already Exist Email");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Email Available For Registration.");
+        }
     }
 
     @GetMapping("/me")
