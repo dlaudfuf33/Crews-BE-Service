@@ -1,5 +1,6 @@
 package org.crews.service;
 
+import org.crews.dto.request.EmailRequest;
 import org.crews.dto.request.MemberRequest;
 import org.crews.dto.response.MemberResponse;
 import org.crews.dto.core.AccountResponseDto;
@@ -23,8 +24,9 @@ public interface MemberService {
 
     public MyProfileResponse getMyProfile(String memberEmail);
 
-
     public MyinfoResponse getMyinfo(String memberEmail);
 
     public List<InterestingResponseDto> getMyInterests(String memberEmail);
+
+    boolean validateEmail(EmailRequest request);
 }
