@@ -1,9 +1,9 @@
 package org.crews.repository;
 
-import org.crews.model.AgitAndAccount;
+import org.crews.model.InterestingAndAgit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AgitAndAccountRepository extends JpaRepository<AgitAndAccount, Long> {
+public interface InterestingAndAgitRepository extends JpaRepository<InterestingAndAgit, Long> {
 }
