@@ -2,7 +2,6 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +21,11 @@ public class Agit extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String agitName;
 
-    @ColumnDefault("10")
-    private Integer maxPerson;
+    @Column(nullable = false,insertable = false)
+    private int maxPerson;
 
-    @ColumnDefault("1")
-    private Integer currentPerson;
+    @Column(nullable = false,insertable = false)
+    private int currentPerson;
 
     @Column(nullable = false)
     private boolean isDue;
@@ -56,7 +55,7 @@ public class Agit extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
 
-    @OneToOne()
+    @OneToOne
     private AgitAndAccount agitAndAccount;
 
     @OneToOne
