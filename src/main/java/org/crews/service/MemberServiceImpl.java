@@ -171,7 +171,8 @@ public class MemberServiceImpl implements MemberService {
         return MyProfileResponse.of(
                 memberRepository
                         .findByEmailWithInterestings(memberEmail)
-                        .orElseThrow(NoSuchElementException::new));
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
+
     }
 
     @Override

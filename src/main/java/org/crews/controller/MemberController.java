@@ -4,6 +4,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.MemberDetails;
 import org.crews.dto.MemberRequest;
 import org.crews.dto.MemberResponse;
 import org.crews.dto.response.InterestingResponseDto;
@@ -12,11 +14,14 @@ import org.crews.dto.response.MyinfoResponse;
 import org.crews.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/members")
@@ -28,7 +33,7 @@ public class MemberController {
     public ResponseEntity<String> signUp(@RequestBody MemberRequest memberRequest) {
         try {
             MemberResponse memberResponse = memberService.signUp(memberRequest);
-            if(memberResponse != null) {
+            if (memberResponse != null) {
                 return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Already Exist Email");
@@ -43,7 +48,7 @@ public class MemberController {
         String refresh = null;
         String tokenName = "refresh";
         Cookie[] cookies = request.getCookies();
-        try{
+        try {
             for (Cookie cookie : cookies) {
 
                 if (cookie.getName().equals(tokenName)) {
@@ -66,7 +71,7 @@ public class MemberController {
         response.setHeader("access", tokens.get("access"));
 
         Cookie cookie = new Cookie(tokenName, tokens.get(tokenName));
-        cookie.setMaxAge(24*60*60);
+        cookie.setMaxAge(24 * 60 * 60);
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -75,27 +80,37 @@ public class MemberController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @GetMapping("/me")
     public ResponseEntity<MyinfoResponse> getMyinfo() {
-        // TODO: JWT ( role , email , expired )
-        String memberEmail = "johndoe@example.com";
-        MyinfoResponse myinfo = memberService.getMyinfo(memberEmail);
-        return ResponseEntity.ok(myinfo);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+        MyinfoResponse myInfo = memberService.getMyinfo(memberDetails.getUsername());
+        return ResponseEntity.ok(myInfo);
     }
 
     @GetMapping("/me/profile")
     public ResponseEntity<MyProfileResponse> getMyProfile() {
-        // TODO: JWT ( role , email , expired )
-        String memberEmail = "johndoe@example.com";
-        MyProfileResponse profile = memberService.getMyProfile(memberEmail);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+        MyProfileResponse profile = memberService.getMyProfile(memberDetails.getUsername());
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/me/interests")
     public ResponseEntity<List<InterestingResponseDto>> getMyInterestings() {
-        // TODO: JWT ( role , email , expired )
-        String memberEmail = "johndoe@example.com";
-        return ResponseEntity.ok(memberService.getMyInterests(memberEmail));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(memberService.getMyInterests(memberDetails.getUsername()));
     }
 }
 
