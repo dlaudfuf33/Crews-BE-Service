@@ -35,7 +35,7 @@ public class CoreService {
 
     // 생성자를 통해 의존성을 주입받음
     public CoreService(
-            @Value("${core.api.base-url}") String baseUrl,
+            @Value("${core.api.core-url}") String baseUrl,
             @Value("${bank.core.access-key}") String accessKey,
             @Value("${bank.core.secret-key}") String secretKey) {
         this.webClient = WebClient.builder()

@@ -1,7 +1,7 @@
 insert into member(email,name,nick_name,password,phone_number,ci, role) values('1234@gmail.com','sws','sw2','1234','010-0000-0000','ID001','ROLE_USER');
 -- Bank 테이블에 더미 데이터 삽입
 INSERT INTO bank (created_at, updated_at, bank_code, bank_name)
-VALUES (NOW(), NOW(), '001', '우리은행'),
+VALUES (NOW(), NOW(), '020', '우리은행'),
        (NOW(), NOW(), '002', '하나은행');
 
 -- Member 테이블에 더미 데이터 삽입
@@ -43,8 +43,8 @@ VALUES (1, NOW(), NOW(), '프로그래밍'),
 
 -- Agit 테이블에 더미 데이터 삽입
 INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, subject_id, updated_at, agit_name)
-VALUES (1, FALSE, 1, 10, NOW(), 1, 1,NOW(), 'Agit 1'),
-       (2, FALSE, 0, 15, NOW(), 2, 2,NOW(), 'Agit 2');
+VALUES (1, FALSE, TRUE, 10, NOW(), 1, 1,NOW(), 'Agit 1'),
+       (2, FALSE, FALSE, 15, NOW(), 2, 2,NOW(), 'Agit 2');
 
 -- Card 테이블에 더미 데이터 삽입
 INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,

@@ -8,9 +8,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AgitRequest {
-    private String image;
+    private Long memberId;
     private String introduction;
-    private String feature;
     private Long subject;
     private List<Long> interests;
     private String name;

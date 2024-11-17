@@ -7,9 +7,9 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,10 +22,15 @@ public class Agit extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String agitName;
 
-    @Column(nullable = false,insertable = false)
-    private int maxPerson;
+    @Column(nullable = false)
+    private String introduction;
 
-    @Column(nullable = false,insertable = false)
+    @Column(nullable = false)
+    @ColumnDefault("30")
+    private Integer maxPerson;
+
+    @ColumnDefault("1")
+    @Column(nullable = false)
     private int currentPerson;
 
     @Column(nullable = false)
@@ -59,7 +64,7 @@ public class Agit extends BaseTimeEntity {
     @OneToOne()
     private AgitAndAccount agitAndAccount;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id")
     private Subject subject;
 }
