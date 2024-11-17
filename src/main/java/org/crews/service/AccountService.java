@@ -44,14 +44,14 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId, MemberIdDto memberIdDto) {
+    public AccountIssuedResponse accountIssued(Long agitId, MemberIdDto memberIdDto, MemberRole memberRole) {
         Member member = memberRepository.findById(memberIdDto.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndRole(agit, MemberRole.LEADER).orElseThrow(
+        Membership membership = memberShipRepository.findByAgitAndRole(agit, memberRole).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();

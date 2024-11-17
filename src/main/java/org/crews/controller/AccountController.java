@@ -7,6 +7,7 @@ import org.crews.dto.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.model.AgitAndAccount;
+import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@PathVariable("agits-id") Long agitId,
                                                                @RequestBody MemberIdDto memberIdDto){
-        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdDto));
+        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdDto, MemberRole.LEADER));
     }
 
     @PostMapping("/link")
