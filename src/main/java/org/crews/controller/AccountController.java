@@ -2,6 +2,7 @@ package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.core.AccountInfoResponse;
 import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
@@ -34,5 +35,12 @@ public class AccountController {
     public ResponseEntity<AgitAndAccount> accountLink(@PathVariable("agits-id") Long agitId,
                                                       @RequestBody AccountLinkRequest accountLinkRequest){
         return ResponseEntity.ok().body(accountService.accountLink(agitId, accountLinkRequest));
+    }
+
+    @PostMapping("/{accounts-id}/details")
+    public ResponseEntity<AccountInfoResponse> accountDetails(@PathVariable("agits-id") Long agitId,
+                                                              @PathVariable("accounts-id") Long accountId,
+                                                              @RequestBody AccountLinkRequest accountLinkRequest){
+        return ResponseEntity.ok().body(accountService.accountDetails(agitId, accountId, accountLinkRequest));
     }
 }
