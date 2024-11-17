@@ -2,8 +2,8 @@ package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.http.HttpMethod;
@@ -152,7 +152,7 @@ public class CoreService {
         }
     }
 
-    public Mono<String> sendCICode(CIRequest ciRequest) {
+    public Mono<AccountIssuedResponse> sendCICode(CIRequest ciRequest) {
         try {
             return webClient.post()
                     .uri("/v1/ci")
@@ -162,7 +162,7 @@ public class CoreService {
                     })
                     .bodyValue(ciRequest) //
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(AccountIssuedResponse.class)
                     .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
                             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                 log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
