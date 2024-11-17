@@ -16,6 +16,7 @@ public class Introducing extends BaseTimeEntity{
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="agit_id")
     private Agit agit;
 
     private String image;
