@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class RegularCrewing extends BaseTimeEntity{
+public class Event extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,6 +36,12 @@ public class RegularCrewing extends BaseTimeEntity{
 
     @Column(nullable = false)
     private String content;
+
+    @ColumnDefault("1")
+    private Integer currentPerson;
+
+    @ColumnDefault("10")
+    private Integer maxPerson;
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
