@@ -39,7 +39,7 @@ public class MeetingService {
         memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        Slice<Meeting> events = meetingRepository.findByAgitId(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("regularTime"))));
+        Slice<Meeting> events = meetingRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("regularTime"))));
         return MeetingSliceResponse.from(events);
     }
 

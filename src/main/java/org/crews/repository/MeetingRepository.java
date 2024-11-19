@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
-    Slice<Meeting> findByAgitId(Long agitId, Pageable pageable);
+    Slice<Meeting> findByAgitIdAndIsDeletedFalse(Long agitId, Pageable pageable);
 }
