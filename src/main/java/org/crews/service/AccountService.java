@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.MemberIdDto;
+import org.crews.dto.request.MemberIdDto;
+import org.crews.dto.core.AccountIssuedResponse;
+import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.core.CommonRequest;
+
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -33,7 +37,7 @@ public class AccountService {
         );
         AgitAndAccount agitAndAccount = agit.getAgitAndAccount();
         if (agitAndAccount == null) {
-            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+            return AccountOneResponse.builder().build();
         }
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
         String ci = agitAndAccount.getAccount().getMember().getCi();

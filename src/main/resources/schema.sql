@@ -114,8 +114,10 @@ CREATE TABLE agit
     id             BIGINT       NOT NULL AUTO_INCREMENT,
     current_person INT     DEFAULT 1,
     is_deleted     BOOLEAN DEFAULT FALSE,
-    is_due         BIT          NOT NULL,
-    max_person     INT     DEFAULT 10,
+    is_due         BOOLEAN DEFAULT FALSE,  NOT NULL,
+    introduction   VARCHAR(255) NOT NULL,
+
+    max_person     INT     DEFAULT 30,
     created_at     DATETIME(6),
     dues_id        BIGINT,
     subject_id     BIGINT,
