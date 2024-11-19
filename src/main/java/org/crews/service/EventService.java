@@ -3,6 +3,7 @@ package org.crews.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.response.EventResponse;
+import org.crews.dto.response.EventSliceResponse;
 import org.crews.excaption.CustomException;
 import org.crews.excaption.ErrorCode;
 import org.crews.model.Agit;
@@ -13,6 +14,10 @@ import org.crews.repository.AgitRepository;
 import org.crews.repository.EventRepository;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.MemberShipRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +33,7 @@ public class EventService {
     private final MemberRepository memberRepository;
     private final MemberShipRepository memberShipRepository;
 
-    public List<EventResponse> getAllEvents(Long agitId, Long memberId) {
+    public EventSliceResponse getAllEvents(Long agitId, Long memberId, int page) {
 
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
@@ -38,9 +43,7 @@ public class EventService {
         memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        List<Event> events = agit.getEvents();
-        return events.stream()
-                .map(EventResponse::from)
-                .collect(Collectors.toList());
+        Slice<Event> events = eventRepository.findByAgitId(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("regularTime"))));
+        return EventSliceResponse.from(events);
     }
 }

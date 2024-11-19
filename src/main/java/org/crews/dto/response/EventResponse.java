@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.crews.model.Event;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @ToString
@@ -16,8 +17,6 @@ public class EventResponse {
     private String name;
     private String place;
     private LocalDateTime date;
-    private Integer currentNum;
-    private Integer maxNum;
     private String content;
 
     public static EventResponse from(Event event) {
@@ -27,8 +26,6 @@ public class EventResponse {
                 event.getRegularName(),
                 event.getPlace(),
                 event.getRegularTime(),
-                event.getCurrentPerson(),
-                event.getMaxPerson(),
                 event.getContent()
         );
     }

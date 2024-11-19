@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.MemberDetails;
 import org.crews.dto.response.EventResponse;
+import org.crews.dto.response.EventSliceResponse;
 import org.crews.jwt.JWTUtil;
 import org.crews.service.EventService;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +25,12 @@ public class EventController {
     private final JWTUtil jwtUtil;
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllEvents(@PathVariable("agits-id") Long agitsId, HttpServletRequest request) {
+    public ResponseEntity<EventSliceResponse> getAllEvents(
+            @PathVariable("agits-id") Long agitsId,
+            @RequestParam int page,
+            HttpServletRequest request) {
         Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
 
-        return ResponseEntity.ok().body(eventService.getAllEvents(agitsId, memberId));
+        return ResponseEntity.ok().body(eventService.getAllEvents(agitsId, memberId, page));
     }
 }

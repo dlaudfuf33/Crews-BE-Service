@@ -37,12 +37,6 @@ public class Event extends BaseTimeEntity{
     @Column(nullable = false)
     private String content;
 
-    @ColumnDefault("1")
-    private Integer currentPerson;
-
-    @ColumnDefault("10")
-    private Integer maxPerson;
-
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 }
