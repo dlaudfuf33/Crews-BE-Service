@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IdentityRequest {
+public class CIOnlyRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 }

@@ -1,7 +1,7 @@
 insert into member(email,name,nick_name,password,phone_number,ci, role) values('1234@gmail.com','sws','sw2','1234','010-0000-0000','ID001','ROLE_USER');
 -- Bank 테이블에 더미 데이터 삽입
 INSERT INTO bank (created_at, updated_at, bank_code, bank_name)
-VALUES (NOW(), NOW(), '001', '우리은행'),
+VALUES (NOW(), NOW(), '020', '우리은행'),
        (NOW(), NOW(), '002', '하나은행');
 
 -- Member 테이블에 더미 데이터 삽입
