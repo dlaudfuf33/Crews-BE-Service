@@ -10,6 +10,7 @@ import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

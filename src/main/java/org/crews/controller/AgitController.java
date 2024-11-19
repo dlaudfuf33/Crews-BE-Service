@@ -3,6 +3,7 @@ package org.crews.controller;
 import lombok.RequiredArgsConstructor;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
+import org.crews.model.Agit;
 import org.crews.service.AgitService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,7 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<String> generateAgit(@RequestBody AgitRequest agitRequest){
-        boolean isGenerated=agitService.generateAgit(agitRequest);
-        if(isGenerated){
-            return ResponseEntity.ok("등록 성공하였습니다.");
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("등록 실패하였습니다.");
-        }
+    public ResponseEntity<Agit> generateAgit(@RequestBody AgitRequest agitRequest){
+        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
     }
 }

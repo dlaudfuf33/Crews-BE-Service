@@ -109,15 +109,13 @@ CREATE TABLE subject
     PRIMARY KEY (id)
 );
 -- Agit 테이블
-CREATE TABLE agit
-(
+CREATE TABLE agit (
     id             BIGINT       NOT NULL AUTO_INCREMENT,
-    current_person INT     DEFAULT 1,
-    is_deleted     BOOLEAN DEFAULT FALSE,
-    is_due         BOOLEAN DEFAULT FALSE,  NOT NULL,
+    current_person INT          NOT NULL,
+    is_deleted     BOOLEAN      DEFAULT FALSE NOT NULL,
+    is_due         BOOLEAN      DEFAULT FALSE NOT NULL,
     introduction   VARCHAR(255) NOT NULL,
-
-    max_person     INT     DEFAULT 30,
+    max_person     INT          NOT NULL,
     created_at     DATETIME(6),
     dues_id        BIGINT,
     subject_id     BIGINT,
@@ -128,7 +126,6 @@ CREATE TABLE agit
     FOREIGN KEY (dues_id) REFERENCES dues (id),
     FOREIGN KEY (subject_id) REFERENCES subject (id)
 );
-
 -- Agit And Account 테이블
 CREATE TABLE agit_and_account
 (

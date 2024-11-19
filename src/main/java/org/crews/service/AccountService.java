@@ -91,7 +91,9 @@ public class AccountService {
         );
         AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
         log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
-        return agitAndAccountRepository.save(agitAndAccount);
+        AgitAndAccount savedAgitAndAccount = agitAndAccountRepository.save(agitAndAccount);
+        agit.setAgitAndAccount(savedAgitAndAccount);
+        return savedAgitAndAccount;
     }
 
     public AccountInfoResponse accountDetails(Long agitId, Long accountId, AccountLinkRequest accountLinkRequest) {

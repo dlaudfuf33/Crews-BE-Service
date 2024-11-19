@@ -1,22 +1,17 @@
 package org.crews.service;
 
-import static org.crews.excaption.ErrorCode.*;
+import static org.crews.exception.ErrorCode.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
-import org.crews.repository.AgitRepository;
-import org.crews.repository.InterestingAndAgitRepository;
-import org.crews.repository.InterestingRepository;
-import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
-import org.crews.repository.SubjectRepository;
+import org.crews.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,39 +33,34 @@ public class AgitService {
         return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::FROM).toList();
     }
     @Transactional
-    public boolean generateAgit(AgitRequest agitRequest) {
-        try {
+    public Agit generateAgit(AgitRequest agitRequest) {
 
-            Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
+
+        Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
                 () -> new CustomException(SUBJECT_NOT_FOUND)
-            );
-            Agit agit = Agit.builder().agitName(agitRequest.getName()).isDue(false)
+        );
+        Agit agit = Agit.builder().agitName(agitRequest.getName()).isDue(false)
                 .maxPerson(30).currentPerson(1).isDeleted(false).subject(subject).introduction(agitRequest.getIntroduction())
                 .build();
 
-            Agit savedAgit = agitRepository.save(agit);
-
-            List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
-            for (Long interest : agitRequest.getInterests()) {
-                Interesting interesting = interestingRepository.findById(interest)
-                        .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND));
-                InterestingAndAgit interestingAndAgit = new InterestingAndAgit();
-                interestingAndAgit.setAgit(savedAgit);
-                interestingAndAgit.setInteresting(interesting);
-                interestingAndAgits.add(interestingAndAgit);
-            }
-            interestingAndAgitRepository.saveAll(interestingAndAgits);
-            Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-            );
-            Membership membership = Membership.builder().agit(savedAgit).member(member).role(MemberRole.LEADER).joinedAt(
-                LocalDateTime.now()).build();
-            memberShipRepository.save(membership);
-
-            return true;
-        } catch (Exception e) {
-            log.error("Error generating Agit: ", e);
-            return false;
+        Agit savedAgit = agitRepository.save(agit);
+        List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
+        for (Long interest : agitRequest.getInterests()) {
+            Interesting interesting = interestingRepository.findById(interest)
+                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND));
+            InterestingAndAgit interestingAndAgit = new InterestingAndAgit();
+            interestingAndAgit.setAgit(savedAgit);
+            interestingAndAgit.setInteresting(interesting);
+            interestingAndAgits.add(interestingAndAgit);
         }
+        interestingAndAgitRepository.saveAll(interestingAndAgits);
+        Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        Membership membership = Membership.builder().agit(savedAgit).member(member).role(MemberRole.LEADER).joinedAt(
+                LocalDateTime.now()).build();
+        memberShipRepository.save(membership);
+        return savedAgit;
+
     }
 }
