@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
-import org.crews.dto.CardRemoveRequest;
+import org.crews.dto.request.CardRemoveRequest;
 import org.crews.dto.core.MessageResponse;
 import org.crews.service.CardService;
 import org.springframework.http.ResponseEntity;

@@ -1,15 +1,15 @@
 package org.crews.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import lombok.*;
-import org.hibernate.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,10 +22,13 @@ public class Agit extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String agitName;
 
-    @ColumnDefault("10")
+    @Column(nullable = false)
+    private String introduction;
+
+    @Column(nullable = false)
     private Integer maxPerson;
 
-    @ColumnDefault("1")
+    @Column(nullable = false)
     private Integer currentPerson;
 
     @Column(nullable = false)
@@ -39,14 +42,14 @@ public class Agit extends BaseTimeEntity {
     private List<Membership> memberships = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "agit")
+    @OneToMany(mappedBy = "agit",cascade = CascadeType.ALL)
     private List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<Feed> feeds = new ArrayList<>();
 
-    @OneToOne(mappedBy = "agit")
+    @OneToOne(mappedBy = "agit",cascade = CascadeType.PERSIST)
     private Introducing introducing;
 
     @Builder.Default
@@ -59,7 +62,7 @@ public class Agit extends BaseTimeEntity {
     @OneToOne()
     private AgitAndAccount agitAndAccount;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id")
     private Subject subject;
 }

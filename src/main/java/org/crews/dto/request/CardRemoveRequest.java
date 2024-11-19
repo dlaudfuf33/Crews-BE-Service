@@ -1,4 +1,4 @@
-package org.crews.dto;
+package org.crews.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

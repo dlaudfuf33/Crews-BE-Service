@@ -18,6 +18,7 @@ public enum ErrorCode {
     AGIT_ACCOUNT_NOT_FOUND("해당하는 아지트의 모임통장이 없습니다.", HttpStatus.NOT_FOUND),
     MEMBERSHIP_NOT_FOUND("해당 회원이 모임에 참여하고 있지 않습니다.", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND("이 이메일로 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EVENT_NOT_FOUND("해당하는 번호의 정기모임이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     // 400 BAD_REQUEST

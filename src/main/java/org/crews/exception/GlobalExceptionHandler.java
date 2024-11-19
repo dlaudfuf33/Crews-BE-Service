@@ -1,4 +1,4 @@
-package org.crews.excaption;
+package org.crews.exception;
 
 
 import org.springframework.http.HttpStatus;
