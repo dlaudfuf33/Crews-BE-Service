@@ -54,6 +54,8 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(eventId).orElseThrow(
                 () -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
+        if(meeting.isDeleted()) throw new CustomException(ErrorCode.DELETED_MEETING);
+
         return MeetingResponse.from(meeting);
     }
 
