@@ -1,5 +1,6 @@
 package org.crews.controller;
 
+import com.sun.jdi.request.EventRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +27,31 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<EventSliceResponse> getAllEvents(
-            @PathVariable("agits-id") Long agitsId,
+            @PathVariable("agits-id") Long agitId,
             @RequestParam int page,
             HttpServletRequest request) {
         Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
 
-        return ResponseEntity.ok().body(eventService.getAllEvents(agitsId, memberId, page));
+        return ResponseEntity.ok().body(eventService.getAllEvents(memberId, agitId, page));
+    }
+
+    @GetMapping("/{event-id}")
+    public ResponseEntity<EventResponse> getEvent(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("event-id") Long eventId,
+            HttpServletRequest request) {
+        Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+
+        return ResponseEntity.ok().body(eventService.getEvent(memberId, agitId,eventId));
+    }
+
+    @PostMapping
+    public ResponseEntity<EventResponse> createEvent(
+            @PathVariable("agits-id") Long agitId,
+            @RequestBody EventRequest eventRequest,
+            HttpServletRequest request){
+        Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+
+        return ResponseEntity.ok().body(eventService.postEvent(memberId, agitId, eventRequest));
     }
 }

@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.request.EventRequest;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
@@ -29,9 +30,6 @@ public class Event extends BaseTimeEntity{
     private String place;
 
     @Column(nullable = false)
-    private String placeAddress;
-
-    @Column(nullable = false)
     private LocalDateTime regularTime;
 
     @Column(nullable = false)
@@ -39,4 +37,15 @@ public class Event extends BaseTimeEntity{
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    public static Event of(EventRequest eventRequest, Agit agit){
+        return Event.builder()
+                .agit(agit)
+                .image(eventRequest.getImage())
+                .regularName(eventRequest.getName())
+                .place(eventRequest.getPlace())
+                .regularTime(eventRequest.getDate())
+                .content(eventRequest.getContent())
+                .build();
+    }
 }
