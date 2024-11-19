@@ -11,6 +11,7 @@ import org.crews.model.Agit;
 import org.crews.model.Meeting;
 import org.crews.model.Member;
 import org.crews.model.Membership;
+import org.crews.model.constants.MemberRole;
 import org.crews.repository.AgitRepository;
 import org.crews.repository.MeetingRepository;
 import org.crews.repository.MemberRepository;
@@ -36,11 +37,11 @@ public class MeetingService {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
         Member member = memberRepository.findById(memberId).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
         Slice<Meeting> events = meetingRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("regularTime"))));
-        return MeetingSliceResponse.from(events);
+        return MeetingSliceResponse.of(membership, events);
     }
 
     public MeetingResponse getEvent(Long memberId, Long agitId, Long meetingId) {
@@ -68,7 +69,7 @@ public class MeetingService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        if(!membership.getRole().equals("LEADER")){
+        if(!membership.getRole().equals(MemberRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_MEETING_CREATION);
         }
 
