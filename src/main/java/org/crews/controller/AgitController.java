@@ -17,8 +17,8 @@ public class AgitController {
     private final AgitService agitService;
 
     @GetMapping
-    public List<AgitResponse> getAllAgits(){
-        return agitService.getAllAgits();
+    public ResponseEntity<List<AgitResponse>> getAllAgits(){
+        return ResponseEntity.ok().body(agitService.getAllAgits());
     }
 
     @PostMapping

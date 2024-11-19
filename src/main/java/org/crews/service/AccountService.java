@@ -35,7 +35,7 @@ public class AccountService {
         );
         AgitAndAccount agitAndAccount = agit.getAgitAndAccount();
         if (agitAndAccount == null) {
-            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+            return AccountOneResponse.builder().build();
         }
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
         String ci = agitAndAccount.getAccount().getMember().getCi();

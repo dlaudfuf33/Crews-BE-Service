@@ -26,12 +26,10 @@ public class Agit extends BaseTimeEntity {
     private String introduction;
 
     @Column(nullable = false)
-    @ColumnDefault("30")
     private Integer maxPerson;
 
-    @ColumnDefault("1")
     @Column(nullable = false)
-    private int currentPerson;
+    private Integer currentPerson;
 
     @Column(nullable = false)
     private boolean isDue;
