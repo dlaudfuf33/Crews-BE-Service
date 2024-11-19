@@ -7,8 +7,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.ColumnDefault;
-
 @Getter
 @Setter
 @Builder
@@ -56,9 +54,6 @@ public class Agit extends BaseTimeEntity {
     @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<RegularCrewing> regularCrewings = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Dues dues;
 
     @OneToOne()
     private AgitAndAccount agitAndAccount;

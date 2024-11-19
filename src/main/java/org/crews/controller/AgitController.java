@@ -5,7 +5,6 @@ import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
 import org.crews.model.Agit;
 import org.crews.service.AgitService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

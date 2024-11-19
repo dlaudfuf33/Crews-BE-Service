@@ -34,8 +34,6 @@ public class AgitService {
     }
     @Transactional
     public Agit generateAgit(AgitRequest agitRequest) {
-
-
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
                 () -> new CustomException(SUBJECT_NOT_FOUND)
         );
