@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventRequest {
+public class MeetingRequest {
     private String image;
 
     @NotBlank(message = "정기모임 이름은 필수 입력 항목입니다.")

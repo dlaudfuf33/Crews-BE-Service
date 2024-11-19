@@ -2,8 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.crews.dto.request.EventRequest;
-import org.hibernate.annotations.ColumnDefault;
+import org.crews.dto.request.MeetingRequest;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Event extends BaseTimeEntity{
+public class Meeting extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,14 +37,14 @@ public class Event extends BaseTimeEntity{
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-    public static Event of(EventRequest eventRequest, Agit agit){
-        return Event.builder()
+    public static Meeting of(MeetingRequest meetingRequest, Agit agit){
+        return Meeting.builder()
                 .agit(agit)
-                .image(eventRequest.getImage())
-                .regularName(eventRequest.getName())
-                .place(eventRequest.getPlace())
-                .regularTime(eventRequest.getDate())
-                .content(eventRequest.getContent())
+                .image(meetingRequest.getImage())
+                .regularName(meetingRequest.getName())
+                .place(meetingRequest.getPlace())
+                .regularTime(meetingRequest.getDate())
+                .content(meetingRequest.getContent())
                 .build();
     }
 }

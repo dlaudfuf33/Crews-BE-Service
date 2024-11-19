@@ -28,6 +28,7 @@ public enum ErrorCode {
     WRONG_RESPONSE("잘못된 응답을 수신했습니다.", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
     CI_CODE_SEND_ERROR("CI 코드 전송 오류. 다시 회원가입을 진행 해 주세요.", HttpStatus.BAD_REQUEST),
+    AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.BAD_REQUEST),
 
 
     // 403 FORBIDDEN

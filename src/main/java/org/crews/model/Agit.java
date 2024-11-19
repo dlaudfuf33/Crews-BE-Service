@@ -51,7 +51,7 @@ public class Agit extends BaseTimeEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "agit")
-    private List<Event> events = new ArrayList<>();
+    private List<Meeting> meetings = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
