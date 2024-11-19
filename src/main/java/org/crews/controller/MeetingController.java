@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.MeetingRequest;
 import org.crews.dto.response.MeetingResponse;
 import org.crews.dto.response.MeetingSliceResponse;
-import org.crews.jwt.JWTUtil;
 import org.crews.service.MeetingService;
+import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class MeetingController {
 
     private final MeetingService meetingService;
-    private final JWTUtil jwtUtil;
+    private final AuthUtil authUtil;
 
     @GetMapping
     public ResponseEntity<MeetingSliceResponse> getAllEvents(
             @PathVariable("agits-id") Long agitId,
             @RequestParam int page,
             HttpServletRequest request) {
-        Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+        Long memberId = authUtil.getMemberId(request);
 
         return ResponseEntity.ok().body(meetingService.getAllEvents(memberId, agitId, page));
     }
@@ -33,11 +33,11 @@ public class MeetingController {
     @GetMapping("/{meeting-id}")
     public ResponseEntity<MeetingResponse> getEvent(
             @PathVariable("agits-id") Long agitId,
-            @PathVariable("meeting-id") Long eventId,
+            @PathVariable("meeting-id") Long meetingId,
             HttpServletRequest request) {
-        Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+        Long memberId = authUtil.getMemberId(request);
 
-        return ResponseEntity.ok().body(meetingService.getEvent(memberId, agitId,eventId));
+        return ResponseEntity.ok().body(meetingService.getEvent(memberId, agitId,meetingId));
     }
 
     @PostMapping
@@ -45,7 +45,7 @@ public class MeetingController {
             @PathVariable("agits-id") Long agitId,
             @RequestBody MeetingRequest meetingRequest,
             HttpServletRequest request){
-        Long memberId = jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+        Long memberId = authUtil.getMemberId(request);
 
         return ResponseEntity.ok().body(meetingService.postEvent(memberId, agitId, meetingRequest));
     }

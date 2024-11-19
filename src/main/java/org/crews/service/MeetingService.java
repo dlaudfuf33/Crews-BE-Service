@@ -43,7 +43,7 @@ public class MeetingService {
         return MeetingSliceResponse.from(events);
     }
 
-    public MeetingResponse getEvent(Long memberId, Long agitId, Long eventId) {
+    public MeetingResponse getEvent(Long memberId, Long agitId, Long meetingId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -51,7 +51,7 @@ public class MeetingService {
         memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        Meeting meeting = meetingRepository.findById(eventId).orElseThrow(
+        Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(
                 () -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
 
         if(meeting.isDeleted()) throw new CustomException(ErrorCode.DELETED_MEETING);
