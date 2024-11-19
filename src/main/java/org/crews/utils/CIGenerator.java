@@ -1,6 +1,6 @@
 package org.crews.utils;
 
-import org.crews.excaption.HMACGenerationException;
+import org.crews.exception.HMACGenerationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

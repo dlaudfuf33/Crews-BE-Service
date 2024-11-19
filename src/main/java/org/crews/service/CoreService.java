@@ -2,8 +2,8 @@ package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.http.HttpMethod;
@@ -35,11 +35,11 @@ public class CoreService {
 
     // 생성자를 통해 의존성을 주입받음
     public CoreService(
-            @Value("${core.api.core-url}") String baseUrl,
+            @Value("${core.api.core-url}") String coreUrl,
             @Value("${bank.core.access-key}") String accessKey,
             @Value("${bank.core.secret-key}") String secretKey) {
         this.webClient = WebClient.builder()
-                .baseUrl(baseUrl) // baseUrl 주입
+                .baseUrl(coreUrl) // baseUrl 주입
                 .build();
         this.accessKey = accessKey; // accessKey 주입
         this.secretKey = secretKey; // secretKey 주입
@@ -152,7 +152,7 @@ public class CoreService {
         }
     }
 
-    public Mono<String> sendCICode(CIRequest ciRequest) {
+    public Mono<AccountIssuedResponse> sendCICode(CIRequest ciRequest) {
         try {
             return webClient.post()
                     .uri("/v1/ci")
@@ -162,7 +162,7 @@ public class CoreService {
                     })
                     .bodyValue(ciRequest) //
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(AccountIssuedResponse.class)
                     .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
                             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                 log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
@@ -238,5 +238,26 @@ public class CoreService {
             log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
+    }
+
+    public AccountInfoResponse accountDetails(CIOnlyRequest ci) { try {
+        AccountInfoResponse response = webClient.post()
+                .uri("/v1/accounts/info")
+                .headers(headers -> {
+                    headers.set(HEADER_ACCESS_KEY, accessKey);
+                    headers.set(HEADER_SECRET_KEY, secretKey);
+                })
+                .bodyValue(ci)
+                .retrieve()
+                .bodyToMono(AccountInfoResponse.class)
+                .block();
+        if(response == null)
+            throw new IllegalStateException("잘못된 응답값 입니다.");
+        return response;
+    }
+    catch (WebClientResponseException ex){
+        log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        throw new WebServerException(ex.getResponseBodyAsString(), ex);
+    }
     }
 }
