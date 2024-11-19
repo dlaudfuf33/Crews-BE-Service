@@ -1,14 +1,14 @@
 package org.crews.service;
 
-import static org.crews.excaption.ErrorCode.*;
+import static org.crews.exception.ErrorCode.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.AgitRepository;
