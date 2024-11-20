@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.DuesAlarmResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -14,6 +15,8 @@ import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ public class AgitService {
     private final MemberShipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final SubjectRepository subjectRepository;
+    private final DuesRepository duesRepository;
+    private final CommonDuesRepository commonDuesRepository;
     public List<AgitResponse> getAllAgits(){
         return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::FROM).toList();
     }
@@ -60,5 +65,38 @@ public class AgitService {
         memberShipRepository.save(membership);
         return savedAgit;
 
+    }
+
+    public DuesAlarmResponse getDuesAlarm(Long agitId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new CustomException(MEMBERSHIP_NOT_FOUND)
+        );
+        CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElseThrow(
+                () -> new CustomException(COMMON_DUES_NOT_FOUND)
+        );
+        List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
+                .stream().filter(
+                        content -> content.getDueDate().getMonth().equals(LocalDate.now().getMonth())
+                                && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+                .toList();
+        if(duesList.isEmpty()){
+            return DuesAlarmResponse.builder().duesAmount(commonDues.getDueAmount()).build();
+        }else {
+            BigDecimal amount = BigDecimal.ZERO;
+            for(Dues dues : duesList){
+                amount = amount.add(dues.getDueAmount());
+            }
+            if(amount.compareTo(commonDues.getDueAmount()) < 0){
+                return DuesAlarmResponse.builder().duesAmount(commonDues.getDueAmount().subtract(amount)).build();
+            }
+            else
+                return DuesAlarmResponse.builder().build();
+        }
     }
 }

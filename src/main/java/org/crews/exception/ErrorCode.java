@@ -20,6 +20,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("이 이메일로 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EVENT_NOT_FOUND("해당하는 번호의 정기모임이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    COMMON_DUES_NOT_FOUND("공통회비가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     // 400 BAD_REQUEST
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.BAD_REQUEST),

@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +89,9 @@ public class DuesService {
             }
         }
         duesRepository.saveAll(saveDues);
-        List<Dues> dues = duesRepository.findByCommonDues(agit.getCommonDues());
+        List<Dues> dues = duesRepository.findByCommonDues(agit.getCommonDues()).stream().filter(content ->
+            content.getDueDate().getMonth().equals(LocalDate.now().getMonth()) && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+                .toList();
 
         List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
         List<Member> memberList = new ArrayList<>(searchMembershipList.stream().map(Membership::getMember).toList());
