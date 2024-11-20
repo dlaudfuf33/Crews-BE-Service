@@ -114,7 +114,7 @@ CREATE TABLE agit
     id             BIGINT       NOT NULL AUTO_INCREMENT,
     current_person INT     DEFAULT 1,
     is_deleted     BOOLEAN DEFAULT FALSE,
-    is_due         BOOLEAN DEFAULT FALSE,  NOT NULL,
+    is_due         BOOLEAN NOT NULL DEFAULT FALSE,
     introduction   VARCHAR(255) NOT NULL,
 
     max_person     INT     DEFAULT 30,
