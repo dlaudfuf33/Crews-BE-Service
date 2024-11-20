@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.request.FeedRequest;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -39,4 +40,14 @@ public class Feed extends BaseTimeEntity{
     @OneToMany(mappedBy = "feed")
     @Builder.Default
     private List<Heart> likes = new ArrayList<>();
+
+    public static Feed of(FeedRequest feedRequest, Agit agit, Member member) {
+        return Feed.builder()
+                .image(feedRequest.getImage())
+                .content(feedRequest.getContent())
+                .likeCount(feedRequest.getLikeCount())
+                .agit(agit)
+                .member(member)
+                .build();
+    }
 }

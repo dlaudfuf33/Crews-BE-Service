@@ -3,6 +3,8 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.FeedRequest;
+import org.crews.dto.response.FeedResponse;
 import org.crews.dto.response.FeedSliceResponse;
 import org.crews.service.FeedService;
 import org.crews.utils.AuthUtil;
@@ -24,7 +26,26 @@ public class FeedController {
             @RequestParam int page,
             HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        System.out.println("memberId = " + memberId);
+
         return ResponseEntity.ok().body(feedService.getAllFeeds(memberId, agitId, page));
+    }
+
+    @GetMapping("/{feed-id}")
+    public ResponseEntity<FeedResponse> getFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(feedService.getFeed(memberId, agitId, feedId));
+    }
+
+    @PostMapping
+    public ResponseEntity<FeedResponse> createFeed(
+            @PathVariable("agits-id") Long agitId,
+            @RequestBody FeedRequest feedRequest,
+            HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+
+        return ResponseEntity.ok().body(feedService.postFeed(memberId, agitId, feedRequest));
     }
 }

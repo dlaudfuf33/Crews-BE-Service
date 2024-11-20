@@ -20,6 +20,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("이 이메일로 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EVENT_NOT_FOUND("해당하는 번호의 정기모임이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    FEED_NOT_FOUND("해당하는 번호의 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     // 400 BAD_REQUEST
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.BAD_REQUEST),
@@ -31,6 +32,7 @@ public enum ErrorCode {
     CI_CODE_SEND_ERROR("CI 코드 전송 오류. 다시 회원가입을 진행 해 주세요.", HttpStatus.BAD_REQUEST),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.BAD_REQUEST),
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
+    DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
 
 
     // 403 FORBIDDEN
