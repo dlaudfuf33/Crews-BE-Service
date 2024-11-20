@@ -25,7 +25,7 @@ public class Feed extends BaseTimeEntity{
     private String content;
 
     @ColumnDefault("0")
-    private String likeCount;
+    private Long likeCount;
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
