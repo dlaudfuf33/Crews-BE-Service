@@ -114,7 +114,7 @@ CREATE TABLE agit
     id             BIGINT       NOT NULL AUTO_INCREMENT,
     current_person INT     DEFAULT 1,
     is_deleted     BOOLEAN DEFAULT FALSE,
-    is_due         BOOLEAN DEFAULT FALSE,  NOT NULL,
+    is_due         BOOLEAN DEFAULT FALSE NOT NULL,
     introduction   VARCHAR(255) NOT NULL,
 
     max_person     INT     DEFAULT 30,
@@ -270,7 +270,7 @@ CREATE TABLE refresh_entity
 );
 
 -- Regular Crewing 테이블
-CREATE TABLE regular_crewing
+CREATE TABLE meeting
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     is_deleted    BOOLEAN DEFAULT FALSE,
@@ -281,7 +281,6 @@ CREATE TABLE regular_crewing
     content       VARCHAR(255) NOT NULL,
     image         VARCHAR(255),
     place         VARCHAR(255) NOT NULL,
-    place_address VARCHAR(255) NOT NULL,
     regular_name  VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)

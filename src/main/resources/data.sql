@@ -42,9 +42,9 @@ VALUES (1, NOW(), NOW(), '프로그래밍'),
        (3, NOW(), NOW(), '마케팅');
 
 -- Agit 테이블에 더미 데이터 삽입
-INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, subject_id, updated_at, agit_name)
-VALUES (1, FALSE, TRUE, 10, NOW(), 1, 1,NOW(), 'Agit 1'),
-       (2, FALSE, FALSE, 15, NOW(), 2, 2,NOW(), 'Agit 2');
+INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, dues_id, subject_id, updated_at, agit_name, introduction)
+VALUES (1, FALSE, TRUE, 10, NOW(), 1, 1,NOW(), 'Agit 1', "한줄소개"),
+       (2, FALSE, FALSE, 15, NOW(), 2, 2,NOW(), 'Agit 2', "두줄소개");
 
 -- Card 테이블에 더미 데이터 삽입
 INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
@@ -101,7 +101,6 @@ VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
 
 
 -- Regular Crewing 테이블에 더미 데이터 삽입
-INSERT INTO regular_crewing (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place,
-                             place_address, regular_name)
-VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '서울시 중구', '정기 크루잉 1'),
-       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '경기도 수원시', '정기 크루잉 2');
+INSERT INTO meeting (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place, regular_name)
+VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
+       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구','정기 크루잉 2');

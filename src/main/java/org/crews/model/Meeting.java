@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.request.MeetingRequest;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class RegularCrewing extends BaseTimeEntity{
+public class Meeting extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,9 +29,6 @@ public class RegularCrewing extends BaseTimeEntity{
     private String place;
 
     @Column(nullable = false)
-    private String placeAddress;
-
-    @Column(nullable = false)
     private LocalDateTime regularTime;
 
     @Column(nullable = false)
@@ -38,4 +36,15 @@ public class RegularCrewing extends BaseTimeEntity{
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    public static Meeting of(MeetingRequest meetingRequest, Agit agit){
+        return Meeting.builder()
+                .agit(agit)
+                .image(meetingRequest.getImage())
+                .regularName(meetingRequest.getName())
+                .place(meetingRequest.getPlace())
+                .regularTime(meetingRequest.getDate())
+                .content(meetingRequest.getContent())
+                .build();
+    }
 }
