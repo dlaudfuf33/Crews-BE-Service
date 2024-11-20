@@ -82,7 +82,7 @@ public class DuesService {
                     .findAny();
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
-                        .membership(optionalMembership.get()).build();
+                        .membership(optionalMembership.get()).isPayed(false).build();
                 saveDues.add(buildDues);
             }
         }
@@ -95,6 +95,11 @@ public class DuesService {
         memberMap.forEach((filterMember, toTotalAmount) -> {
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
+                dues.forEach(content -> {
+                    if(content.getMembership().getMember().equals(filterMember)){
+                        content.setPayed(true);
+                    }
+                });
             }
         });
         List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();

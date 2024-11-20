@@ -25,6 +25,9 @@ public class Dues extends BaseTimeEntity{
     @Column(nullable = false)
     private LocalDateTime dueDate;
 
+    @Column(nullable = false)
+    private boolean isPayed;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Membership membership;
 

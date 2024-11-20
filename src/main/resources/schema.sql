@@ -270,6 +270,7 @@ CREATE TABLE dues
     id          BIGINT       NOT NULL AUTO_INCREMENT,
     created_at  DATETIME(6),
     due_amount DECIMAL(19, 2) NOT NULL,
+    is_payed    BOOLEAN     NOT NULL,
     due_date    DATETIME(6),
     updated_at  DATETIME(6),
     membership_id BIGINT,
