@@ -13,11 +13,11 @@ import java.util.List;
 public class MyinfoResponse {
     private String email;
     private String nickname;
-    private List<InterestingResponseDto> interests;
+    private List<InterestingResponse> interests;
     private List<Address> address;
 
 
-    public static MyinfoResponse of(Member member) {
+    public static MyinfoResponse from(Member member) {
         return MyinfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickName())
@@ -30,7 +30,7 @@ public class MyinfoResponse {
                 .build();
     }
 
-    private static InterestingResponseDto convertToInterestingDto(MemberAndInteresting memberInteresting) {
-        return InterestingResponseDto.of(memberInteresting.getInteresting());
+    private static InterestingResponse convertToInterestingDto(MemberAndInteresting memberInteresting) {
+        return InterestingResponse.from(memberInteresting.getInteresting());
     }
 }

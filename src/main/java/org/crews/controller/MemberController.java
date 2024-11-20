@@ -5,10 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.MemberDetails;
-import org.crews.dto.MemberRequest;
-import org.crews.dto.MemberResponse;
-import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.MemberDetails;
+import org.crews.dto.request.MemberRequest;
+import org.crews.dto.response.InterestingResponse;
+import org.crews.dto.response.MemberResponse;
 import org.crews.dto.response.MyProfileResponse;
 import org.crews.dto.response.MyinfoResponse;
 import org.crews.service.MemberService;
@@ -33,7 +34,7 @@ public class MemberController {
     public ResponseEntity<String> signUp(@RequestBody MemberRequest memberRequest) {
         try {
             MemberResponse memberResponse = memberService.signUp(memberRequest);
-            if (memberResponse != null) {
+            if(memberResponse != null) {
                 return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Already Exist Email");
@@ -48,7 +49,7 @@ public class MemberController {
         String refresh = null;
         String tokenName = "refresh";
         Cookie[] cookies = request.getCookies();
-        try {
+        try{
             for (Cookie cookie : cookies) {
 
                 if (cookie.getName().equals(tokenName)) {
@@ -71,7 +72,7 @@ public class MemberController {
         response.setHeader("access", tokens.get("access"));
 
         Cookie cookie = new Cookie(tokenName, tokens.get(tokenName));
-        cookie.setMaxAge(24 * 60 * 60);
+        cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -79,6 +80,17 @@ public class MemberController {
         response.addCookie(cookie);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @GetMapping("/signup/validate-email")
+    public ResponseEntity<String> validateEmail(@RequestBody EmailRequest request) {
+        boolean isExist = memberService.validateEmail(request);
+        if(isExist) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already Exist Email");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Email Available For Registration.");
+        }
     }
 
     @GetMapping("/me")
@@ -104,7 +116,7 @@ public class MemberController {
     }
 
     @GetMapping("/me/interests")
-    public ResponseEntity<List<InterestingResponseDto>> getMyInterestings() {
+    public ResponseEntity<List<InterestingResponse>> getMyInterestings() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

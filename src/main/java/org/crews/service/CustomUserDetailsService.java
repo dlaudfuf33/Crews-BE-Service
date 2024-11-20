@@ -2,9 +2,9 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.MemberDetails;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.dto.request.MemberDetails;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.model.Member;
 import org.crews.repository.MemberRepository;
 import org.crews.utils.AESUtil;

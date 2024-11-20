@@ -1,9 +1,10 @@
 package org.crews.service;
 
-import org.crews.dto.MemberRequest;
-import org.crews.dto.MemberResponse;
-import org.crews.dto.core.AccountResponseDto;
-import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.core.AccountResponse;
+import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.MemberRequest;
+import org.crews.dto.response.InterestingResponse;
+import org.crews.dto.response.MemberResponse;
 import org.crews.dto.response.MyProfileResponse;
 import org.crews.dto.response.MyinfoResponse;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,13 @@ public interface MemberService {
 
     Map<String, String> reissueTokens(String refresh);
 
-    public List<AccountResponseDto> getAccountInfoFromCore(Long id);
+    public List<AccountResponse> getAccountInfoFromCore(Long id);
 
     public MyProfileResponse getMyProfile(String memberEmail);
 
-
     public MyinfoResponse getMyinfo(String memberEmail);
 
-    public List<InterestingResponseDto> getMyInterests(String memberEmail);
+    public List<InterestingResponse> getMyInterests(String memberEmail);
+
+    boolean validateEmail(EmailRequest request);
 }

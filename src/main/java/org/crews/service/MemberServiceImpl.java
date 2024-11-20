@@ -4,20 +4,22 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.MemberRequest;
-import org.crews.dto.MemberResponse;
-import org.crews.dto.core.AccountResponseDto;
+import org.crews.dto.core.AccountIssuedResponse;
+import org.crews.dto.core.AccountResponse;
 import org.crews.dto.core.CIRequest;
-import org.crews.dto.core.MemberToCoreDto;
-import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.core.MemberToCoreRequest;
+import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.MemberRequest;
+import org.crews.dto.response.InterestingResponse;
+import org.crews.dto.response.MemberResponse;
 import org.crews.dto.response.MyProfileResponse;
 import org.crews.dto.response.MyinfoResponse;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
-import org.crews.model.Member;
-import org.crews.model.MemberAndInteresting;
-import org.crews.model.RefreshEntity;
+import org.crews.model.*;
+import org.crews.repository.AccountRepository;
+import org.crews.repository.BankRepository;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.RefreshRepository;
 import org.crews.utils.AESUtil;
@@ -39,6 +41,8 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
+    private final BankRepository bankRepository;
+    private final AccountRepository accountRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final AESUtil aesUtil;
@@ -70,9 +74,17 @@ public class MemberServiceImpl implements MemberService {
 
             CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
                     .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
-            Mono<String> stringMono = coreService.sendCICode(ciRequest);
-            if (!stringMono.block().equals("ok"))
+            Mono<AccountIssuedResponse> stringMono = coreService.sendCICode(ciRequest);
+            AccountIssuedResponse response = stringMono.block();
+            if(response == null)
                 throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
+            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
+                () -> new CustomException(ErrorCode.WRONG_BANKCODE)
+            );
+            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
+                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+            accountRepository.save(account);
             return MemberResponse.from(savedMember);
 
         } catch (Exception e) {
@@ -149,11 +161,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<AccountResponseDto> getAccountInfoFromCore(Long id) {
+    public List<AccountResponse> getAccountInfoFromCore(Long id) {
         Member member = memberRepository
                 .findById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         log.info("{} : {}", member.getName(), member.getPhoneNumber());
-        return coreService.findCoreSideAccounts(MemberToCoreDto.fromEntity(member));
+        return coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
     }
 
     private String createNumber(int count, String prefix) {
@@ -168,7 +180,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MyProfileResponse getMyProfile(String memberEmail) {
-        return MyProfileResponse.of(
+        return MyProfileResponse.from(
                 memberRepository
                         .findByEmailWithInterestings(memberEmail)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
@@ -177,21 +189,38 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MyinfoResponse getMyinfo(String memberEmail) {
-        return MyinfoResponse.of(
+        return MyinfoResponse.from(
                 memberRepository
                         .findByEmailWithAddresses(memberEmail)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     @Override
-    public List<InterestingResponseDto> getMyInterests(String memberEmail) {
+    public List<InterestingResponse> getMyInterests(String memberEmail) {
         return memberRepository
                 .findByEmailWithInterestings(memberEmail)
                 .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
                 .getMemberAndInterestings().stream()
                 .map(MemberAndInteresting::getInteresting)
-                .map(InterestingResponseDto::of)
+                .map(InterestingResponse::from)
                 .toList();
+    }
+
+    @Override
+    public boolean validateEmail(EmailRequest request) {
+        return memberRepository.existsByEmail(aesUtil.encrypt(request.getEmail()));
+    }
+
+    private String maskedAccountNumber(String accountNumber) {
+        String maskingResult = "";
+
+        if (accountNumber.length() >= 7) {
+            maskingResult = accountNumber.replaceAll("(?<=.{4}).(?=.{2})", "*");
+        } else {
+            maskingResult = accountNumber;
+        }
+
+        return maskingResult;
     }
 
 }

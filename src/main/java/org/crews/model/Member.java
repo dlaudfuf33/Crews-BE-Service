@@ -2,7 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.crews.dto.MemberRequest;
+import org.crews.dto.request.MemberRequest;
 
 import java.util.ArrayList;
 import java.util.HashSet;

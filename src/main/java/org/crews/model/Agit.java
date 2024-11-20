@@ -1,14 +1,16 @@
 package org.crews.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,11 +23,14 @@ public class Agit extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String agitName;
 
-    @Column(nullable = false,insertable = false)
-    private int maxPerson;
+    @Column(nullable = false)
+    private String introduction;
 
-    @Column(nullable = false,insertable = false)
-    private int currentPerson;
+    @Column(nullable = false)
+    private Integer maxPerson;
+
+    @Column(nullable = false)
+    private Integer currentPerson;
 
     @Column(nullable = false)
     private boolean isDue;
@@ -38,14 +43,14 @@ public class Agit extends BaseTimeEntity {
     private List<Membership> memberships = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "agit")
+    @OneToMany(mappedBy = "agit",cascade = CascadeType.ALL)
     private List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "agit")
     private List<Feed> feeds = new ArrayList<>();
 
-    @OneToOne(mappedBy = "agit")
+    @OneToOne(mappedBy = "agit",cascade = CascadeType.PERSIST)
     private Introducing introducing;
 
     @Builder.Default
@@ -58,7 +63,7 @@ public class Agit extends BaseTimeEntity {
     @OneToOne
     private AgitAndAccount agitAndAccount;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id")
     private Subject subject;
 }

@@ -2,10 +2,11 @@ package org.crews.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
-import org.crews.excaption.CustomException;
-import org.crews.excaption.ErrorCode;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -34,18 +35,18 @@ public class CoreService {
 
     // 생성자를 통해 의존성을 주입받음
     public CoreService(
-            @Value("${core.api.base-url}") String baseUrl,
+            @Value("${core.api.core-url}") String coreUrl,
             @Value("${bank.core.access-key}") String accessKey,
             @Value("${bank.core.secret-key}") String secretKey) {
         this.webClient = WebClient.builder()
-                .baseUrl(baseUrl) // baseUrl 주입
+                .baseUrl(coreUrl) // baseUrl 주입
                 .build();
         this.accessKey = accessKey; // accessKey 주입
         this.secretKey = secretKey; // secretKey 주입
     }
 
     // POST 요청 - 블로킹 방식
-    public String postTestBlocking(MemberToCoreDto customer) {
+    public String postTestBlocking(MemberToCoreRequest customer) {
         try {
             log.info("블로킹 방식 API 호출 시작 - Access Key: {}", accessKey);
             return webClient.post()
@@ -65,7 +66,7 @@ public class CoreService {
     }
 
     // POST 요청 - 논블로킹 방식
-    public Mono<String> postTestNonBlocking(MemberToCoreDto customer) {
+    public Mono<String> postTestNonBlocking(MemberToCoreRequest customer) {
         log.info("논블로킹 방식 API 호출 시작 - Access Key: {}, ScretKey : {}", accessKey, secretKey);
 
         return webClient.post()
@@ -87,7 +88,7 @@ public class CoreService {
     }
 
     // 사용자의 모든 계좌 조회 - 블로킹 방식
-    public List<AccountResponseDto> findCoreSideAccounts(MemberToCoreDto memberDto) {
+    public List<AccountResponse> findCoreSideAccounts(MemberToCoreRequest memberDto) {
         try {
             // Null 체크 추가
             if (memberDto == null || memberDto.getName() == null || memberDto.getPhoneNumber() == null) {
@@ -99,7 +100,7 @@ public class CoreService {
                 throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
             }
 
-            AccountResponseDto[] response = webClient.post()
+            AccountResponse[] response = webClient.post()
                     .uri(INITAL_ACCOUNT)
                     .headers(headers -> {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
@@ -107,7 +108,7 @@ public class CoreService {
                     })
                     .bodyValue(memberDto) //
                     .retrieve()
-                    .bodyToMono(AccountResponseDto[].class) // 응답을 AccountResponseDto 배열로 매핑
+                    .bodyToMono(AccountResponse[].class) // 응답을 AccountResponseDto 배열로 매핑
                     .block(); // 블로킹 방식으로 Mono 값을 얻음
 
             // Null 응답 처리
@@ -151,7 +152,7 @@ public class CoreService {
         }
     }
 
-    public Mono<String> sendCICode(CIRequest ciRequest) {
+    public Mono<AccountIssuedResponse> sendCICode(CIRequest ciRequest) {
         try {
             return webClient.post()
                     .uri("/v1/ci")
@@ -161,7 +162,7 @@ public class CoreService {
                     })
                     .bodyValue(ciRequest) //
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(AccountIssuedResponse.class)
                     .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
                             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                 log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
@@ -215,5 +216,48 @@ public class CoreService {
             log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
+    }
+
+    public MessageResponse cardRemove(CoreCardRemoveRequest coreCardRemoveRequest) {
+        try {
+            MessageResponse response = webClient.method(HttpMethod.DELETE)
+                    .uri("/v1/cards")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(coreCardRemoveRequest)
+                    .retrieve()
+                    .bodyToMono(MessageResponse.class)
+                    .block();
+            if(response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        }
+        catch (WebClientResponseException ex){
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public AccountInfoResponse accountDetails(CIOnlyRequest ci) { try {
+        AccountInfoResponse response = webClient.post()
+                .uri("/v1/accounts/info")
+                .headers(headers -> {
+                    headers.set(HEADER_ACCESS_KEY, accessKey);
+                    headers.set(HEADER_SECRET_KEY, secretKey);
+                })
+                .bodyValue(ci)
+                .retrieve()
+                .bodyToMono(AccountInfoResponse.class)
+                .block();
+        if(response == null)
+            throw new IllegalStateException("잘못된 응답값 입니다.");
+        return response;
+    }
+    catch (WebClientResponseException ex){
+        log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+        throw new WebServerException(ex.getResponseBodyAsString(), ex);
+    }
     }
 }

@@ -1,6 +1,6 @@
 package org.crews.utils;
 
-import org.crews.excaption.HMACGenerationException;
+import org.crews.exception.HMACGenerationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class CIGenerator {
     }
 
     // HMAC-SHA512 알고리즘을 사용해 해시 생성
-    public static byte[] generateHMAC(byte[] key, byte[] data) throws Exception {
+    public static byte[] generateHMAC(byte[] key, byte[] data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512"); // 알고리즘 이름이 올바른지 확인
             SecretKeySpec keySpec = new SecretKeySpec(key, "HmacSHA512"); // 알고리즘 일치 확인

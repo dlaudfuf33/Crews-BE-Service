@@ -14,9 +14,9 @@ public class MyProfileResponse {
     private String email;
     private String name;
     private String nickname;
-    private List<InterestingResponseDto> interests;
+    private List<InterestingResponse> interests;
 
-    public static MyProfileResponse of(Member member) {
+    public static MyProfileResponse from(Member member) {
         return MyProfileResponse.builder()
                 .profileImage(member.getProfileImage())
                 .email(member.getEmail())
@@ -24,12 +24,12 @@ public class MyProfileResponse {
                 .nickname(member.getNickName())
                 .interests(
                         member.getMemberAndInterestings().stream()
-                                .map(MyProfileResponse::convertToInterestingDto)
+                                .map(MyProfileResponse::toInterestingResponse)
                                 .toList()
                 )
                 .build();
     }
-    private static InterestingResponseDto convertToInterestingDto(MemberAndInteresting memberInteresting) {
-        return InterestingResponseDto.of(memberInteresting.getInteresting());
+    private static InterestingResponse toInterestingResponse(MemberAndInteresting memberInteresting) {
+        return InterestingResponse.from(memberInteresting.getInteresting());
     }
 }

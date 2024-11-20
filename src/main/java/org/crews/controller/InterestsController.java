@@ -1,7 +1,7 @@
 package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crews.dto.response.InterestingResponseDto;
+import org.crews.dto.response.InterestingResponse;
 import org.crews.service.InterestingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class InterestsController {
     private final InterestingService interestService;
 
     @GetMapping
-    public ResponseEntity<List<InterestingResponseDto>> getAllInterests(){
+    public ResponseEntity<List<InterestingResponse>> getAllInterests(){
         return ResponseEntity.ok(interestService.getAllInterestings());
     }
 }
