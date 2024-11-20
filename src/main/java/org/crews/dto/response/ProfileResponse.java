@@ -12,6 +12,7 @@ import org.crews.utils.AESUtil;
 @AllArgsConstructor
 @Builder
 public class ProfileResponse {
+    private Long memberId;
     private String name;
     private String nickName;
     private String email;
@@ -21,6 +22,7 @@ public class ProfileResponse {
     public static ProfileResponse from(Member member){
         return ProfileResponse
                 .builder()
+                .memberId(member.getId())
                 .name(AESUtil.decrypt(member.getName()))
                 .nickName(member.getNickName())
                 .email(AESUtil.decrypt(member.getEmail()))
