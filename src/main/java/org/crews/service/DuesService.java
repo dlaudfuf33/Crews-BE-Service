@@ -96,7 +96,7 @@ public class DuesService {
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
                 dues.forEach(content -> {
-                    if(content.getMembership().getMember().equals(filterMember)){
+                    if(content.getMembership().getMember().equals(filterMember) && !content.isPayed()){
                         content.setPayed(true);
                     }
                 });
