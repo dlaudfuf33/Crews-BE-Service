@@ -9,6 +9,7 @@ import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
 
+import org.crews.dto.response.AccountLinkResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -72,7 +73,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AgitAndAccount accountLink(Long agitId, AccountLinkRequest accountLinkRequest) {
+    public AccountLinkResponse accountLink(Long agitId, AccountLinkRequest accountLinkRequest) {
         Member member = memberRepository.findById(accountLinkRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -93,7 +94,13 @@ public class AccountService {
         log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
         AgitAndAccount savedAgitAndAccount = agitAndAccountRepository.save(agitAndAccount);
         agit.setAgitAndAccount(savedAgitAndAccount);
-        return savedAgitAndAccount;
+        AccountLinkResponse accountLinkResponse = AccountLinkResponse
+                .builder()
+                .agitId(agitId
+                ).accountId(savedAgitAndAccount.getId())
+                .accountNumber(AESUtil.decrypt(savedAgitAndAccount.getAccount().getAccountNumber()))
+                .build();
+        return accountLinkResponse;
     }
 
     public AccountInfoResponse accountDetails(Long agitId, Long accountId, AccountLinkRequest accountLinkRequest) {

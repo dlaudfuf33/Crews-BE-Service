@@ -7,6 +7,7 @@ import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.request.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.response.AccountLinkResponse;
 import org.crews.model.AgitAndAccount;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
@@ -32,8 +33,8 @@ public class AccountController {
     }
 
     @PostMapping("/link")
-    public ResponseEntity<AgitAndAccount> accountLink(@PathVariable("agits-id") Long agitId,
-                                                      @RequestBody AccountLinkRequest accountLinkRequest){
+    public ResponseEntity<AccountLinkResponse> accountLink(@PathVariable("agits-id") Long agitId,
+                                                           @RequestBody AccountLinkRequest accountLinkRequest){
         return ResponseEntity.ok().body(accountService.accountLink(agitId, accountLinkRequest));
     }
 
