@@ -115,7 +115,7 @@ CREATE TABLE agit
     current_person INT     DEFAULT 1,
     is_deleted     BOOLEAN DEFAULT FALSE,
     is_due         BOOLEAN NOT NULL DEFAULT FALSE,
-    introduction   VARCHAR(255) NOT NULL,
+    introduction   VARCHAR(255) NOT NULL DEFAULT '',
 
     max_person     INT     DEFAULT 30,
     created_at     DATETIME(6),
