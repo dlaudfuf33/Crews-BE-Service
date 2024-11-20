@@ -95,17 +95,36 @@ public class DuesService {
         memberMap.forEach((filterMember, toTotalAmount) -> {
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
-                dues.forEach(content -> {
-                    if(content.getMembership().getMember().equals(filterMember) && !content.isPayed()){
-                        content.setPayed(true);
-                    }
-                });
+                setPayedChange(dues,filterMember,true);
+            }else {
+                setPayedChange(dues,filterMember,false);
             }
         });
         List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();
 
         return GetDuesResponse.builder().profileResponses(profileResponses).memberCount(profileResponses.size()).build();
     }
+
+    private Map<Member, BigDecimal> calculateTotalDueAmountByMembership(List<Dues> duesList) {
+        return duesList.stream()
+                .filter(d -> d.getMembership() != null) // Membership이 있는 항목만 처리
+                .collect(Collectors.groupingBy(
+                        d -> d.getMembership().getMember(), // Membership ID로 그룹화
+                        Collectors.mapping(
+                                Dues::getDueAmount, // dueAmount를 추출
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add) // 합산
+                        )
+                ));
+    }
+
+    private void setPayedChange(List<Dues> dues, Member filterMember, boolean setPayed) {
+        dues.forEach(content -> {
+            if (content.getMembership().getMember().equals(filterMember)) {
+                content.setPayed(setPayed);
+            }
+        });
+    }
+
 
     @Transactional
     public DuesSaveResponse duesSaveCommon(Long agitId, DuesSaveRequest duesSaveRequest) {
@@ -158,17 +177,5 @@ public class DuesService {
             return DuesSaveResponse.builder().build();
         else
             return DuesSaveResponse.builder().dueDay(commonDues.getDueDay()).dueAmount(commonDues.getDueAmount()).build();
-    }
-
-    private Map<Member, BigDecimal> calculateTotalDueAmountByMembership(List<Dues> duesList) {
-        return duesList.stream()
-                .filter(d -> d.getMembership() != null) // Membership이 있는 항목만 처리
-                .collect(Collectors.groupingBy(
-                        d -> d.getMembership().getMember(), // Membership ID로 그룹화
-                        Collectors.mapping(
-                                Dues::getDueAmount, // dueAmount를 추출
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add) // 합산
-                        )
-                ));
     }
 }
