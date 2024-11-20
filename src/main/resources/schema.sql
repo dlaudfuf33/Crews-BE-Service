@@ -98,6 +98,7 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
+
 -- Agit 테이블
 CREATE TABLE agit (
     id             BIGINT       NOT NULL AUTO_INCREMENT,
@@ -110,10 +111,29 @@ CREATE TABLE agit (
     subject_id     BIGINT,
     updated_at     DATETIME(6),
     agit_name      VARCHAR(255) NOT NULL,
+    agit_and_account_id BIGINT,
+    common_dues_id BIGINT,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id)
+
 );
+
+-- CommonDues 테이블
+CREATE TABLE common_dues
+(
+    id          BIGINT       NOT NULL AUTO_INCREMENT,
+    due_day    INT      NOT NULL,
+    created_at  DATETIME(6),
+    due_amount DECIMAL(19, 2) NOT NULL,
+    updated_at  DATETIME(6),
+    agit_id     BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (agit_id) REFERENCES agit (id)
+
+
+);
+
 -- Agit And Account 테이블
 CREATE TABLE agit_and_account
 (
@@ -248,13 +268,16 @@ CREATE TABLE membership
 CREATE TABLE dues
 (
     id          BIGINT       NOT NULL AUTO_INCREMENT,
-    due_date    DATE      NOT NULL,
     created_at  DATETIME(6),
     due_amount DECIMAL(19, 2) NOT NULL,
+    due_date    DATETIME(6),
     updated_at  DATETIME(6),
     membership_id BIGINT,
+    common_dues_id BIGINT,
     PRIMARY KEY (id),
-    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE
+    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
+
 );
 
 -- Refresh Entity 테이블
@@ -262,7 +285,7 @@ CREATE TABLE refresh_entity
 (
     id         BIGINT NOT NULL AUTO_INCREMENT,
     expiration VARCHAR(255),
-    refresh    VARCHAR(255),
+    refresh    VARCHAR(2048),
     username   VARCHAR(255),
     PRIMARY KEY (id)
 );

@@ -52,10 +52,15 @@ INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, r
 VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
        (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
 
+INSERT INTO common_dues (due_day, due_amount, created_at, updated_at, agit_id)
+VALUES
+    ('3', 500.00, NOW(), NOW(), 1),
+    ('3', 750.50, NOW(), NOW(), 2);
+
 -- Dues 테이블에 더미 데이터 삽입
-INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id)
-VALUES (CURDATE(), NOW(), 1000.00, NOW(), 1),
-       (CURDATE(), NOW(), 2000.00, NOW(), 1);
+INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id)
+VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1),
+       (NOW(), NOW(), 2000.00, NOW(), 1, 2);
 
 
 -- Feed 테이블에 더미 데이터 삽입

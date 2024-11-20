@@ -61,4 +61,7 @@ public class Agit extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id")
     private Subject subject;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private CommonDues commonDues;
 }

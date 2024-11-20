@@ -32,7 +32,7 @@ public class AccountIssuedResponse {
 
     public static AccountIssuedResponse from(Account account){
         return AccountIssuedResponse.builder()
-                .memberName(account.getMember().getName())
+                .memberName(AESUtil.decrypt(account.getMember().getName()))
                 .ci(account.getMember().getCi())
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())

@@ -30,4 +30,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "JOIN FETCH m.addresses " +
             "WHERE m.email = :email")
     Optional<Member> findByEmailWithAddresses(@Param("email") String email);
+
+    Optional<Member> findByCi(String ci);
 }
