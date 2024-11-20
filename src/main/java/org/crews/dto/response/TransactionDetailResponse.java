@@ -14,6 +14,8 @@ import java.util.List;
 @Builder
 public class TransactionDetailResponse {
 
+    private String accountNumber;
+
     @Builder.Default
     private List<TransactionHistoryDto> tranList = new ArrayList<>();
 }
