@@ -106,7 +106,6 @@ VALUES (1, 1, NOW(), NOW()),
        (2, 2, NOW(), NOW());
 
 -- Regular Crewing 테이블에 더미 데이터 삽입
-INSERT INTO regular_crewing (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place,
-                             place_address, regular_name)
-VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '서울시 중구', '정기 크루잉 1'),
-       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '경기도 수원시', '정기 크루잉 2');
+INSERT INTO meeting (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place, regular_name)
+VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
+       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구','정기 크루잉 2');
