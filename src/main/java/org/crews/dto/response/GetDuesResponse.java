@@ -12,5 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class GetDuesResponse {
-    List<ProfileResponse> profileResponses;
+    private List<ProfileResponse> profileResponses;
+    private Integer memberCount;
 }

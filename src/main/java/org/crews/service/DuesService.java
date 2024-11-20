@@ -97,8 +97,9 @@ public class DuesService {
                 memberList.remove(filterMember);
             }
         });
+        List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();
 
-        return GetDuesResponse.builder().profileResponses(memberList.stream().map(ProfileResponse::from).toList()).build();
+        return GetDuesResponse.builder().profileResponses(profileResponses).memberCount(profileResponses.size()).build();
     }
 
     @Transactional
