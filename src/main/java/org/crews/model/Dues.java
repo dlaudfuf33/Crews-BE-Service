@@ -28,6 +28,15 @@ public class Dues extends BaseTimeEntity{
     @Column(nullable = false)
     private boolean isPayed;
 
+    @Column(nullable = false)
+    private String productName;
+
+    @Column(nullable = false)
+    private String accountNumber;
+
+    @Column(nullable = false)
+    private String agitName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Membership membership;
 

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,8 @@ public class DuesService {
             if(optionalAccount.isEmpty()) {
                 continue;
             }
-            Member filterMember = optionalAccount.get().getMember();
+            Account account = optionalAccount.get();
+            Member filterMember = account.getMember();
             Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(filterMember, agit);
             if(optionalMembership.isEmpty()) {
                 continue;
@@ -84,7 +84,8 @@ public class DuesService {
                     .findAny();
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
-                        .membership(optionalMembership.get()).isPayed(false).build();
+                        .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
+                        .productName(account.getProductName()).agitName(agit.getAgitName()).build();
                 saveDues.add(buildDues);
             }
         }

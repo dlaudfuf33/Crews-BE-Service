@@ -11,8 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountV2Response {
-    private List<AccountV2CrewResponse> crewAccountList;
-
-    private List<AccountV2PersonalResponse> personalAccountList;
+public class AccountHistoryV2Response {
+    private List<AccountHistoryV2Dto> accountHistory;
 }

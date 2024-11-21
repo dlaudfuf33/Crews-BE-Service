@@ -15,4 +15,7 @@ public interface DuesRepository extends JpaRepository<Dues, Long> {
     List<Dues> findByCommonDues(CommonDues commonDues);
 
     List<Dues> findByMembershipAndCommonDues(Membership membership, CommonDues commonDues);
+
+    List<Dues> findByMembership(Membership membership);
+
 }

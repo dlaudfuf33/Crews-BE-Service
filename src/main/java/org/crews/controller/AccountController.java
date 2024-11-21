@@ -11,7 +11,6 @@ import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
-import org.crews.model.AgitAndAccount;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
 import org.crews.utils.AuthUtil;

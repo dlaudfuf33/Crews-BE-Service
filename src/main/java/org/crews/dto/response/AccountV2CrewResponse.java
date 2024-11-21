@@ -22,8 +22,9 @@ public class AccountV2CrewResponse {
     private String accountNumber;
     private String productName;
     private BigDecimal balance;
+    private BigDecimal duesAmount;
 
-    public static AccountV2CrewResponse from(Agit agit){
+    public static AccountV2CrewResponse of(Agit agit, BigDecimal duesAmount){
         return AccountV2CrewResponse
                 .builder()
                 .agitId(agit.getId())
@@ -33,6 +34,7 @@ public class AccountV2CrewResponse {
                 .accountNumber(AESUtil.decrypt(agit.getAgitAndAccount().getAccount().getAccountNumber()))
                 .productName(agit.getAgitAndAccount().getAccount().getProductName())
                 .balance(agit.getAgitAndAccount().getAccount().getBalance())
+                .duesAmount(duesAmount)
                 .build();
 
     }
