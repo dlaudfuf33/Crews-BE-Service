@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.crews.model.Address;
 import org.crews.model.Member;
 import org.crews.model.MemberAndInteresting;
+import org.crews.utils.AESUtil;
 
 import java.util.List;
 
@@ -13,13 +14,13 @@ import java.util.List;
 public class MyinfoResponse {
     private String email;
     private String nickname;
-    private List<InterestingResponse> interests;
+    private List<InterestResponse> interests;
     private List<Address> address;
 
 
     public static MyinfoResponse from(Member member) {
         return MyinfoResponse.builder()
-                .email(member.getEmail())
+                .email(AESUtil.decrypt(member.getEmail()))
                 .nickname(member.getNickName())
                 .interests(
                         member.getMemberAndInterestings().stream()
@@ -30,7 +31,7 @@ public class MyinfoResponse {
                 .build();
     }
 
-    private static InterestingResponse convertToInterestingDto(MemberAndInteresting memberInteresting) {
-        return InterestingResponse.from(memberInteresting.getInteresting());
+    private static InterestResponse convertToInterestingDto(MemberAndInteresting memberInteresting) {
+        return InterestResponse.from(memberInteresting.getInteresting());
     }
 }

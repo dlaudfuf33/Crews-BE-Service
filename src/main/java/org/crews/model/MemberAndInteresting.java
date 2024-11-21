@@ -16,8 +16,16 @@ public class MemberAndInteresting extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private Interesting interesting;
+
+    public static MemberAndInteresting from(Member member){
+        return MemberAndInteresting.builder()
+                .member(member)
+                .build();
+    }
 }

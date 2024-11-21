@@ -2,11 +2,10 @@ package org.crews.service;
 
 import org.crews.dto.core.AccountResponse;
 import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.InterestsUpdateRequest;
 import org.crews.dto.request.MemberRequest;
-import org.crews.dto.response.InterestingResponse;
-import org.crews.dto.response.MemberResponse;
-import org.crews.dto.response.MyProfileResponse;
-import org.crews.dto.response.MyinfoResponse;
+import org.crews.dto.request.MyNicknameRequest;
+import org.crews.dto.response.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -22,11 +21,18 @@ public interface MemberService {
 
     public List<AccountResponse> getAccountInfoFromCore(Long id);
 
-    public MyProfileResponse getMyProfile(String memberEmail);
+    public MyProfileResponse getMyProfile(Long memberId);
 
-    public MyinfoResponse getMyinfo(String memberEmail);
+    public MyinfoResponse getMyinfo(Long memberId);
 
-    public List<InterestingResponse> getMyInterests(String memberEmail);
+    public List<InterestResponse> getMyInterests(Long memberId);
 
     boolean validateEmail(EmailRequest request);
+
+    MyNicknameResponse getMyNickname(Long memberId);
+
+    MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest);
+
+
+    void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
 }

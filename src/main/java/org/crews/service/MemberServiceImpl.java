@@ -9,21 +9,18 @@ import org.crews.dto.core.AccountResponse;
 import org.crews.dto.core.CIRequest;
 import org.crews.dto.core.MemberToCoreRequest;
 import org.crews.dto.request.EmailRequest;
+import org.crews.dto.request.InterestsUpdateRequest;
 import org.crews.dto.request.MemberRequest;
-import org.crews.dto.response.InterestingResponse;
-import org.crews.dto.response.MemberResponse;
-import org.crews.dto.response.MyProfileResponse;
-import org.crews.dto.response.MyinfoResponse;
+import org.crews.dto.request.MyNicknameRequest;
+import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
-import org.crews.repository.AccountRepository;
-import org.crews.repository.BankRepository;
-import org.crews.repository.MemberRepository;
-import org.crews.repository.RefreshRepository;
+import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
+import org.crews.utils.NicknameGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,12 +38,15 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
+    private final AddressRepository addressRepository;
+    private final MemberAndInterestingRepository memberAndInterestingRepository;
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final AESUtil aesUtil;
     private final CoreService coreService;
+    private final InterestingRepository interestingRepository;
 
 
     @Override
@@ -69,21 +69,32 @@ public class MemberServiceImpl implements MemberService {
             String jumin = createNumber(13, "");
             String ci = CIGenerator.generateCI(jumin);
             member.setCi(ci);
+            // 렌덤 닉네임 설정
+            member.setNickName(NicknameGenerator.generateRandomNickname());
             // 회원 저장
             Member savedMember = memberRepository.save(member);
+
+            // 회원 주소 설정 (수정필요)
+            addressRepository.save(Address.of(savedMember, memberRequest));
+            // 회원 관심사 설정 (텅빈)
+            memberAndInterestingRepository.save(MemberAndInteresting.builder()
+                    .member(savedMember)
+                    .interesting(interestingRepository.findById(1L).orElseThrow())
+                    .build());
+
 
             CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
                     .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<AccountIssuedResponse> stringMono = coreService.sendCICode(ciRequest);
             AccountIssuedResponse response = stringMono.block();
-            if(response == null)
+            if (response == null)
                 throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
             Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
-                () -> new CustomException(ErrorCode.WRONG_BANKCODE)
+                    () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 
@@ -179,30 +190,30 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MyProfileResponse getMyProfile(String memberEmail) {
+    public MyProfileResponse getMyProfile(Long memberId) {
         return MyProfileResponse.from(
                 memberRepository
-                        .findByEmailWithInterestings(memberEmail)
+                        .findByIdWithInterestings(memberId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
 
     }
 
     @Override
-    public MyinfoResponse getMyinfo(String memberEmail) {
+    public MyinfoResponse getMyinfo(Long memberId) {
         return MyinfoResponse.from(
                 memberRepository
-                        .findByEmailWithAddresses(memberEmail)
+                        .findByIdWithAddresses(memberId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     @Override
-    public List<InterestingResponse> getMyInterests(String memberEmail) {
+    public List<InterestResponse> getMyInterests(Long memberId) {
         return memberRepository
-                .findByEmailWithInterestings(memberEmail)
+                .findByIdWithInterestings(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
                 .getMemberAndInterestings().stream()
                 .map(MemberAndInteresting::getInteresting)
-                .map(InterestingResponse::from)
+                .map(InterestResponse::from)
                 .toList();
     }
 
@@ -210,6 +221,43 @@ public class MemberServiceImpl implements MemberService {
     public boolean validateEmail(EmailRequest request) {
         return memberRepository.existsByEmail(aesUtil.encrypt(request.getEmail()));
     }
+
+    @Override
+    public MyNicknameResponse getMyNickname(Long memberId) {
+        return MyNicknameResponse.from(memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))
+        );
+    }
+
+    @Override
+    @Transactional
+    public MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.setNickName(myNicknameRequest.getNickname());
+        Member savedMember = memberRepository.saveAndFlush(member);
+        return MyNicknameResponse.from(savedMember);
+    }
+
+    @Override
+    @Transactional
+    public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
+        // 1. 기존 회원의 모든 관심사 삭제
+        memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
+
+        // 2. 새로운 관심사 추가
+        interestsUpdateRequest.getInterests().forEach(item -> {
+            MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
+            memberAndInteresting.setMember(memberRepository.findById(memberId)
+                    .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. id: " + memberId)));
+            Interesting interesting = interestingRepository.findById(item.getInterestId())
+                    .orElseThrow(() -> new IllegalArgumentException("관심사 정보를 찾을 수 없습니다. id: " + item.getInterestId()));
+            memberAndInteresting.setInteresting(interesting);
+            memberAndInterestingRepository.save(memberAndInteresting);
+        });
+    }
+
 
     private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
