@@ -242,7 +242,7 @@ public class CoreService {
         }
     }
 
-    public AccountInfoResponse accountDetails(CIOnlyRequest ci) {
+    public AccountInfoResponse getAllAccounts(CIOnlyRequest ci) {
         try {
             AccountInfoResponse response = webClient.post()
                     .uri("/v1/accounts/info")
@@ -283,4 +283,5 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
 }

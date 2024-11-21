@@ -12,11 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class TransactionHistoryDto {
-    private String memberName;
-    private String ci;
-    private AccountType accountType;
-    private String bankCode;
-    private String bankName;
+    private String counterpartyBankCode;
     private String counterpartyAccountNum;
     private TranType tranType;
     private LocalDateTime transactionTime;
