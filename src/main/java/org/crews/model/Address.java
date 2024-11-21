@@ -3,6 +3,7 @@ package org.crews.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.request.MemberRequest;
 import org.crews.model.constants.AddressType;
 
 @Getter
@@ -20,6 +21,7 @@ public class Address extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    @Column(nullable = false)
     private String addressDo;
 
     @Column(nullable = false)
@@ -31,7 +33,17 @@ public class Address extends BaseTimeEntity {
     @Column(nullable = false)
     private String addressDong;
 
-    @Column(nullable = false)
+    @Column(nullable = false, insertable = false)
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
+
+    public static Address of(Member member, MemberRequest memberRequest) {
+        return Address.builder()
+                .member(member)
+                .addressDo(memberRequest.getAddressDo())
+                .addressSi(memberRequest.getAddressSi())
+                .addressGuGun(memberRequest.getAddressGuGun())
+                .addressDong(memberRequest.getAddressDong())
+                .build();
+    }
 }
