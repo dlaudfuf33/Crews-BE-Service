@@ -1,23 +1,21 @@
 package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crews.dto.response.InterestingResponse;
-import org.crews.service.InterestingService;
+import org.crews.dto.response.SubjectsResponse;
+import org.crews.service.SubjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/interests")
 public class InterestsController {
-    private final InterestingService interestService;
+    private final SubjectService subjectService;
 
     @GetMapping
-    public ResponseEntity<List<InterestingResponse>> getAllInterests(){
-        return ResponseEntity.ok(interestService.getAllInterestings());
+    public ResponseEntity<SubjectsResponse> getAllInterests(){
+        return ResponseEntity.ok(subjectService.getAllSubjects());
     }
 }

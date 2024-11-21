@@ -6,16 +6,14 @@ import org.crews.model.Interesting;
 
 @Getter
 @Builder
-public class InterestingResponse {
+public class InterestResponse {
     private Long interestingId;
     private String name;
-    private String subjectName;
 
-    public static InterestingResponse from(Interesting interesting) {
-        return InterestingResponse.builder()
+    public static InterestResponse from(Interesting interesting) {
+        return InterestResponse.builder()
                 .interestingId(interesting.getId())
                 .name(interesting.getName())
-                .subjectName(interesting.getSubject().getSubjectName())
                 .build();
     }
 }
