@@ -14,6 +14,12 @@ public class AuthUtil {
     }
 
     public Long getMemberId(HttpServletRequest request){
-        return jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) return 0L;
+
+        Long memberId = jwtUtil.getMemberId(header.substring(7));
+        if (memberId == null) return 0L;
+
+        return memberId;
     }
 }

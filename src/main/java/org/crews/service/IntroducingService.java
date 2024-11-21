@@ -1,0 +1,45 @@
+package org.crews.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.response.IntroducingResponse;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
+import org.crews.model.Agit;
+import org.crews.model.Introducing;
+import org.crews.model.Member;
+import org.crews.model.Membership;
+import org.crews.repository.AgitRepository;
+import org.crews.repository.IntroducingRepository;
+import org.crews.repository.MemberRepository;
+import org.crews.repository.MemberShipRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class IntroducingService {
+    private final IntroducingRepository introducingRepository;
+    private final AgitRepository agitRepository;
+    private final MemberRepository memberRepository;
+    private final MemberShipRepository memberShipRepository;
+
+    public IntroducingResponse getIntroducing(Long memberId, Long agitId) {
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
+
+        String memberRole;
+        if (memberId == 0L) {
+            memberRole = "NOTMEMBER";
+        }else{
+            Member member = memberRepository.findById(memberId).orElseThrow(
+                    ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+            Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                    ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+            memberRole = membership.getRole().toString();
+        }
+        Introducing introducing = agit.getIntroducing();
+
+        return IntroducingResponse.of(memberRole,introducing);
+    }
+}
