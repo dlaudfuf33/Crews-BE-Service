@@ -2,12 +2,12 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
-import org.crews.dto.request.CardRemoveRequest;
 import org.crews.dto.core.CommonRequest;
 import org.crews.dto.core.CoreCardRemoveRequest;
 import org.crews.dto.core.MessageResponse;
+import org.crews.dto.request.AccountLinkRequest;
+import org.crews.dto.request.CardRemoveRequest;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -49,7 +49,7 @@ public class CardService {
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getRole().equals(MemberRole.MEMBER)){
-            throw new CustomException(ErrorCode.CREW_ROLE_NOT_AUTHORIZED);
+            throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
         }
         List<Card> cardList = cardRepository.findByAccountAndMemberAndIsDeletedFalse(account, member);
         if(!cardList.isEmpty())

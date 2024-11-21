@@ -1,5 +1,6 @@
 package org.crews.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,8 @@ public class Interesting extends BaseTimeEntity{
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    @JsonBackReference
     private Subject subject;
 
     @OneToMany(mappedBy = "interesting")
