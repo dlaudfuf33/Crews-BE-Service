@@ -28,6 +28,7 @@ public class AccountIssuedResponse {
     private LocalDateTime updateAt;
     private BigDecimal balance;
     private String fintechUseNum;
+    private String productName;
 
 
     public static AccountIssuedResponse from(Account account){
@@ -42,6 +43,7 @@ public class AccountIssuedResponse {
                 .updateAt(account.getUpdatedAt())
                 .balance(account.getBalance())
                 .fintechUseNum(account.getFintecNumber())
+                .productName(account.getProductName())
                 .build();
     }
 }

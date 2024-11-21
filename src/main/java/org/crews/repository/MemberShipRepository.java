@@ -18,4 +18,7 @@ public interface MemberShipRepository extends JpaRepository<Membership, Long> {
 
     @EntityGraph(attributePaths = {"member"})
     List<Membership> findByAgit(Agit agit);
+
+    @EntityGraph(attributePaths = {"agit", "agit.agitAndAccount", "agit.agitAndAccount.account"})
+    List<Membership> findByMember(Member member);
 }

@@ -16,12 +16,14 @@ import org.crews.dto.response.TransactionDetailResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
+import org.crews.model.constants.AccountType;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,7 +38,7 @@ public class AccountService {
     private final AgitAndAccountRepository agitAndAccountRepository;
     private final CoreService coreService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AccountOneResponse accountInfo(Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
@@ -48,7 +50,9 @@ public class AccountService {
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
         String ci = agitAndAccount.getAccount().getMember().getCi();
         CommonRequest commonRequest = CommonRequest.builder().ci(ci).fintechUseNum(fintecNumber).build();
-        return coreService.accountInfo(commonRequest);
+        AccountOneResponse accountOneResponse = coreService.accountInfo(commonRequest);
+        agitAndAccount.getAccount().setBalance(accountOneResponse.getBalance());
+        return accountOneResponse;
     }
 
     @Transactional
@@ -72,7 +76,7 @@ public class AccountService {
         );
         Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
                 .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
         Account savedAccount = accountRepository.save(account);
         return AccountIssuedResponse.from(savedAccount);
     }
@@ -125,7 +129,13 @@ public class AccountService {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
         CIOnlyRequest request = CIOnlyRequest.builder().ci(ci).build();
-        return coreService.getAllAccounts(request);
+        AccountInfoResponse allAccounts = coreService.getAllAccounts(request);
+        for(AccountIssuedResponse response : allAccounts.getAccountList()){
+            Optional<Account> findAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(response.getAccountNumber()));
+            if(findAccount.isEmpty()) continue;
+            findAccount.get().setBalance(response.getBalance());
+        }
+        return allAccounts;
     }
 
     private String maskedAccountNumber(String accountNumber) {

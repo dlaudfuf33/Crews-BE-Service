@@ -51,6 +51,7 @@ CREATE TABLE account
     fintec_number         VARCHAR(255)              NOT NULL,
     masked_account_number VARCHAR(255)              NOT NULL,
     account_type          ENUM ('CREW', 'PERSONAL') NOT NULL,
+    product_name          VARCHAR(255)              NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (bank_id) REFERENCES bank (id),
     FOREIGN KEY (member_id) REFERENCES member (id)

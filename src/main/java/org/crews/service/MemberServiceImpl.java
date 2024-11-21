@@ -88,7 +88,7 @@ public class MemberServiceImpl implements MemberService {
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
                 .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 

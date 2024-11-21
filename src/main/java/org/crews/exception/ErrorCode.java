@@ -34,6 +34,7 @@ public enum ErrorCode {
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.BAD_REQUEST),
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
     PRESENT_AGIT_AND_ACCOUNT("이미 연결된 아지트와 계좌입니다.", HttpStatus.BAD_REQUEST),
+    CREW_ACCOUNT_PRESENT("모임통장이 이미 존재합니다.", HttpStatus.BAD_REQUEST),
 
 
     // 403 FORBIDDEN

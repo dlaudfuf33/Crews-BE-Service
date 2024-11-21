@@ -14,9 +14,9 @@ VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동'
 
 -- Account 테이블에 더미 데이터 삽입
 INSERT INTO account (balance, bank_id, created_at, member_id, updated_at, account_number, fintec_number,
-                     masked_account_number, account_type)
-VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSONAL'),
-       (250000.00, 2, NOW(), 2, NOW(), '9876543210', 'FT002', '*****210', 'CREW');
+                     masked_account_number, account_type, product_name)
+VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSONAL', '우리 일반통장 상품'),
+       (250000.00, 2, NOW(), 2, NOW(), '9876543210', 'FT002', '*****210', 'CREW', '우리 일반통장 상품');
 
 -- Account History 테이블에 더미 데이터 삽입
 INSERT INTO account_history (account_id, after_balance_amount, created_at, transaction_amount, transaction_time,
