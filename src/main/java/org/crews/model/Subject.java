@@ -1,5 +1,6 @@
 package org.crews.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,8 @@ public class Subject extends BaseTimeEntity{
     @Column(nullable = false)
     private String subjectName;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     @Builder.Default
     private List<Interesting> interestings = new ArrayList<>();
 
