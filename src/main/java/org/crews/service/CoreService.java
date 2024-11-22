@@ -3,6 +3,7 @@ package org.crews.service;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.TransactionDetailRequest;
+import org.crews.dto.response.ProductAllResponse;
 import org.crews.dto.response.TransactionDetailResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -284,4 +285,23 @@ public class CoreService {
         }
     }
 
+    public ProductAllResponse getAllProducts() {
+        try {
+            ProductAllResponse response = webClient.get()
+                    .uri("/v1/products")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .retrieve()
+                    .bodyToMono(ProductAllResponse.class)
+                    .block();
+            if (response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        } catch (WebClientResponseException ex) {
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
 }
