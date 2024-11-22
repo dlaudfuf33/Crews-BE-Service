@@ -1,13 +1,14 @@
 package org.crews.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Builder
@@ -59,7 +60,7 @@ public class Agit extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Dues dues;
 
-    @OneToOne()
+    @OneToOne
     private AgitAndAccount agitAndAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)

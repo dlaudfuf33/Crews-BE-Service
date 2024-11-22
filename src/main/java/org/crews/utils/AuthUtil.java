@@ -3,8 +3,10 @@ package org.crews.utils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.crews.jwt.JWTUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Component
+@RequestScope
 public class AuthUtil {
 
     private final JWTUtil jwtUtil;

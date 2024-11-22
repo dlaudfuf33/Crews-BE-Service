@@ -28,6 +28,19 @@ public class MemberRequest {
     @Pattern(regexp = "^\\d{11}$", message = "전화번호는 10~11자리 숫자여야 합니다.")
     private String phoneNumber;
 
+    @NotBlank(message = "도 주소는 필수 입력 항목입니다.")
+    private String addressDo;
+
+    @NotBlank(message = "시 주소는 필수 입력 항목입니다.")
+    private String addressSi;
+
+    @NotBlank(message = "구(군) 주소 는 필수 입력 항목입니다.")
+    private String addressGuGun;
+
+    @NotBlank(message = "동 주소는 필수 입력 항목입니다.")
+    private String addressDong;
+
+
     private String profileImage;
 
 }

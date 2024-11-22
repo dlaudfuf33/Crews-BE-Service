@@ -3,10 +3,10 @@ package org.crews.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountInfoResponse;
-import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.request.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.request.AccountLinkRequest;
+import org.crews.dto.request.MemberIdRequest;
 import org.crews.model.AgitAndAccount;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
@@ -27,8 +27,8 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@PathVariable("agits-id") Long agitId,
-                                                               @RequestBody MemberIdDto memberIdDto){
-        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdDto, MemberRole.LEADER));
+                                                               @RequestBody MemberIdRequest memberIdRequest){
+        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdRequest, MemberRole.LEADER));
     }
 
     @PostMapping("/link")

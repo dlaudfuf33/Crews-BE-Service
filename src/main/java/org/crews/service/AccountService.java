@@ -4,11 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.request.MemberIdDto;
-import org.crews.dto.core.AccountIssuedResponse;
-import org.crews.dto.core.AccountOneResponse;
-import org.crews.dto.core.CommonRequest;
-
+import org.crews.dto.request.MemberIdRequest;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -46,8 +42,8 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId, MemberIdDto memberIdDto, MemberRole memberRole) {
-        Member member = memberRepository.findById(memberIdDto.getMemberId()).orElseThrow(
+    public AccountIssuedResponse accountIssued(Long agitId, MemberIdRequest memberIdRequest, MemberRole memberRole) {
+        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -108,7 +104,7 @@ public class AccountService {
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
-        accountRepository.findByIdAndFintecNumber(accountId,accountLinkRequest.getFintechUseNum()).orElseThrow(
+        accountRepository.findByIdAndFintecNumber(accountId, accountLinkRequest.getFintechUseNum()).orElseThrow(
                 () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
         );
         CIOnlyRequest request = CIOnlyRequest.builder().ci(ci).build();
