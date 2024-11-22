@@ -1,7 +1,7 @@
 package org.crews.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.crews.dto.core.MemberToCoreDto;
+import org.crews.dto.core.MemberToCoreRequest;
 import org.crews.service.CoreService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +22,10 @@ public class TestController {
      */
     @PostMapping("/block")
     public String callTestApiBlock() {
-        MemberToCoreDto memberToCoreDto = new MemberToCoreDto();
-        memberToCoreDto.setName("홍길동");
-        memberToCoreDto.setPhoneNumber("010-1234-5678");
-        return coreService.postTestBlocking(memberToCoreDto); // API 호출
+        MemberToCoreRequest memberToCoreRequest = new MemberToCoreRequest();
+        memberToCoreRequest.setName("홍길동");
+        memberToCoreRequest.setPhoneNumber("010-1234-5678");
+        return coreService.postTestBlocking(memberToCoreRequest); // API 호출
     }
 
     /**
@@ -36,10 +36,11 @@ public class TestController {
      */
     @PostMapping("/nonblock")
     public Mono<String> callTestApiNonBlock() {
-        MemberToCoreDto memberToCoreDto = new MemberToCoreDto();
-        memberToCoreDto.setName("홍길동");
-        memberToCoreDto.setPhoneNumber("010-1234-5678");
-        return coreService.postTestNonBlocking(memberToCoreDto);
+        MemberToCoreRequest
+                memberToCoreRequest = new MemberToCoreRequest();
+        memberToCoreRequest.setName("홍길동");
+        memberToCoreRequest.setPhoneNumber("010-1234-5678");
+        return coreService.postTestNonBlocking(memberToCoreRequest);
     }
 
 }
