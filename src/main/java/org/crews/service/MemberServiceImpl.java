@@ -73,24 +73,34 @@ public class MemberServiceImpl implements MemberService {
             // 회원 저장
             Member savedMember = memberRepository.save(member);
 
-            // 회원 주소 설정 (수정필요)
-            addressRepository.save(Address.of(savedMember, memberRequest));
-            addressRepository.save(Address.builder()
-                    .member(savedMember)
-                    .addressDo("")
-                    .addressSi("")
-                    .addressGuGun("")
-                    .addressDong("")
-                    .addressType(AddressType.COMPANY)
-                    .build());
-            addressRepository.save(Address.builder()
-                    .member(savedMember)
-                    .addressDo("")
-                    .addressSi("")
-                    .addressGuGun("")
-                    .addressDong("")
-                    .addressType(AddressType.OTHER)
-                    .build());
+            // 회원 주소 임시설정 (수정필요)
+            List<Address> addresses = Arrays.asList(
+                    Address.builder()
+                            .addressType(AddressType.HOME)
+                            .member(savedMember)
+                            .addressDo(memberRequest.getAddressDo())
+                            .addressSi(memberRequest.getAddressSi())
+                            .addressGuGun(memberRequest.getAddressGuGun())
+                            .addressDong(memberRequest.getAddressDong())
+                            .build(),
+                    Address.builder()
+                            .addressType(AddressType.COMPANY)
+                            .member(savedMember)
+                            .addressDo("")
+                            .addressSi("")
+                            .addressGuGun("")
+                            .addressDong("")
+                            .build(),
+                    Address.builder()
+                            .addressType(AddressType.OTHER)
+                            .member(savedMember)
+                            .addressDo("")
+                            .addressSi("")
+                            .addressGuGun("")
+                            .addressDong("")
+                            .build()
+            );
+            addressRepository.saveAll(addresses);
             // 회원 관심사 설정 (텅빈)
             memberAndInterestingRepository.save(MemberAndInteresting.builder()
                     .member(savedMember)
