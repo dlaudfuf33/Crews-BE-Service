@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // 400 BAD_REQUEST
     WRONG_BANKCODE("잘못된 은행코드 입니다.", HttpStatus.BAD_REQUEST),
+    WRONG_ADDRESS_TYPE("잘못된 주소타입 입니다.", HttpStatus.BAD_REQUEST),
     NOT_MATCHED_MEMBER("해당하는 아지트의 멤버가 아닙니다.", HttpStatus.BAD_REQUEST),
     REQUIRED_NOT_NULL("필수 값이 누락되었습니다.", HttpStatus.BAD_REQUEST),
     WRONG_RESPONSE("잘못된 응답을 수신했습니다.", HttpStatus.BAD_REQUEST),
@@ -34,6 +35,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("이 이메일로 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EVENT_NOT_FOUND("해당하는 번호의 정기모임이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    ADDRESS_NOT_FOUND("해당 회원의 주소를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
 
     // 409 CONFLICT
@@ -41,6 +43,7 @@ public enum ErrorCode {
 
     // 500 SERVER_ERROR
     DATABASE_ACCESS_FAILED("데이터베이스 접근 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNKNOWN_EXCEPTION("예상 외 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_ENCRYPTION_FAILED("이메일 암호화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.",HttpStatus.INTERNAL_SERVER_ERROR);
     private final String message;

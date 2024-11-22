@@ -5,11 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.EmailRequest;
-import org.crews.dto.request.InterestsUpdateRequest;
-import org.crews.dto.request.MemberRequest;
-import org.crews.dto.request.MyNicknameRequest;
+import org.crews.dto.request.*;
 import org.crews.dto.response.*;
+import org.crews.exception.CustomException;
 import org.crews.service.MemberService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
@@ -105,20 +103,13 @@ public class MemberController {
         MyNicknameResponse myNickName = memberService.getMyNickname(memberId);
         return ResponseEntity.ok(myNickName);
     }
+
     @PutMapping("/me/nickname")
-    public ResponseEntity<MyNicknameResponse> updateMyNickname(@RequestBody MyNicknameRequest myNicknameRequest,HttpServletRequest request) {
+    public ResponseEntity<MyNicknameResponse> updateMyNickname(@RequestBody MyNicknameRequest myNicknameRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        MyNicknameResponse myNickName = memberService.updateMyNickname(memberId,myNicknameRequest);
+        MyNicknameResponse myNickName = memberService.updateMyNickname(memberId, myNicknameRequest);
         return ResponseEntity.ok(myNickName);
     }
-
-    @GetMapping("/me")
-    public ResponseEntity<MyinfoResponse> getMyInfo(HttpServletRequest request) {
-        Long memberId = authUtil.getMemberId(request);
-        MyinfoResponse myInfo = memberService.getMyinfo(memberId);
-        return ResponseEntity.ok(myInfo);
-    }
-
 
     @GetMapping("/me/interests")
     public ResponseEntity<List<InterestResponse>> getMyInterests(HttpServletRequest request) {
@@ -128,11 +119,37 @@ public class MemberController {
 
     @PutMapping("/me/interests")
     public ResponseEntity<Void> updateMyInterests(@RequestBody InterestsUpdateRequest interestsUpdateRequest,
-                                               HttpServletRequest request) {
+                                                  HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        memberService.updateMyInterestings(memberId,interestsUpdateRequest);
+        memberService.updateMyInterestings(memberId, interestsUpdateRequest);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyinfoResponse> getMyInfo(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        MyinfoResponse myInfo = memberService.getMyinfo(memberId);
+        return ResponseEntity.ok(myInfo);
+    }
+
+    @GetMapping("/me/addresses")
+    public ResponseEntity<AddressesResponse> getAddresses(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        AddressesResponse myAddresses = memberService.getMyAddresses(memberId);
+        return ResponseEntity.ok(myAddresses);
+    }
+
+    @PutMapping("/me/addresses")
+    public ResponseEntity<Void> updateAddresses(@RequestBody AddressesRequest addressesRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        try {
+            memberService.updateMyAddresses(memberId, addressesRequest);
+            return ResponseEntity.noContent().build();
+        } catch (CustomException e) {
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();
+        }
+    }
+
 
 }
 

@@ -33,7 +33,7 @@ public class Address extends BaseTimeEntity {
     @Column(nullable = false)
     private String addressDong;
 
-    @Column(nullable = false, insertable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 

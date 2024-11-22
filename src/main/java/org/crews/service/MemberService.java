@@ -1,10 +1,7 @@
 package org.crews.service;
 
 import org.crews.dto.core.AccountResponse;
-import org.crews.dto.request.EmailRequest;
-import org.crews.dto.request.InterestsUpdateRequest;
-import org.crews.dto.request.MemberRequest;
-import org.crews.dto.request.MyNicknameRequest;
+import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.springframework.http.ResponseEntity;
 
@@ -35,4 +32,8 @@ public interface MemberService {
 
 
     void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
+
+    AddressesResponse getMyAddresses(Long memberId);
+
+    void updateMyAddresses(Long memberId, AddressesRequest addressesRequest);
 }

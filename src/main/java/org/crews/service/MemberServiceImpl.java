@@ -8,15 +8,13 @@ import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountResponse;
 import org.crews.dto.core.CIRequest;
 import org.crews.dto.core.MemberToCoreRequest;
-import org.crews.dto.request.EmailRequest;
-import org.crews.dto.request.InterestsUpdateRequest;
-import org.crews.dto.request.MemberRequest;
-import org.crews.dto.request.MyNicknameRequest;
+import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
+import org.crews.model.constants.AddressType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
@@ -28,6 +26,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +75,22 @@ public class MemberServiceImpl implements MemberService {
 
             // 회원 주소 설정 (수정필요)
             addressRepository.save(Address.of(savedMember, memberRequest));
+            addressRepository.save(Address.builder()
+                    .member(savedMember)
+                    .addressDo("")
+                    .addressSi("")
+                    .addressGuGun("")
+                    .addressDong("")
+                    .addressType(AddressType.COMPANY)
+                    .build());
+            addressRepository.save(Address.builder()
+                    .member(savedMember)
+                    .addressDo("")
+                    .addressSi("")
+                    .addressGuGun("")
+                    .addressDong("")
+                    .addressType(AddressType.OTHER)
+                    .build());
             // 회원 관심사 설정 (텅빈)
             memberAndInterestingRepository.save(MemberAndInteresting.builder()
                     .member(savedMember)
@@ -243,21 +258,42 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
-        // 1. 기존 회원의 모든 관심사 삭제
         memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
 
-        // 2. 새로운 관심사 추가
         interestsUpdateRequest.getInterests().forEach(item -> {
             MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
             memberAndInteresting.setMember(memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다. id: " + memberId)));
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
             Interesting interesting = interestingRepository.findById(item.getInterestId())
-                    .orElseThrow(() -> new IllegalArgumentException("관심사 정보를 찾을 수 없습니다. id: " + item.getInterestId()));
+                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND));
             memberAndInteresting.setInteresting(interesting);
             memberAndInterestingRepository.save(memberAndInteresting);
         });
     }
 
+    @Override
+    public AddressesResponse getMyAddresses(Long memberId) {
+        return AddressesResponse.from(addressRepository.findByMemberId(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.ADDRESS_NOT_FOUND)
+        ).stream().map(AddressResponse::from).toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateMyAddresses(Long memberId, AddressesRequest addressesRequest) {
+        Member member = memberRepository.findByIdWithAddresses(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Set<Address> existingAddresses = member.getAddresses();
+        List<AddressRequest> newAddresses = addressesRequest.getAddresses();
+        for (AddressRequest newAddress : newAddresses) {
+            Address existingAddress = existingAddresses.stream()
+                    .filter(addr -> addr.getAddressType() == newAddress.getType())
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException(ErrorCode.WRONG_ADDRESS_TYPE));
+            updateAddressFields(existingAddress, newAddress);
+        }
+        addressRepository.saveAll(existingAddresses);
+    }
 
     private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
@@ -269,6 +305,21 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return maskingResult;
+    }
+
+    private void updateAddressFields(Address existingAddress, AddressRequest newAddress) {
+        if (newAddress.getDoName() != null) {
+            existingAddress.setAddressDo(newAddress.getDoName());
+        }
+        if (newAddress.getSiName() != null) {
+            existingAddress.setAddressSi(newAddress.getSiName());
+        }
+        if (newAddress.getGuName() != null) {
+            existingAddress.setAddressGuGun(newAddress.getGuName());
+        }
+        if (newAddress.getDongName() != null) {
+            existingAddress.setAddressDong(newAddress.getDongName());
+        }
     }
 
 }
