@@ -4,31 +4,21 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.crews.dto.core.AccountIssuedResponse;
-import org.crews.dto.request.EmailRequest;
-import org.crews.dto.request.MemberRequest;
-import org.crews.dto.response.MemberResponse;
-import org.crews.dto.core.AccountResponseDto;
+import org.crews.dto.core.AccountResponse;
 import org.crews.dto.core.CIRequest;
-import org.crews.dto.core.MemberToCoreDto;
-import org.crews.dto.response.InterestingResponseDto;
-import org.crews.dto.response.MyProfileResponse;
-import org.crews.dto.response.MyinfoResponse;
+import org.crews.dto.core.MemberToCoreRequest;
+import org.crews.dto.request.*;
+import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
-import org.crews.model.Account;
-import org.crews.model.Bank;
-import org.crews.model.Member;
-import org.crews.model.MemberAndInteresting;
-import org.crews.model.RefreshEntity;
-import org.crews.repository.AccountRepository;
-import org.crews.repository.BankRepository;
-import org.crews.repository.MemberRepository;
-import org.crews.repository.RefreshRepository;
+import org.crews.model.*;
+import org.crews.model.constants.AddressType;
+import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
+import org.crews.utils.NicknameGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,12 +36,15 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
+    private final AddressRepository addressRepository;
+    private final MemberAndInterestingRepository memberAndInterestingRepository;
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
     private final AESUtil aesUtil;
     private final CoreService coreService;
+    private final InterestingRepository interestingRepository;
 
 
     @Override
@@ -74,17 +67,44 @@ public class MemberServiceImpl implements MemberService {
             String jumin = createNumber(13, "");
             String ci = CIGenerator.generateCI(jumin);
             member.setCi(ci);
+            // 렌덤 닉네임 설정
+            member.setNickName(NicknameGenerator.generateRandomNickname());
             // 회원 저장
             Member savedMember = memberRepository.save(member);
+
+            // 회원 주소 설정 (수정필요)
+            addressRepository.save(Address.of(savedMember, memberRequest));
+            addressRepository.save(Address.builder()
+                    .member(savedMember)
+                    .addressDo("")
+                    .addressSi("")
+                    .addressGuGun("")
+                    .addressDong("")
+                    .addressType(AddressType.COMPANY)
+                    .build());
+            addressRepository.save(Address.builder()
+                    .member(savedMember)
+                    .addressDo("")
+                    .addressSi("")
+                    .addressGuGun("")
+                    .addressDong("")
+                    .addressType(AddressType.OTHER)
+                    .build());
+            // 회원 관심사 설정 (텅빈)
+            memberAndInterestingRepository.save(MemberAndInteresting.builder()
+                    .member(savedMember)
+                    .interesting(interestingRepository.findById(1L).orElseThrow())
+                    .build());
+
 
             CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
                     .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<AccountIssuedResponse> stringMono = coreService.sendCICode(ciRequest);
             AccountIssuedResponse response = stringMono.block();
-            if(response == null)
+            if (response == null)
                 throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
             Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
-                () -> new CustomException(ErrorCode.WRONG_BANKCODE)
+                    () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
                 .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
@@ -166,11 +186,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<AccountResponseDto> getAccountInfoFromCore(Long id) {
+    public List<AccountResponse> getAccountInfoFromCore(Long id) {
         Member member = memberRepository
                 .findById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         log.info("{} : {}", member.getName(), member.getPhoneNumber());
-        return coreService.findCoreSideAccounts(MemberToCoreDto.fromEntity(member));
+        return coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
     }
 
     private String createNumber(int count, String prefix) {
@@ -184,35 +204,93 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MyProfileResponse getMyProfile(String memberEmail) {
-        return MyProfileResponse.of(
+    public MyProfileResponse getMyProfile(Long memberId) {
+        return MyProfileResponse.from(
                 memberRepository
-                        .findByEmailWithInterestings(memberEmail)
-                        .orElseThrow(NoSuchElementException::new));
+                        .findByIdWithInterestings(memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
+
     }
 
     @Override
-    public MyinfoResponse getMyinfo(String memberEmail) {
-        return MyinfoResponse.of(
+    public MyinfoResponse getMyinfo(Long memberId) {
+        return MyinfoResponse.from(
                 memberRepository
-                        .findByEmailWithAddresses(memberEmail)
+                        .findByIdWithAddresses(memberId)
                         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     @Override
-    public List<InterestingResponseDto> getMyInterests(String memberEmail) {
+    public List<InterestResponse> getMyInterests(Long memberId) {
         return memberRepository
-                .findByEmailWithInterestings(memberEmail)
+                .findByIdWithInterestings(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
                 .getMemberAndInterestings().stream()
                 .map(MemberAndInteresting::getInteresting)
-                .map(InterestingResponseDto::of)
+                .map(InterestResponse::from)
                 .toList();
     }
 
     @Override
     public boolean validateEmail(EmailRequest request) {
         return memberRepository.existsByEmail(aesUtil.encrypt(request.getEmail()));
+    }
+
+    @Override
+    public MyNicknameResponse getMyNickname(Long memberId) {
+        return MyNicknameResponse.from(memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))
+        );
+    }
+
+    @Override
+    @Transactional
+    public MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.setNickName(myNicknameRequest.getNickname());
+        Member savedMember = memberRepository.saveAndFlush(member);
+        return MyNicknameResponse.from(savedMember);
+    }
+
+    @Override
+    @Transactional
+    public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
+        memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        interestsUpdateRequest.getInterests().forEach(item -> {
+            MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
+            memberAndInteresting.setMember(foundMember);
+            memberAndInteresting.setInteresting(interestingRepository.findById(item.getInterestId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND)));
+            memberAndInterestingRepository.save(memberAndInteresting);
+        });
+    }
+
+    @Override
+    public AddressesResponse getMyAddresses(Long memberId) {
+        return AddressesResponse.from(addressRepository.findByMemberId(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.ADDRESS_NOT_FOUND)
+        ).stream().map(AddressResponse::from).toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateMyAddresses(Long memberId, AddressesRequest addressesRequest) {
+        Member member = memberRepository.findByIdWithAddresses(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Set<Address> existingAddresses = member.getAddresses();
+        List<AddressRequest> newAddresses = addressesRequest.getAddresses();
+        for (AddressRequest newAddress : newAddresses) {
+            Address existingAddress = existingAddresses.stream()
+                    .filter(addr -> addr.getAddressType() == newAddress.getType())
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException(ErrorCode.WRONG_ADDRESS_TYPE));
+            updateAddressFields(existingAddress, newAddress);
+        }
+        addressRepository.saveAll(existingAddresses);
     }
 
     private String maskedAccountNumber(String accountNumber) {
@@ -225,6 +303,21 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return maskingResult;
+    }
+
+    private void updateAddressFields(Address existingAddress, AddressRequest newAddress) {
+        if (newAddress.getDoName() != null) {
+            existingAddress.setAddressDo(newAddress.getDoName());
+        }
+        if (newAddress.getSiName() != null) {
+            existingAddress.setAddressSi(newAddress.getSiName());
+        }
+        if (newAddress.getGuName() != null) {
+            existingAddress.setAddressGuGun(newAddress.getGuName());
+        }
+        if (newAddress.getDongName() != null) {
+            existingAddress.setAddressDong(newAddress.getDongName());
+        }
     }
 
 }

@@ -19,8 +19,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "JOIN FETCH m.memberAndInterestings mai " +
             "JOIN FETCH mai.interesting interests " +
             "JOIN FETCH interests.subject " +
-            "WHERE m.email = :email")
-    Optional<Member> findByEmailWithInterestings(@Param("email") String email);
+            "WHERE m.id = :id")
+    Optional<Member> findByIdWithInterestings(@Param("id") Long id);
 
     // MyInfo용
     @Query("SELECT DISTINCT m FROM Member m " +
@@ -28,8 +28,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "JOIN FETCH mai.interesting " +
             "JOIN FETCH mai.interesting.subject " +
             "JOIN FETCH m.addresses " +
-            "WHERE m.email = :email")
-    Optional<Member> findByEmailWithAddresses(@Param("email") String email);
+            "WHERE m.id = :id")
+    Optional<Member> findByIdWithAddresses(@Param("id") Long id);
 
     Optional<Member> findByCi(String ci);
+
 }

@@ -1,13 +1,12 @@
 package org.crews.service;
 
-import static org.crews.exception.ErrorCode.*;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
 import org.crews.dto.response.DuesAlarmResponse;
+import org.crews.dto.response.AgitResponse;
+
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
@@ -41,7 +40,7 @@ public class AgitService {
     @Transactional
     public AgitResponse generateAgit(AgitRequest agitRequest) {
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
-                () -> new CustomException(SUBJECT_NOT_FOUND)
+                () -> new CustomException(ErrorCode.SUBJECT_NOT_FOUND)
         );
         Agit agit = Agit.builder().agitName(agitRequest.getName()).isDue(false)
                 .maxPerson(30).currentPerson(1).isDeleted(false).subject(subject).introduction(agitRequest.getIntroduction())
@@ -62,7 +61,7 @@ public class AgitService {
         savedAgit.getInterestingAndAgits().addAll(interestingAndAgits);
         interestingAndAgitRepository.saveAllAndFlush(interestingAndAgits);
         Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Membership membership = Membership.builder().agit(savedAgit).member(member).role(MemberRole.LEADER).joinedAt(
                 LocalDateTime.now()).build();
@@ -79,10 +78,10 @@ public class AgitService {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
-                () -> new CustomException(MEMBERSHIP_NOT_FOUND)
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElseThrow(
-                () -> new CustomException(COMMON_DUES_NOT_FOUND)
+                () -> new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND)
         );
         List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
                 .stream().filter(

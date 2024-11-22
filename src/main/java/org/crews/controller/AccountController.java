@@ -6,11 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountInfoResponse;
 import org.crews.dto.request.AccountDetailsResponse;
 import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.request.MemberIdDto;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
+
+import org.crews.dto.request.MemberIdRequest;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
 import org.crews.utils.AuthUtil;
@@ -32,8 +33,8 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@PathVariable("agits-id") Long agitId,
-                                                               @RequestBody MemberIdDto memberIdDto){
-        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdDto, MemberRole.LEADER));
+                                                               @RequestBody MemberIdRequest memberIdRequest){
+        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdRequest, MemberRole.LEADER));
     }
 
     @PostMapping("/link")
@@ -44,8 +45,8 @@ public class AccountController {
 
     @PostMapping("/all")
     public ResponseEntity<AccountInfoResponse> getAllAccounts(@PathVariable("agits-id") Long agitId,
-                                                              @RequestBody MemberIdDto memberIdDto){
-        return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberIdDto));
+                                                              @RequestBody MemberIdRequest memberIdRequest){
+        return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberIdRequest));
     }
 
     @PostMapping("/{accounts-id}/details")

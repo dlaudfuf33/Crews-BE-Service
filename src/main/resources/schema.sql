@@ -26,14 +26,14 @@ CREATE TABLE member
     is_deleted    BOOLEAN               DEFAULT FALSE,
     created_at    DATETIME(6),
     updated_at    DATETIME(6),
-    ci            VARCHAR(88) NOT NULL,
+    ci            VARCHAR(88)  NOT NULL,
     email         VARCHAR(255) NOT NULL,
     name          VARCHAR(255) NOT NULL,
-    nick_name     VARCHAR(16) NOT NULL,
+    nick_name     VARCHAR(16)  NOT NULL,
     password      VARCHAR(255) NOT NULL,
     phone_number  VARCHAR(255) NOT NULL,
-    profile_image VARCHAR(255),
-    role          VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
+    profile_image VARCHAR(255) NOT NULL DEFAULT '',
+    role          VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',
     PRIMARY KEY (id),
     UNIQUE (email)
 );
@@ -77,15 +77,15 @@ CREATE TABLE account_history
 -- Address 테이블
 CREATE TABLE address
 (
-    id             BIGINT                            NOT NULL AUTO_INCREMENT,
+    id             BIGINT                           NOT NULL AUTO_INCREMENT,
     created_at     DATETIME(6),
-    member_id      BIGINT,
+    member_id      BIGINT                           NOT NULL,
     updated_at     DATETIME(6),
-    address_do     VARCHAR(255),
-    address_dong   VARCHAR(255)                      NOT NULL,
-    address_gu_gun VARCHAR(255)                      NOT NULL,
-    address_si     VARCHAR(255)                      NOT NULL,
-    address_type   ENUM ('COMPANY', 'HOME', 'OTHER') NOT NULL,
+    address_do     VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_dong   VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_gu_gun VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_si     VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_type   ENUM ('HOME', 'COMPANY', 'OTHER') NOT NULL DEFAULT 'HOME',
     PRIMARY KEY (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
@@ -99,6 +99,7 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
+<<<<<<< HEAD
 
 -- Agit 테이블
 CREATE TABLE agit (
@@ -108,6 +109,18 @@ CREATE TABLE agit (
     is_due         BOOLEAN      DEFAULT FALSE NOT NULL,
     introduction   VARCHAR(255) NOT NULL,
     max_person     INT          NOT NULL,
+=======
+-- Agit 테이블
+CREATE TABLE agit
+(
+    id             BIGINT       NOT NULL AUTO_INCREMENT,
+    current_person INT                   DEFAULT 1,
+    is_deleted     BOOLEAN               DEFAULT FALSE,
+    is_due         BOOLEAN      NOT NULL DEFAULT FALSE,
+    introduction   VARCHAR(255) NOT NULL DEFAULT '',
+
+    max_person     INT                   DEFAULT 30,
+>>>>>>> d2969fcb44b1f52941a851e54c87e417ceea8842
     created_at     DATETIME(6),
     subject_id     BIGINT,
     updated_at     DATETIME(6),
@@ -241,8 +254,8 @@ CREATE TABLE introducing
 CREATE TABLE member_and_interesting
 (
     id             BIGINT NOT NULL AUTO_INCREMENT,
-    interesting_id BIGINT,
-    member_id      BIGINT,
+    interesting_id BIGINT NOT NULL DEFAULT 1,
+    member_id      BIGINT NOT NULL,
     created_at     DATETIME(6),
     updated_at     DATETIME(6),
     PRIMARY KEY (id),
@@ -298,16 +311,16 @@ CREATE TABLE refresh_entity
 -- Regular Crewing 테이블
 CREATE TABLE meeting
 (
-    id            BIGINT       NOT NULL AUTO_INCREMENT,
-    is_deleted    BOOLEAN DEFAULT FALSE,
-    agit_id       BIGINT,
-    created_at    DATETIME(6),
-    regular_time  DATETIME(6)  NOT NULL,
-    updated_at    DATETIME(6),
-    content       VARCHAR(255) NOT NULL,
-    image         VARCHAR(255),
-    place         VARCHAR(255) NOT NULL,
-    regular_name  VARCHAR(255) NOT NULL,
+    id           BIGINT       NOT NULL AUTO_INCREMENT,
+    is_deleted   BOOLEAN DEFAULT FALSE,
+    agit_id      BIGINT,
+    created_at   DATETIME(6),
+    regular_time DATETIME(6)  NOT NULL,
+    updated_at   DATETIME(6),
+    content      VARCHAR(255) NOT NULL,
+    image        VARCHAR(255),
+    place        VARCHAR(255) NOT NULL,
+    regular_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
 );

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.AccountDetailsResponse;
 import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.request.MemberIdDto;
+
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
 import org.crews.dto.core.CommonRequest;
@@ -13,17 +13,16 @@ import org.crews.dto.core.CommonRequest;
 import org.crews.dto.request.TransactionDetailRequest;
 import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
+import org.crews.dto.request.MemberIdRequest;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
-import org.crews.model.constants.AccountType;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,8 +55,8 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId, MemberIdDto memberIdDto, MemberRole memberRole) {
-        Member member = memberRepository.findById(memberIdDto.getMemberId()).orElseThrow(
+    public AccountIssuedResponse accountIssued(Long agitId, MemberIdRequest memberIdRequest, MemberRole memberRole) {
+        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -114,8 +113,8 @@ public class AccountService {
                         .build();
     }
 
-    public AccountInfoResponse getAllAccounts(Long agitId, MemberIdDto memberIdDto) {
-        Member member = memberRepository.findById(memberIdDto.getMemberId()).orElseThrow(
+    public AccountInfoResponse getAllAccounts(Long agitId, MemberIdRequest memberIdRequest) {
+        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(

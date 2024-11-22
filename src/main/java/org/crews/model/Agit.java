@@ -1,11 +1,11 @@
 package org.crews.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Getter
 @Setter
@@ -55,7 +55,10 @@ public class Agit extends BaseTimeEntity {
     @OneToMany(mappedBy = "agit")
     private List<Meeting> meetings = new ArrayList<>();
 
-    @OneToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Dues dues;
+
+    @OneToOne
     private AgitAndAccount agitAndAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)

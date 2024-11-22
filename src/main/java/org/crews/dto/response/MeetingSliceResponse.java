@@ -23,7 +23,7 @@ public class MeetingSliceResponse {
         boolean hasNext = events.hasNext();
         List<MeetingResponse> meetingResponse = events.getContent().stream()
                 .map(MeetingResponse::from)
-                .collect(Collectors.toList());
+                .toList();
 
         return new MeetingSliceResponse(memberRole, hasNext, meetingResponse);
     }

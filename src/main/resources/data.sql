@@ -32,9 +32,11 @@ VALUES (NOW(), 1, NOW(), '서울특별시', '중구', '명동', '서울', 'HOME'
 
 -- Subject 테이블에 더미 데이터 삽입
 INSERT INTO subject (id, created_at, updated_at, subject_name)
-VALUES (1, NOW(), NOW(), '프로그래밍'),
+VALUES (1, NOW(), NOW(), '미분류'),
        (2, NOW(), NOW(), '디자인'),
-       (3, NOW(), NOW(), '마케팅');
+       (3, NOW(), NOW(), '프로그래밍'),
+       (4, NOW(), NOW(), '마케팅');
+
 
 -- Card 테이블에 더미 데이터 삽입
 INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
@@ -76,15 +78,15 @@ VALUES (NOW(), 1, 1, NOW()),
 -- Interesting 테이블에 더미 데이터 삽입
 
 INSERT INTO interesting (id, created_at, subject_id, updated_at, name)
-VALUES (1, NOW(), 1, NOW(), '알고리즘 최적화'),
-       (2, NOW(), 1, NOW(), '인공지능 연구'),
-       (3, NOW(), 1, NOW(), '데이터베이스 설계'),
+VALUES (1, NOW(), 1, NOW(), '미설정'),
+       (2, NOW(), 3, NOW(), '인공지능 연구'),
+       (3, NOW(), 3, NOW(), '데이터베이스 설계'),
        (4, NOW(), 2, NOW(), 'UX/UI 디자인'),
        (5, NOW(), 2, NOW(), '브랜드 아이덴티티'),
        (6, NOW(), 2, NOW(), '그래픽 디자인'),
-       (7, NOW(), 3, NOW(), '콘텐츠 마케팅'),
-       (8, NOW(), 3, NOW(), '디지털 마케팅 전략'),
-       (9, NOW(), 3, NOW(), 'SNS 마케팅');
+       (7, NOW(), 4, NOW(), '콘텐츠 마케팅'),
+       (8, NOW(), 4, NOW(), '디지털 마케팅 전략'),
+       (9, NOW(), 4, NOW(), 'SNS 마케팅');
 
 -- Interesting And Agit 테이블에 더미 데이터 삽입
 INSERT INTO interesting_and_agit (agit_id, interesting_id, created_at, updated_at)
