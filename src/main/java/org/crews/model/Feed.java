@@ -2,6 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.crews.dto.request.FeedRequest;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class Feed extends BaseTimeEntity{
     private String content;
 
     @ColumnDefault("0")
-    private String likeCount;
+    private Long likeCount;
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
@@ -39,4 +40,14 @@ public class Feed extends BaseTimeEntity{
     @OneToMany(mappedBy = "feed")
     @Builder.Default
     private List<Heart> likes = new ArrayList<>();
+
+    public static Feed of(FeedRequest feedRequest, Agit agit, Member member) {
+        return Feed.builder()
+                .image(feedRequest.getImage())
+                .content(feedRequest.getContent())
+                .likeCount(0L)
+                .agit(agit)
+                .member(member)
+                .build();
+    }
 }

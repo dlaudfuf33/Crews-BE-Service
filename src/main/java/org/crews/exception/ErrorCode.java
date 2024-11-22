@@ -16,6 +16,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
     CI_CODE_SEND_ERROR("CI 코드 전송 오류. 다시 회원가입을 진행 해 주세요.", HttpStatus.BAD_REQUEST),
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
+    DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -35,8 +36,8 @@ public enum ErrorCode {
     USER_NOT_FOUND("이 이메일로 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SUBJECT_NOT_FOUND("주제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EVENT_NOT_FOUND("해당하는 번호의 정기모임이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    FEED_NOT_FOUND("해당하는 번호의 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_FOUND("해당 회원의 주소를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-
 
     // 409 CONFLICT
     CARD_ALREADY_EXISTS("카드가 이미 존재하여 추가 발급할 수 없습니다.", HttpStatus.CONFLICT),
