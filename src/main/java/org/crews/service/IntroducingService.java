@@ -15,6 +15,8 @@ import org.crews.repository.MemberRepository;
 import org.crews.repository.MemberShipRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,16 +29,18 @@ public class IntroducingService {
     public IntroducingResponse getIntroducing(Long memberId, Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-
+        System.out.println("memberId = " + memberId);
         String memberRole;
         if (memberId == 0L) {
             memberRole = "NOTMEMBER";
         }else{
             Member member = memberRepository.findById(memberId).orElseThrow(
                     ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-            Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
-                    ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
-            memberRole = membership.getRole().toString();
+            Optional<Membership> membershipOptional = Optional.ofNullable(
+                    memberShipRepository.findByMemberAndAgit(member, agit).orElse(null));
+            memberRole = membershipOptional
+                    .map(membership -> membership.getRole().toString())
+                    .orElse("NOTMEMBER");
         }
         Introducing introducing = agit.getIntroducing();
 
