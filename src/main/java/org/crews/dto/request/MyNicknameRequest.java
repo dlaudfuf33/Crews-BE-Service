@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class MemberIdDto {
+
+public class MyNicknameRequest {
     @NotBlank
-    private Long memberId;
+    private String nickname;
 }

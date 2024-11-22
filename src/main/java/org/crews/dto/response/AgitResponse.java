@@ -22,7 +22,7 @@ public class AgitResponse {
     private String subject;
     private List<String> interests;
 
-    public static AgitResponse FROM(Agit agit){
+    public static AgitResponse from(Agit agit){
         String introduction = agit.getIntroducing() != null ? agit.getIntroducing().getIntroduce() : "";
         String image = agit.getIntroducing() != null ? agit.getIntroducing().getImage() : "";
 

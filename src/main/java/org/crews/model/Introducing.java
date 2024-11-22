@@ -9,14 +9,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Introducing extends BaseTimeEntity{
+public class Introducing extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="agit_id")
+    @JoinColumn(name = "agit_id")
     private Agit agit;
 
     private String image;

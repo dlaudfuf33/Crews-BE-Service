@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AccountResponseDto {
+public class AccountResponse {
     private String customerName;
     private String bankName;
     private String accountNumber;
@@ -19,7 +19,7 @@ public class AccountResponseDto {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public AccountResponseDto(String customerName, String bankName, String accountNumber, String accountType, BigDecimal balance, LocalDate createdAt, LocalDate updatedAt) {
+    public AccountResponse(String customerName, String bankName, String accountNumber, String accountType, BigDecimal balance, LocalDate createdAt, LocalDate updatedAt) {
         this.customerName = customerName;
         this.bankName = bankName;
         this.accountNumber = accountNumber;

@@ -1,12 +1,8 @@
 package org.crews.service;
 
-import org.crews.dto.request.EmailRequest;
-import org.crews.dto.request.MemberRequest;
-import org.crews.dto.response.MemberResponse;
-import org.crews.dto.core.AccountResponseDto;
-import org.crews.dto.response.InterestingResponseDto;
-import org.crews.dto.response.MyProfileResponse;
-import org.crews.dto.response.MyinfoResponse;
+import org.crews.dto.core.AccountResponse;
+import org.crews.dto.request.*;
+import org.crews.dto.response.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -20,13 +16,24 @@ public interface MemberService {
 
     Map<String, String> reissueTokens(String refresh);
 
-    public List<AccountResponseDto> getAccountInfoFromCore(Long id);
+    public List<AccountResponse> getAccountInfoFromCore(Long id);
 
-    public MyProfileResponse getMyProfile(String memberEmail);
+    public MyProfileResponse getMyProfile(Long memberId);
 
-    public MyinfoResponse getMyinfo(String memberEmail);
+    public MyinfoResponse getMyinfo(Long memberId);
 
-    public List<InterestingResponseDto> getMyInterests(String memberEmail);
+    public List<InterestResponse> getMyInterests(Long memberId);
 
     boolean validateEmail(EmailRequest request);
+
+    MyNicknameResponse getMyNickname(Long memberId);
+
+    MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest);
+
+
+    void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
+
+    AddressesResponse getMyAddresses(Long memberId);
+
+    void updateMyAddresses(Long memberId, AddressesRequest addressesRequest);
 }

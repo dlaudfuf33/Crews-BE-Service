@@ -46,7 +46,7 @@ public class CoreService {
     }
 
     // POST 요청 - 블로킹 방식
-    public String postTestBlocking(MemberToCoreDto customer) {
+    public String postTestBlocking(MemberToCoreRequest customer) {
         try {
             log.info("블로킹 방식 API 호출 시작 - Access Key: {}", accessKey);
             return webClient.post()
@@ -66,7 +66,7 @@ public class CoreService {
     }
 
     // POST 요청 - 논블로킹 방식
-    public Mono<String> postTestNonBlocking(MemberToCoreDto customer) {
+    public Mono<String> postTestNonBlocking(MemberToCoreRequest customer) {
         log.info("논블로킹 방식 API 호출 시작 - Access Key: {}, ScretKey : {}", accessKey, secretKey);
 
         return webClient.post()
@@ -88,7 +88,7 @@ public class CoreService {
     }
 
     // 사용자의 모든 계좌 조회 - 블로킹 방식
-    public List<AccountResponseDto> findCoreSideAccounts(MemberToCoreDto memberDto) {
+    public List<AccountResponse> findCoreSideAccounts(MemberToCoreRequest memberDto) {
         try {
             // Null 체크 추가
             if (memberDto == null || memberDto.getName() == null || memberDto.getPhoneNumber() == null) {
@@ -100,7 +100,7 @@ public class CoreService {
                 throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
             }
 
-            AccountResponseDto[] response = webClient.post()
+            AccountResponse[] response = webClient.post()
                     .uri(INITAL_ACCOUNT)
                     .headers(headers -> {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
@@ -108,7 +108,7 @@ public class CoreService {
                     })
                     .bodyValue(memberDto) //
                     .retrieve()
-                    .bodyToMono(AccountResponseDto[].class) // 응답을 AccountResponseDto 배열로 매핑
+                    .bodyToMono(AccountResponse[].class) // 응답을 AccountResponseDto 배열로 매핑
                     .block(); // 블로킹 방식으로 Mono 값을 얻음
 
             // Null 응답 처리
