@@ -259,14 +259,13 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
         memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
-
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         interestsUpdateRequest.getInterests().forEach(item -> {
             MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
-            memberAndInteresting.setMember(memberRepository.findById(memberId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
-            Interesting interesting = interestingRepository.findById(item.getInterestId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND));
-            memberAndInteresting.setInteresting(interesting);
+            memberAndInteresting.setMember(foundMember);
+            memberAndInteresting.setInteresting(interestingRepository.findById(item.getInterestId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND)));
             memberAndInterestingRepository.save(memberAndInteresting);
         });
     }
