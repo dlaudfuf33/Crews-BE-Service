@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountHistoryV2Dto {
+public class AccountHistoryResponse {
 
     private String accountNumber;
     private String tranType;
@@ -24,8 +24,8 @@ public class AccountHistoryV2Dto {
     private Long agitId;
     private String agitName;
 
-    public static AccountHistoryV2Dto of(Dues dues, Long agitId){
-        return AccountHistoryV2Dto.builder().accountNumber(AESUtil.decrypt(dues.getAccountNumber()))
+    public static AccountHistoryResponse of(Dues dues, Long agitId){
+        return AccountHistoryResponse.builder().accountNumber(AESUtil.decrypt(dues.getAccountNumber()))
                 .tranType("출금").dueAmount(dues.getDueAmount()).dueDate(dues.getDueDate())
                 .productName(dues.getProductName())
                 .agitName(dues.getAgitName()).agitId(agitId).build();

@@ -61,14 +61,14 @@ public class DuesService {
                 .order("ASC")
                 .build();
         TransactionDetailResponse response = coreService.filteredAccountHistory(transactionDetailRequest);
-        List<TransactionHistoryDto> tranList = response.getTranList();
-        List<TransactionHistoryDto> filteredList = tranList.stream().filter(list ->
+        List<TransactionHistoryResponse> tranList = response.getTranList();
+        List<TransactionHistoryResponse> filteredList = tranList.stream().filter(list ->
                 list.getTransactionTime().getMonth().equals(LocalDateTime.now().getMonth())
         ).toList();
         List<Dues> saveDues = new ArrayList<>();
         CommonDues commonDues = agit.getCommonDues();
         List<Dues> duesList = duesRepository.findByCommonDues(commonDues);
-        for (TransactionHistoryDto dto : filteredList){
+        for (TransactionHistoryResponse dto : filteredList){
             Optional<Account> optionalAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(dto.getCounterpartyAccountNum()));
             if(optionalAccount.isEmpty()) {
                 continue;

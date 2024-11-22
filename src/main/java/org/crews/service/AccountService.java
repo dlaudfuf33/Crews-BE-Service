@@ -3,7 +3,7 @@ package org.crews.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
-import org.crews.dto.request.AccountDetailsResponse;
+import org.crews.dto.request.AccountDetailsRequest;
 import org.crews.dto.request.AccountLinkRequest;
 
 import org.crews.dto.core.AccountIssuedResponse;
@@ -149,7 +149,7 @@ public class AccountService {
         return maskingResult;
 
     }
-    public TransactionDetailResponse accountDetails(Long agitId, Long accountId,Long memberId, AccountDetailsResponse accountDetailsResponse) {
+    public TransactionDetailResponse accountDetails(Long agitId, Long accountId,Long memberId, AccountDetailsRequest accountDetailsResponse) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );

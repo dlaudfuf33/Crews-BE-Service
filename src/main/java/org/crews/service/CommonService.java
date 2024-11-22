@@ -72,7 +72,7 @@ public class CommonService {
             List<Dues> filterDues = duesList.stream().filter(content ->
                             (content.getDueDate().getMonthValue() == dateRequest.getMonth()) && (content.getDueDate().getYear() == dateRequest.getYear()))
                     .toList();
-            List<AccountHistoryV2Dto> accountHistoryV2DtoList = filterDues.stream().map(dues -> AccountHistoryV2Dto.of(dues, membership.getAgit().getId())).toList();
+            List<AccountHistoryResponse> accountHistoryV2DtoList = filterDues.stream().map(dues -> AccountHistoryResponse.of(dues, membership.getAgit().getId())).toList();
             list.add(AccountHistoryV2Response.builder().accountHistory(accountHistoryV2DtoList).build());
         }
         return AccountHistoryFinalV2Response.builder().finalAccountHistory(list).build();

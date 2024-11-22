@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class AccountHistoryV2Response {
-    private List<AccountHistoryV2Dto> accountHistory;
+    private List<AccountHistoryResponse> accountHistory;
 }

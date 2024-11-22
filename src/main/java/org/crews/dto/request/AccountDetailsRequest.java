@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountDetailsResponse {
+public class AccountDetailsRequest {
     @NotBlank
     private Long memberId;
 

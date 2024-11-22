@@ -22,5 +22,5 @@ public class TransactionDetailResponse {
     private String bankName;
 
     @Builder.Default
-    private List<TransactionHistoryDto> tranList = new ArrayList<>();
+    private List<TransactionHistoryResponse> tranList = new ArrayList<>();
 }

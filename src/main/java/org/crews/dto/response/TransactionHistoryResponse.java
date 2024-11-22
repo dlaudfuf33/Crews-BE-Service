@@ -2,7 +2,6 @@ package org.crews.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.crews.model.constants.AccountType;
 import org.crews.model.constants.TranType;
 
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TransactionHistoryDto {
+public class TransactionHistoryResponse {
     private String counterpartyBankCode;
     private String counterpartyAccountNum;
     private TranType tranType;

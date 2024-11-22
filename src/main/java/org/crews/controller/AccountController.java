@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountInfoResponse;
-import org.crews.dto.request.AccountDetailsResponse;
+import org.crews.dto.request.AccountDetailsRequest;
 import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
@@ -52,7 +52,7 @@ public class AccountController {
     @PostMapping("/{accounts-id}/details")
     public ResponseEntity<TransactionDetailResponse> accountDetails(@PathVariable("agits-id") Long agitId,
                                                                     @PathVariable("accounts-id") Long accountId,
-                                                                    @RequestBody AccountDetailsResponse accountDetailsResponse,
+                                                                    @RequestBody AccountDetailsRequest accountDetailsResponse,
                                                                     HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(accountService.accountDetails(agitId, accountId,memberId, accountDetailsResponse));
