@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.crews.dto.core.AccountInfoResponse;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.CIOnlyRequest;
+import org.crews.dto.request.DateRequest;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -60,7 +61,7 @@ public class CommonService {
         return AccountV2Response.builder().crewAccountList(accountV2CrewResponses).personalAccountList(accountV2PersonalResponses).build();
     }
 
-    public AccountHistoryFinalV2Response getMyAccountsHistory(Long memberId) {
+    public AccountHistoryFinalV2Response getMyAccountsHistory(Long memberId, DateRequest dateRequest) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -70,7 +71,7 @@ public class CommonService {
             List<Dues> duesList = membership.getDuesList();
             if(duesList.isEmpty()) continue;
             List<Dues> filterDues = duesList.stream().filter(content ->
-                            content.getDueDate().getMonth().equals(LocalDate.now().getMonth()) && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+                            (content.getDueDate().getMonthValue() == dateRequest.getMonth()) && (content.getDueDate().getYear() == dateRequest.getYear()))
                     .toList();
             List<AccountHistoryV2Dto> accountHistoryV2DtoList = filterDues.stream().map(dues -> AccountHistoryV2Dto.of(dues, membership.getAgit().getId())).toList();
             list.add(AccountHistoryV2Response.builder().accountHistory(accountHistoryV2DtoList).build());
