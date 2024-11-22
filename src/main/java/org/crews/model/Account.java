@@ -37,6 +37,9 @@ public class Account extends BaseTimeEntity {
     private BigDecimal balance;
 
     @Column(nullable = false)
+    private String productName;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 

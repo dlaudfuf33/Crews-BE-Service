@@ -10,5 +10,5 @@ import java.util.List;
 @Builder
 public class AccountInfoResponse {
     private List<AccountIssuedResponse> accountList = new ArrayList<>();
-    private List<CardList> cardList = new ArrayList<>();
+    private List<CardListResponse> cardList = new ArrayList<>();
 }

@@ -51,6 +51,7 @@ CREATE TABLE account
     fintec_number         VARCHAR(255)              NOT NULL,
     masked_account_number VARCHAR(255)              NOT NULL,
     account_type          ENUM ('CREW', 'PERSONAL') NOT NULL,
+    product_name          VARCHAR(255)              NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (bank_id) REFERENCES bank (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -88,17 +89,7 @@ CREATE TABLE address
     PRIMARY KEY (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
--- Dues 테이블
-CREATE TABLE dues
-(
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    due_date    TINYINT      NOT NULL,
-    created_at  DATETIME(6),
-    due_amount  BIGINT       NOT NULL,
-    updated_at  DATETIME(6),
-    member_data VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
+
 -- Subject 테이블
 CREATE TABLE subject
 (
@@ -108,6 +99,7 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
+
 -- Agit 테이블
 CREATE TABLE agit
 (
@@ -119,14 +111,30 @@ CREATE TABLE agit
 
     max_person     INT                   DEFAULT 30,
     created_at     DATETIME(6),
-    dues_id        BIGINT,
     subject_id     BIGINT,
     updated_at     DATETIME(6),
     agit_name      VARCHAR(255) NOT NULL,
+    agit_and_account_id BIGINT,
+    common_dues_id BIGINT,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
-    FOREIGN KEY (dues_id) REFERENCES dues (id),
     FOREIGN KEY (subject_id) REFERENCES subject (id)
+
+);
+
+-- CommonDues 테이블
+CREATE TABLE common_dues
+(
+    id          BIGINT       NOT NULL AUTO_INCREMENT,
+    due_day    INT      NOT NULL,
+    created_at  DATETIME(6),
+    due_amount DECIMAL(19, 2) NOT NULL,
+    updated_at  DATETIME(6),
+    agit_id     BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (agit_id) REFERENCES agit (id)
+
+
 );
 
 -- Agit And Account 테이블
@@ -257,6 +265,26 @@ CREATE TABLE membership
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
+);
+
+-- Dues 테이블
+CREATE TABLE dues
+(
+    id          BIGINT       NOT NULL AUTO_INCREMENT,
+    created_at  DATETIME(6),
+    due_amount DECIMAL(19, 2) NOT NULL,
+    product_name VARCHAR(255)  NOT NULL,
+    account_number VARCHAR(255)  NOT NULL,
+    agit_name VARCHAR(255)  NOT NULL,
+    is_payed    BOOLEAN     NOT NULL,
+    due_date    DATETIME(6),
+    updated_at  DATETIME(6),
+    membership_id BIGINT,
+    common_dues_id BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
+
 );
 
 -- Refresh Entity 테이블

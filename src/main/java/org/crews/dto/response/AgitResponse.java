@@ -1,8 +1,6 @@
 package org.crews.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.crews.model.Agit;
 import org.crews.model.Interesting;
 import org.crews.model.InterestingAndAgit;
@@ -11,7 +9,9 @@ import java.util.List;
 
 @Getter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AgitResponse {
     private Long id;
     private String name;
@@ -23,7 +23,7 @@ public class AgitResponse {
     private List<String> interests;
 
     public static AgitResponse from(Agit agit){
-        String introduction = agit.getIntroducing() != null ? agit.getIntroducing().getIntroduce() : "";
+        String introduction = agit.getIntroduction();
         String image = agit.getIntroducing() != null ? agit.getIntroducing().getImage() : "";
 
         String subject = agit.getSubject() != null ? agit.getSubject().getSubjectName() : "";

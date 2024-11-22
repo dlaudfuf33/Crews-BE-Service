@@ -3,8 +3,9 @@ package org.crews.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -18,16 +19,27 @@ public class Dues extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "dues")
-    private List<Agit> agits = new ArrayList<>();
+    @Column(nullable = false)
+    private BigDecimal dueAmount;
 
     @Column(nullable = false)
-    private String memberData;
+    private LocalDateTime dueDate;
 
     @Column(nullable = false)
-    private Byte dueDate;
+    private boolean isPayed;
 
     @Column(nullable = false)
-    private Long dueAmount;
+    private String productName;
 
+    @Column(nullable = false)
+    private String accountNumber;
+
+    @Column(nullable = false)
+    private String agitName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Membership membership;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CommonDues commonDues;
 }
