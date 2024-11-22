@@ -99,17 +99,7 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
-<<<<<<< HEAD
 
--- Agit 테이블
-CREATE TABLE agit (
-    id             BIGINT       NOT NULL AUTO_INCREMENT,
-    current_person INT          NOT NULL,
-    is_deleted     BOOLEAN      DEFAULT FALSE NOT NULL,
-    is_due         BOOLEAN      DEFAULT FALSE NOT NULL,
-    introduction   VARCHAR(255) NOT NULL,
-    max_person     INT          NOT NULL,
-=======
 -- Agit 테이블
 CREATE TABLE agit
 (
@@ -120,7 +110,6 @@ CREATE TABLE agit
     introduction   VARCHAR(255) NOT NULL DEFAULT '',
 
     max_person     INT                   DEFAULT 30,
->>>>>>> d2969fcb44b1f52941a851e54c87e417ceea8842
     created_at     DATETIME(6),
     subject_id     BIGINT,
     updated_at     DATETIME(6),
