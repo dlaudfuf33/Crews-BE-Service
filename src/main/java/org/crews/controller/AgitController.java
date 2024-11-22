@@ -26,7 +26,7 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<Agit> generateAgit(@RequestBody AgitRequest agitRequest){
+    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest){
         return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
     }
 

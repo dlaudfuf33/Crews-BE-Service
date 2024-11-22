@@ -29,16 +29,17 @@ public class AgitService {
     private final AgitRepository agitRepository;
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;
+    private final IntroducingRepository introducingRepository;
     private final MemberShipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
     public List<AgitResponse> getAllAgits(){
-        return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::FROM).toList();
+        return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::from).toList();
     }
     @Transactional
-    public Agit generateAgit(AgitRequest agitRequest) {
+    public AgitResponse generateAgit(AgitRequest agitRequest) {
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
                 () -> new CustomException(SUBJECT_NOT_FOUND)
         );
@@ -47,6 +48,8 @@ public class AgitService {
                 .build();
 
         Agit savedAgit = agitRepository.save(agit);
+        Introducing introducing = Introducing.builder().agit(savedAgit).introduce(savedAgit.getIntroduction()).image("").content("").build();
+        introducingRepository.save(introducing);
         List<InterestingAndAgit> interestingAndAgits = new ArrayList<>();
         for (Long interest : agitRequest.getInterests()) {
             Interesting interesting = interestingRepository.findById(interest)
@@ -56,14 +59,15 @@ public class AgitService {
             interestingAndAgit.setInteresting(interesting);
             interestingAndAgits.add(interestingAndAgit);
         }
-        interestingAndAgitRepository.saveAll(interestingAndAgits);
+        savedAgit.getInterestingAndAgits().addAll(interestingAndAgits);
+        interestingAndAgitRepository.saveAllAndFlush(interestingAndAgits);
         Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         Membership membership = Membership.builder().agit(savedAgit).member(member).role(MemberRole.LEADER).joinedAt(
                 LocalDateTime.now()).build();
         memberShipRepository.save(membership);
-        return savedAgit;
+        return AgitResponse.from(savedAgit);
 
     }
 
