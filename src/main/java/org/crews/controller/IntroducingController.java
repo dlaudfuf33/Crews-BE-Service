@@ -7,10 +7,7 @@ import org.crews.dto.response.IntroducingResponse;
 import org.crews.service.IntroducingService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -29,5 +26,17 @@ public class IntroducingController {
 
         return ResponseEntity.ok().body(introducingService.getIntroducing(memberId, agitsId));
     }
+
+    @PatchMapping
+    public ResponseEntity<IntroducingResponse> updateIntroducing(
+            @PathVariable("agits-id") Long agitsId,
+            HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+
+//        return ResponseEntity.ok().body(introducingService.patchIntroducing(memberId, agitsId));
+        return  null;
+    }
+
 
 }
