@@ -117,8 +117,8 @@ public class MemberServiceImpl implements MemberService {
                     () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
+                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 
@@ -303,6 +303,22 @@ public class MemberServiceImpl implements MemberService {
         addressRepository.saveAll(existingAddresses);
     }
 
+    @Override
+    @Transactional
+    public void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+
+        validateOldPassword(member.getPassword(), passwordUpdateRequest.getOldPassword());
+
+        validateNewPasswords(passwordUpdateRequest.getNewPassword(), passwordUpdateRequest.getConfirmPassword());
+
+        String encryptedNewPassword = bCryptPasswordEncoder.encode(passwordUpdateRequest.getNewPassword());
+        member.setPassword(encryptedNewPassword);
+        memberRepository.save(member);
+    }
+
     private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
 
@@ -330,4 +346,17 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    private void validateOldPassword(String currentPassword, String oldPassword) {
+        if (!bCryptPasswordEncoder.matches(oldPassword, currentPassword)) {
+            throw new CustomException(ErrorCode.INVALID_OLD_PASSWORD);
+
+        }
+    }
+
+    private void validateNewPasswords(String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new CustomException(ErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
+        }
+    }
 }
+

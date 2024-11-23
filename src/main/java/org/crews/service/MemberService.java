@@ -36,4 +36,6 @@ public interface MemberService {
     AddressesResponse getMyAddresses(Long memberId);
 
     void updateMyAddresses(Long memberId, AddressesRequest addressesRequest);
+
+    void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest);
 }

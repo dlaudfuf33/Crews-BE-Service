@@ -18,6 +18,8 @@ public enum ErrorCode {
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.",HttpStatus.BAD_REQUEST),
+    PASSWORD_CONFIRMATION_MISMATCH("변경할 비밀번호와 일치하지 않습니다.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),

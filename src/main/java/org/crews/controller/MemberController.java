@@ -150,6 +150,19 @@ public class MemberController {
         }
     }
 
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody PasswordUpdateRequest passwordUpdateRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        try {
+            // 비밀번호 변경 서비스 호출
+            memberService.updatePassword(memberId, passwordUpdateRequest);
+            return ResponseEntity.noContent().build();
+        } catch (CustomException e) {
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }
 

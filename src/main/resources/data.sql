@@ -62,7 +62,7 @@ VALUES
 -- Dues 테이블에 더미 데이터 삽입
 INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id, is_payed, product_name, account_number, agit_name)
 VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1'),
-       (NOW(), NOW(), 2000.00, NOW(), 1, 2 FALSE, '우리 일반통장 상품', '1234', 'agit2');
+       (NOW(), NOW(), 2000.00, NOW(), 1, 2 ,FALSE, '우리 일반통장 상품', '1234', 'agit2');
 
 
 -- Feed 테이블에 더미 데이터 삽입
