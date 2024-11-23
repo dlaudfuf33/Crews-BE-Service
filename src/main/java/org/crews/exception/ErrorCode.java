@@ -17,6 +17,7 @@ public enum ErrorCode {
     CI_CODE_SEND_ERROR("CI 코드 전송 오류. 다시 회원가입을 진행 해 주세요.", HttpStatus.BAD_REQUEST),
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),

@@ -7,8 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InterestingAndAgitRepository extends JpaRepository<InterestingAndAgit, Long> {
     void deleteByAgitAndInterestingIn(Agit agit, List<Interesting> interestsToDelete);
+
+    List<InterestingAndAgit> findByAgit(Agit agit);
 }

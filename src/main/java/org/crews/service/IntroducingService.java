@@ -62,27 +62,45 @@ public class IntroducingService {
         Introducing introducing = checkedResult.getAgit().getIntroducing();
 
         if(introducingRequest.getDeleteInterests() != null && !introducingRequest.getDeleteInterests().isEmpty()){
-            List<Integer> deleteInterestId = introducingRequest.getDeleteInterests();
+            List<Long> deleteInterestId = introducingRequest.getDeleteInterests();
             List<Interesting> interestsToDelete = interestingRepository.findByIdIn(deleteInterestId);
+
+            for (Long interestId : deleteInterestId) {
+                if (!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
+            }
 
             interestingAndAgitRepository.deleteByAgitAndInterestingIn(checkedResult.getAgit(), interestsToDelete);
         }
 
         if(introducingRequest.getAddInterests() != null && !introducingRequest.getAddInterests().isEmpty()){
-            List<Integer> addInterestId = introducingRequest.getAddInterests();
+            List<Long> addInterestId = introducingRequest.getAddInterests();
             List<Interesting> interestsToAdd = interestingRepository.findByIdIn(addInterestId);
 
-            List<InterestingAndAgit> newInterests = interestsToAdd.stream()
-                    .map(interest -> InterestingAndAgit.builder().agit(checkedResult.getAgit()).interesting(interest).build())
+            for (Long interestId : addInterestId) {
+                if (!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
+            }
+
+            List<Long> existingInterests = interestingAndAgitRepository.findByAgit(checkedResult.getAgit()).stream()
+                    .map(interestingAndAgit -> interestingAndAgit.getInteresting().getId())
                     .collect(Collectors.toList());
+
+            List<Interesting> filteredInterests = interestsToAdd.stream()
+                    .filter(interest -> !existingInterests.contains(interest.getId()))
+                    .collect(Collectors.toList());
+
+            List<InterestingAndAgit> newInterests = filteredInterests.stream()
+                    .map(interest -> InterestingAndAgit.builder()
+                            .agit(checkedResult.getAgit())
+                            .interesting(interest)
+                            .build())
+                    .collect(Collectors.toList());
+
             interestingAndAgitRepository.saveAll(newInterests);
         }
 
         introducing.setImage(introducingRequest.getImage());
         introducing.setIntroduce(introducingRequest.getIntroduce());
         introducing.setContent(introducingRequest.getContent());
-
-        introducingRepository.save(introducing);
 
         return IntroducingResponse.of("LEADER",introducing);
     }

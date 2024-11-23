@@ -16,5 +16,5 @@ public interface InterestingRepository extends JpaRepository<Interesting,Long> {
 
     Optional<Interesting> findById(Long id);
 
-    List<Interesting> findByIdIn(List<Integer> deleteInterestId);
+    List<Interesting> findByIdIn(List<Long> deleteInterestId);
 }

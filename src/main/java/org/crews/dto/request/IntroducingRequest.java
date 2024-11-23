@@ -21,6 +21,6 @@ public class IntroducingRequest {
 
     private String content;
 
-    private List<Integer> deleteInterests;
-    private List<Integer> addInterests;
+    private List<Long> deleteInterests;
+    private List<Long> addInterests;
 }
