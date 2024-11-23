@@ -60,6 +60,9 @@ public class IntroducingService {
         }
 
         Introducing introducing = checkedResult.getAgit().getIntroducing();
+        List<Long> existingInterests = interestingAndAgitRepository.findByAgit(checkedResult.getAgit()).stream()
+                .map(interestingAndAgit -> interestingAndAgit.getInteresting().getId())
+                .collect(Collectors.toList());
 
         if(introducingRequest.getDeleteInterests() != null && !introducingRequest.getDeleteInterests().isEmpty()){
             List<Long> deleteInterestId = introducingRequest.getDeleteInterests();
@@ -70,6 +73,8 @@ public class IntroducingService {
             }
 
             interestingAndAgitRepository.deleteByAgitAndInterestingIn(checkedResult.getAgit(), interestsToDelete);
+            existingInterests.removeAll(deleteInterestId);
+            if (existingInterests.size() < 1 || existingInterests.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }
 
         if(introducingRequest.getAddInterests() != null && !introducingRequest.getAddInterests().isEmpty()){
@@ -79,10 +84,6 @@ public class IntroducingService {
             for (Long interestId : addInterestId) {
                 if (!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
             }
-
-            List<Long> existingInterests = interestingAndAgitRepository.findByAgit(checkedResult.getAgit()).stream()
-                    .map(interestingAndAgit -> interestingAndAgit.getInteresting().getId())
-                    .collect(Collectors.toList());
 
             List<Interesting> filteredInterests = interestsToAdd.stream()
                     .filter(interest -> !existingInterests.contains(interest.getId()))
@@ -96,6 +97,12 @@ public class IntroducingService {
                     .collect(Collectors.toList());
 
             interestingAndAgitRepository.saveAll(newInterests);
+
+            existingInterests.addAll(interestsToAdd.stream()
+                    .map(Interesting::getId)
+                    .collect(Collectors.toList()));
+
+            if (existingInterests.size() < 1 || existingInterests.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }
 
         introducing.setImage(introducingRequest.getImage());

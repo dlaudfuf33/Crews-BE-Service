@@ -19,6 +19,7 @@ public enum ErrorCode {
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
