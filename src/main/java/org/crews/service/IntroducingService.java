@@ -80,7 +80,6 @@ public class IntroducingService {
                     .collect(Collectors.toList());
 
             interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
-            System.out.println("size" + updateInterestingAndAgit.size());
             if (updateInterestingAndAgit.size() < 1 || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }else{
             throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
