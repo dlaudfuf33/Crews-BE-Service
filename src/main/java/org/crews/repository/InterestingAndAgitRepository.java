@@ -14,4 +14,6 @@ public interface InterestingAndAgitRepository extends JpaRepository<InterestingA
     void deleteByAgitAndInterestingIn(Agit agit, List<Interesting> interestsToDelete);
 
     List<InterestingAndAgit> findByAgit(Agit agit);
+
+    void deleteByAgit(Agit agit);
 }

@@ -12,6 +12,7 @@ import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.CheckExceptionUtil;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,49 +61,29 @@ public class IntroducingService {
         }
 
         Introducing introducing = checkedResult.getAgit().getIntroducing();
-        List<Long> existingInterests = interestingAndAgitRepository.findByAgit(checkedResult.getAgit()).stream()
-                .map(interestingAndAgit -> interestingAndAgit.getInteresting().getId())
-                .collect(Collectors.toList());
+        interestingAndAgitRepository.deleteByAgit(checkedResult.getAgit());
+        interestingAndAgitRepository.flush();
 
-        if(introducingRequest.getDeleteInterests() != null && !introducingRequest.getDeleteInterests().isEmpty()){
-            List<Long> deleteInterestId = introducingRequest.getDeleteInterests();
-            List<Interesting> interestsToDelete = interestingRepository.findByIdIn(deleteInterestId);
+        List<Long> updateInterestsId = introducingRequest.getInterests();
+        if(updateInterestsId != null && !updateInterestsId.isEmpty()){
+            List<Interesting> updateInteresting = interestingRepository.findByIdIn(updateInterestsId);
 
-            for (Long interestId : deleteInterestId) {
-                if (!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
+            for(Long interestId : updateInterestsId) {
+                if(!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
             }
 
-            interestingAndAgitRepository.deleteByAgitAndInterestingIn(checkedResult.getAgit(), interestsToDelete);
-            existingInterests.removeAll(deleteInterestId);
-            if (existingInterests.size() < 1 || existingInterests.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
-        }
-
-        if(introducingRequest.getAddInterests() != null && !introducingRequest.getAddInterests().isEmpty()){
-            List<Long> addInterestId = introducingRequest.getAddInterests();
-            List<Interesting> interestsToAdd = interestingRepository.findByIdIn(addInterestId);
-
-            for (Long interestId : addInterestId) {
-                if (!interestingRepository.existsById(interestId)) throw new CustomException(ErrorCode.INVALID_INTEREST_ID);
-            }
-
-            List<Interesting> filteredInterests = interestsToAdd.stream()
-                    .filter(interest -> !existingInterests.contains(interest.getId()))
-                    .collect(Collectors.toList());
-
-            List<InterestingAndAgit> newInterests = filteredInterests.stream()
+            List<InterestingAndAgit> updateInterestingAndAgit = updateInteresting.stream()
                     .map(interest -> InterestingAndAgit.builder()
                             .agit(checkedResult.getAgit())
                             .interesting(interest)
                             .build())
                     .collect(Collectors.toList());
 
-            interestingAndAgitRepository.saveAll(newInterests);
-
-            existingInterests.addAll(interestsToAdd.stream()
-                    .map(Interesting::getId)
-                    .collect(Collectors.toList()));
-
-            if (existingInterests.size() < 1 || existingInterests.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
+            interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
+            System.out.println("size" + updateInterestingAndAgit.size());
+            if (updateInterestingAndAgit.size() < 1 || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
+        }else{
+            throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }
 
         introducing.setImage(introducingRequest.getImage());
