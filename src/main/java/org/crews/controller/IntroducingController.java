@@ -3,6 +3,7 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.IntroducingRequest;
 import org.crews.dto.response.IntroducingResponse;
 import org.crews.service.IntroducingService;
 import org.crews.utils.AuthUtil;
@@ -27,15 +28,15 @@ public class IntroducingController {
         return ResponseEntity.ok().body(introducingService.getIntroducing(memberId, agitsId));
     }
 
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<IntroducingResponse> updateIntroducing(
             @PathVariable("agits-id") Long agitsId,
+            @RequestBody IntroducingRequest introducingRequest,
             HttpServletRequest request
     ){
         Long memberId = authUtil.getMemberId(request);
 
-//        return ResponseEntity.ok().body(introducingService.patchIntroducing(memberId, agitsId));
-        return  null;
+        return ResponseEntity.ok().body(introducingService.updateIntroducing(memberId, agitsId, introducingRequest));
     }
 
 

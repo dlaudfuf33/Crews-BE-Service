@@ -4,21 +4,19 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.IntroducingRequest;
+import org.crews.dto.response.AgitVaildationResponse;
 import org.crews.dto.response.IntroducingResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
-import org.crews.model.Agit;
-import org.crews.model.Introducing;
-import org.crews.model.Member;
-import org.crews.model.Membership;
+import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
-import org.crews.repository.AgitRepository;
-import org.crews.repository.IntroducingRepository;
-import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.*;
+import org.crews.utils.CheckExceptionUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -28,11 +26,14 @@ public class IntroducingService {
     private final AgitRepository agitRepository;
     private final MemberRepository memberRepository;
     private final MemberShipRepository memberShipRepository;
+    private final CheckExceptionUtil checkExceptionUtil;
+    private final InterestingRepository interestingRepository;
+    private final InterestingAndAgitRepository interestingAndAgitRepository;
 
     public IntroducingResponse getIntroducing(Long memberId, Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-        System.out.println("memberId = " + memberId);
+
         String memberRole;
         if (memberId == 0L) {
             memberRole = "NOTMEMBER";
@@ -51,18 +52,38 @@ public class IntroducingService {
     }
 
     @Transactional
-    public IntroducingResponse patchIntroducing(Long memberId, Long agitId, IntroducingRequest introducingRequest) {
-        Agit agit = agitRepository.findById(agitId).orElseThrow(
-                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
-                ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+    public IntroducingResponse updateIntroducing(Long memberId, Long agitId, IntroducingRequest introducingRequest) {
+        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        if(!membership.getRole().equals(MemberRole.LEADER)){
-            throw new CustomException(ErrorCode.AUTHORIZED_MEETING_CREATION);
+        if(!checkedResult.getMembership().getRole().equals(MemberRole.LEADER)){
+            throw new CustomException(ErrorCode.AUTHORIZED_INTRODUCING_UPDATE);
         }
 
-        return  null;
+        Introducing introducing = checkedResult.getAgit().getIntroducing();
+
+        if(introducingRequest.getDeleteInterests() != null && !introducingRequest.getDeleteInterests().isEmpty()){
+            List<Integer> deleteInterestId = introducingRequest.getDeleteInterests();
+            List<Interesting> interestsToDelete = interestingRepository.findByIdIn(deleteInterestId);
+
+            interestingAndAgitRepository.deleteByAgitAndInterestingIn(checkedResult.getAgit(), interestsToDelete);
+        }
+
+        if(introducingRequest.getAddInterests() != null && !introducingRequest.getAddInterests().isEmpty()){
+            List<Integer> addInterestId = introducingRequest.getAddInterests();
+            List<Interesting> interestsToAdd = interestingRepository.findByIdIn(addInterestId);
+
+            List<InterestingAndAgit> newInterests = interestsToAdd.stream()
+                    .map(interest -> InterestingAndAgit.builder().agit(checkedResult.getAgit()).interesting(interest).build())
+                    .collect(Collectors.toList());
+            interestingAndAgitRepository.saveAll(newInterests);
+        }
+
+        introducing.setImage(introducingRequest.getImage());
+        introducing.setIntroduce(introducingRequest.getIntroduce());
+        introducing.setContent(introducingRequest.getContent());
+
+        introducingRepository.save(introducing);
+
+        return IntroducingResponse.of("LEADER",introducing);
     }
 }

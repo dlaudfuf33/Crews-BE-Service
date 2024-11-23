@@ -22,6 +22,7 @@ public enum ErrorCode {
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND
     BANK_NOT_FOUND("해당하는 은행을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
