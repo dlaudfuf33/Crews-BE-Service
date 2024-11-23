@@ -17,6 +17,7 @@ import org.crews.model.*;
 import org.crews.model.constants.AddressType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
+import org.crews.utils.AddressUtils;
 import org.crews.utils.CIGenerator;
 import org.crews.utils.NicknameGenerator;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,6 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshRepository refreshRepository;
-    private final AddressRepository addressRepository;
     private final MemberAndInterestingRepository memberAndInterestingRepository;
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
@@ -45,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     private final AESUtil aesUtil;
     private final CoreService coreService;
     private final InterestingRepository interestingRepository;
+    private final AddressService addressService;
 
 
     @Override
@@ -69,38 +70,18 @@ public class MemberServiceImpl implements MemberService {
             member.setCi(ci);
             // 렌덤 닉네임 설정
             member.setNickName(NicknameGenerator.generateRandomNickname());
+            // 주소 처리
+            Address address = addressService.findOrCreateAddress(
+                    memberRequest.getAddressDo(),
+                    memberRequest.getAddressSi(),
+                    memberRequest.getAddressGuGun(),
+                    memberRequest.getAddressDong()
+            );
+            member.setAddress(address);
             // 회원 저장
             Member savedMember = memberRepository.save(member);
 
-            // 회원 주소 임시설정 (수정필요)
-            List<Address> addresses = Arrays.asList(
-                    Address.builder()
-                            .addressType(AddressType.HOME)
-                            .member(savedMember)
-                            .addressDo(memberRequest.getAddressDo())
-                            .addressSi(memberRequest.getAddressSi())
-                            .addressGuGun(memberRequest.getAddressGuGun())
-                            .addressDong(memberRequest.getAddressDong())
-                            .build(),
-                    Address.builder()
-                            .addressType(AddressType.COMPANY)
-                            .member(savedMember)
-                            .addressDo("")
-                            .addressSi("")
-                            .addressGuGun("")
-                            .addressDong("")
-                            .build(),
-                    Address.builder()
-                            .addressType(AddressType.OTHER)
-                            .member(savedMember)
-                            .addressDo("")
-                            .addressSi("")
-                            .addressGuGun("")
-                            .addressDong("")
-                            .build()
-            );
-            addressRepository.saveAll(addresses);
-            // 회원 관심사 설정 (텅빈)
+            // 회원 관심사 설정 (기본 값)
             memberAndInterestingRepository.save(MemberAndInteresting.builder()
                     .member(savedMember)
                     .interesting(interestingRepository.findById(1L).orElseThrow())
@@ -117,8 +98,8 @@ public class MemberServiceImpl implements MemberService {
                     () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
+                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 
@@ -270,6 +251,7 @@ public class MemberServiceImpl implements MemberService {
         memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         interestsUpdateRequest.getInterests().forEach(item -> {
             MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
             memberAndInteresting.setMember(foundMember);
@@ -280,27 +262,25 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public AddressesResponse getMyAddresses(Long memberId) {
-        return AddressesResponse.from(addressRepository.findByMemberId(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.ADDRESS_NOT_FOUND)
-        ).stream().map(AddressResponse::from).toList());
+    public AddressResponse getMyAddresses(Long memberId) {
+        return AddressResponse.from(memberRepository.findByWithAddress(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        ).getAddress());
     }
 
     @Override
     @Transactional
-    public void updateMyAddresses(Long memberId, AddressesRequest addressesRequest) {
-        Member member = memberRepository.findByIdWithAddresses(memberId)
+    public void updateMyAddresses(Long memberId, AddressRequest addressRequest) {
+        Member member = memberRepository.findByWithAddress(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Set<Address> existingAddresses = member.getAddresses();
-        List<AddressRequest> newAddresses = addressesRequest.getAddresses();
-        for (AddressRequest newAddress : newAddresses) {
-            Address existingAddress = existingAddresses.stream()
-                    .filter(addr -> addr.getAddressType() == newAddress.getType())
-                    .findFirst()
-                    .orElseThrow(() -> new CustomException(ErrorCode.WRONG_ADDRESS_TYPE));
-            updateAddressFields(existingAddress, newAddress);
-        }
-        addressRepository.saveAll(existingAddresses);
+
+        member.setAddress(addressService.findOrCreateAddress(
+                addressRequest.getDoName(),
+                addressRequest.getSiName(),
+                addressRequest.getGuName(),
+                addressRequest.getDongName()
+        ));
+        memberRepository.save(member);
     }
 
     private String maskedAccountNumber(String accountNumber) {
@@ -315,19 +295,6 @@ public class MemberServiceImpl implements MemberService {
         return maskingResult;
     }
 
-    private void updateAddressFields(Address existingAddress, AddressRequest newAddress) {
-        if (newAddress.getDoName() != null) {
-            existingAddress.setAddressDo(newAddress.getDoName());
-        }
-        if (newAddress.getSiName() != null) {
-            existingAddress.setAddressSi(newAddress.getSiName());
-        }
-        if (newAddress.getGuName() != null) {
-            existingAddress.setAddressGuGun(newAddress.getGuName());
-        }
-        if (newAddress.getDongName() != null) {
-            existingAddress.setAddressDong(newAddress.getDongName());
-        }
-    }
+
 
 }

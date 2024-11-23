@@ -8,7 +8,6 @@ import org.crews.model.constants.AddressType;
 @Getter
 @Builder
 public class AddressResponse {
-    private AddressType type;
     private String doName;
     private String siName;
     private String guName;
@@ -16,7 +15,6 @@ public class AddressResponse {
 
     public static AddressResponse from(Address address) {
         return AddressResponse.builder()
-                .type(address.getAddressType())
                 .doName(address.getAddressDo())
                 .siName(address.getAddressSi())
                 .guName(address.getAddressGuGun())
