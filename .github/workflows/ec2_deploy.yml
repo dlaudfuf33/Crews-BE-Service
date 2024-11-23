@@ -1,60 +1,107 @@
-name: Docker build and push
+name: deploy
 
 on:
   workflow_dispatch:
 
 jobs:
-  build_and_push_backend:
-    runs-on: ubuntu-22.04
-
+  build:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - run: mkdir -p ./src/main/resources/
+      - uses: actions/checkout@v3
       - run: touch ./src/main/resources/application.properties
       - run: echo "${{ secrets.production }}" > ./src/main/resources/application.properties
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Set up Docker Meta for Backend
-        id: docker_meta_backend
-        uses: docker/metadata-action@v5
+      # Gradle wrapper 파일 실행 권한주기
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Gradle Cache 추가
+      - name: Cache Gradle packages
+        id: cache-npm
+        uses: actions/cache@v3
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/spring-image
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
 
-      - name: Build and Push Backend Docker Image
-        uses: docker/build-push-action@v5
+      - name: Get Github action IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: Setting environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=ap-northeast-2" >> $GITHUB_ENV
+          echo "AWS_SG_NAME=daemo_Security" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.docker_meta_backend.outputs.tags }}
-          labels: ${{ steps.docker_meta_backend.outputs.labels }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
 
+      - name: Add Github Actions IP to AWS Security group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 3306 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
 
-  deploy-to-ec2:
-    needs: [ build_and_push_backend, build_and_push_frontend ]
-    runs-on: ubuntu-22.04
+      - name: Setup and execute Gradle 'build' task
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean build
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
 
+      - name: Remove Github Actions IP from AWS security group
+        if: ${{ always() }}
+        run: |
+          aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 3306 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: build/libs/Crews-BE-Service-0.0.1-SNAPSHOT.jar
+
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
+      - name: Download JAR
+        uses: actions/download-artifact@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.EC2_PORT }}
-          script: |
-            sudo docker stop spring-image
-            sudo docker rm spring-image
-            sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/spring-image:main
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spring-image:main
-            sudo docker run --name spring-image -d --network host -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/spring-image:main
-
+          name: artifact
+      #Deploy the artifact (JAR) into AWS Beanstalk
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          #aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}
+          use_existing_version_if_available: false
+          application_name: NoticeBoard
+          environment_name: NoticeBoard-env
+          version_label: ${{github.SHA}}
+          region: ap-northeast-2
+          deployment_package: NoticeBoard-0.0.1-SNAPSHOT.jar
