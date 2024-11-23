@@ -133,17 +133,17 @@ public class MemberController {
     }
 
     @GetMapping("/me/addresses")
-    public ResponseEntity<AddressesResponse> getAddresses(HttpServletRequest request) {
+    public ResponseEntity<AddressResponse> getAddresses(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        AddressesResponse myAddresses = memberService.getMyAddresses(memberId);
+        AddressResponse myAddresses = memberService.getMyAddresses(memberId);
         return ResponseEntity.ok(myAddresses);
     }
 
     @PutMapping("/me/addresses")
-    public ResponseEntity<Void> updateAddresses(@RequestBody AddressesRequest addressesRequest, HttpServletRequest request) {
+    public ResponseEntity<Void> updateAddresses(@RequestBody AddressRequest addressRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         try {
-            memberService.updateMyAddresses(memberId, addressesRequest);
+            memberService.updateMyAddresses(memberId, addressRequest);
             return ResponseEntity.noContent().build();
         } catch (CustomException e) {
             return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();

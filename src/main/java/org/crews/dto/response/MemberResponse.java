@@ -6,8 +6,6 @@ import lombok.Getter;
 import org.crews.model.Address;
 import org.crews.model.Member;
 
-import java.util.List;
-
 @Getter
 @AllArgsConstructor
 @Builder
@@ -18,7 +16,7 @@ public class MemberResponse {
     private String email;
     private String phoneNumber;
     private String profileImage;
-    private List<Address> address;
+    private Address address;
 
     public static MemberResponse from(Member member) {
         return MemberResponse.builder()
@@ -28,7 +26,7 @@ public class MemberResponse {
                 .email(member.getEmail())
                 .phoneNumber(member.getPhoneNumber())
                 .profileImage(member.getProfileImage())
-                .address(member.getAddresses().stream().toList())
+                .address(member.getAddress())
                 .build();
     }
 }
