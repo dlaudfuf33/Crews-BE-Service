@@ -11,9 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface InterestingAndAgitRepository extends JpaRepository<InterestingAndAgit, Long> {
-    void deleteByAgitAndInterestingIn(Agit agit, List<Interesting> interestsToDelete);
-
-    List<InterestingAndAgit> findByAgit(Agit agit);
-
     void deleteByAgit(Agit agit);
 }
