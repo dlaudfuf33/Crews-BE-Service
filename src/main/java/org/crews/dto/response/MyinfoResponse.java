@@ -2,7 +2,6 @@ package org.crews.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.crews.model.Address;
 import org.crews.model.Member;
 import org.crews.model.MemberAndInteresting;
 import org.crews.utils.AESUtil;

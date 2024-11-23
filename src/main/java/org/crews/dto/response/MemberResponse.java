@@ -6,8 +6,6 @@ import lombok.Getter;
 import org.crews.model.Address;
 import org.crews.model.Member;
 
-import java.util.List;
-
 @Getter
 @AllArgsConstructor
 @Builder
