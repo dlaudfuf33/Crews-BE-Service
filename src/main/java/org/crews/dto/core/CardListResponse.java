@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CardList {
+public class CardListResponse {
     private String memberName;
     private String bankCode;
     private String bankName;

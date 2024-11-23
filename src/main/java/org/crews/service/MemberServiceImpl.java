@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,8 +117,8 @@ public class MemberServiceImpl implements MemberService {
                     () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+                .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 

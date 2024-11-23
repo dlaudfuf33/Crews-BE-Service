@@ -3,7 +3,16 @@ package org.crews.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
+import org.crews.dto.request.AccountDetailsRequest;
 import org.crews.dto.request.AccountLinkRequest;
+
+import org.crews.dto.core.AccountIssuedResponse;
+import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.core.CommonRequest;
+
+import org.crews.dto.request.TransactionDetailRequest;
+import org.crews.dto.response.AccountLinkResponse;
+import org.crews.dto.response.TransactionDetailResponse;
 import org.crews.dto.request.MemberIdRequest;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -13,6 +22,8 @@ import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,7 +37,7 @@ public class AccountService {
     private final AgitAndAccountRepository agitAndAccountRepository;
     private final CoreService coreService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AccountOneResponse accountInfo(Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
@@ -38,7 +49,9 @@ public class AccountService {
         String fintecNumber = agitAndAccount.getAccount().getFintecNumber();
         String ci = agitAndAccount.getAccount().getMember().getCi();
         CommonRequest commonRequest = CommonRequest.builder().ci(ci).fintechUseNum(fintecNumber).build();
-        return coreService.accountInfo(commonRequest);
+        AccountOneResponse accountOneResponse = coreService.accountInfo(commonRequest);
+        agitAndAccount.getAccount().setBalance(accountOneResponse.getBalance());
+        return accountOneResponse;
     }
 
     @Transactional
@@ -62,13 +75,13 @@ public class AccountService {
         );
         Account account = Account.builder().bank(bank).member(membership.getMember()).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
                 .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).build();
+                accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
         Account savedAccount = accountRepository.save(account);
         return AccountIssuedResponse.from(savedAccount);
     }
 
     @Transactional
-    public AgitAndAccount accountLink(Long agitId, AccountLinkRequest accountLinkRequest) {
+    public AccountLinkResponse accountLink(Long agitId, AccountLinkRequest accountLinkRequest) {
         Member member = memberRepository.findById(accountLinkRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -85,13 +98,23 @@ public class AccountService {
         Account account = accountRepository.findByFintecNumber(accountLinkRequest.getFintechUseNum()).orElseThrow(
                 () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
         );
+        Optional<AgitAndAccount> optionalAgitAndAccount = agitAndAccountRepository.findByAgitAndAccount(agit, account);
+        if(optionalAgitAndAccount.isPresent())
+            throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
         AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
         log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
-        return agitAndAccountRepository.save(agitAndAccount);
+        AgitAndAccount savedAgitAndAccount = agitAndAccountRepository.save(agitAndAccount);
+        agit.setAgitAndAccount(savedAgitAndAccount);
+        return AccountLinkResponse
+                        .builder()
+                        .agitId(agitId)
+                        .accountId(savedAgitAndAccount.getId())
+                        .accountNumber(AESUtil.decrypt(savedAgitAndAccount.getAccount().getAccountNumber()))
+                        .build();
     }
 
-    public AccountInfoResponse accountDetails(Long agitId, Long accountId, AccountLinkRequest accountLinkRequest) {
-        Member member = memberRepository.findById(accountLinkRequest.getMemberId()).orElseThrow(
+    public AccountInfoResponse getAllAccounts(Long agitId, MemberIdRequest memberIdRequest) {
+        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -104,11 +127,14 @@ public class AccountService {
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
-        accountRepository.findByIdAndFintecNumber(accountId, accountLinkRequest.getFintechUseNum()).orElseThrow(
-                () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
-        );
         CIOnlyRequest request = CIOnlyRequest.builder().ci(ci).build();
-        return coreService.accountDetails(request);
+        AccountInfoResponse allAccounts = coreService.getAllAccounts(request);
+        for(AccountIssuedResponse response : allAccounts.getAccountList()){
+            Optional<Account> findAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(response.getAccountNumber()));
+            if(findAccount.isEmpty()) continue;
+            findAccount.get().setBalance(response.getBalance());
+        }
+        return allAccounts;
     }
 
     private String maskedAccountNumber(String accountNumber) {
@@ -122,5 +148,32 @@ public class AccountService {
 
         return maskingResult;
 
+    }
+    public TransactionDetailResponse accountDetails(Long agitId, Long accountId,Long memberId, AccountDetailsRequest accountDetailsResponse) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
+        );
+        String ci = membership.getMember().getCi();
+        if (!member.getCi().equals(ci)) {
+            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
+        }
+        accountRepository.findByIdAndFintecNumber(accountId,accountDetailsResponse.getFintechUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.ACCOUNT_NOT_MATCHED_FINNUM)
+        );
+        TransactionDetailRequest transactionDetailRequest = TransactionDetailRequest
+                .builder()
+                .ci(member.getCi())
+                .fintechUseNum(accountDetailsResponse.getFintechUseNum())
+                .transactionType(accountDetailsResponse.getTransactionType())
+                .selectPeriod(accountDetailsResponse.getSelectPeriod())
+                .order(accountDetailsResponse.getOrder())
+                .build();
+        return coreService.filteredAccountHistory(transactionDetailRequest);
     }
 }

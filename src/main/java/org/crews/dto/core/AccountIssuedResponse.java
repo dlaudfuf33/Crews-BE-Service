@@ -28,11 +28,12 @@ public class AccountIssuedResponse {
     private LocalDateTime updateAt;
     private BigDecimal balance;
     private String fintechUseNum;
+    private String productName;
 
 
     public static AccountIssuedResponse from(Account account){
         return AccountIssuedResponse.builder()
-                .memberName(account.getMember().getName())
+                .memberName(AESUtil.decrypt(account.getMember().getName()))
                 .ci(account.getMember().getCi())
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())
@@ -42,6 +43,7 @@ public class AccountIssuedResponse {
                 .updateAt(account.getUpdatedAt())
                 .balance(account.getBalance())
                 .fintechUseNum(account.getFintecNumber())
+                .productName(account.getProductName())
                 .build();
     }
 }

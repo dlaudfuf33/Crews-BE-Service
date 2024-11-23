@@ -6,6 +6,8 @@ import org.crews.model.constants.MemberRole;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,5 +33,8 @@ public class Membership extends BaseTimeEntity{
 
     @Column(nullable = false)
     private LocalDateTime joinedAt;
+
+    @OneToMany(mappedBy = "membership")
+    private List<Dues> duesList = new ArrayList<>();
 
 }

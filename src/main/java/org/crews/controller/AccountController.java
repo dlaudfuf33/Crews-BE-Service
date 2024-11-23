@@ -1,15 +1,20 @@
 package org.crews.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountInfoResponse;
+import org.crews.dto.request.AccountDetailsRequest;
+import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
-import org.crews.dto.request.AccountLinkRequest;
+import org.crews.dto.response.AccountLinkResponse;
+import org.crews.dto.response.TransactionDetailResponse;
+
 import org.crews.dto.request.MemberIdRequest;
-import org.crews.model.AgitAndAccount;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AccountService;
+import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/agits/{agits-id}/accounts")
 public class AccountController {
     private final AccountService accountService;
+    private final AuthUtil authUtil;
 
     @GetMapping
     public ResponseEntity<AccountOneResponse> accountInfo(@PathVariable("agits-id") Long agitId){
@@ -32,15 +38,23 @@ public class AccountController {
     }
 
     @PostMapping("/link")
-    public ResponseEntity<AgitAndAccount> accountLink(@PathVariable("agits-id") Long agitId,
-                                                      @RequestBody AccountLinkRequest accountLinkRequest){
+    public ResponseEntity<AccountLinkResponse> accountLink(@PathVariable("agits-id") Long agitId,
+                                                           @RequestBody AccountLinkRequest accountLinkRequest){
         return ResponseEntity.ok().body(accountService.accountLink(agitId, accountLinkRequest));
     }
 
+    @PostMapping("/all")
+    public ResponseEntity<AccountInfoResponse> getAllAccounts(@PathVariable("agits-id") Long agitId,
+                                                              @RequestBody MemberIdRequest memberIdRequest){
+        return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberIdRequest));
+    }
+
     @PostMapping("/{accounts-id}/details")
-    public ResponseEntity<AccountInfoResponse> accountDetails(@PathVariable("agits-id") Long agitId,
-                                                              @PathVariable("accounts-id") Long accountId,
-                                                              @RequestBody AccountLinkRequest accountLinkRequest){
-        return ResponseEntity.ok().body(accountService.accountDetails(agitId, accountId, accountLinkRequest));
+    public ResponseEntity<TransactionDetailResponse> accountDetails(@PathVariable("agits-id") Long agitId,
+                                                                    @PathVariable("accounts-id") Long accountId,
+                                                                    @RequestBody AccountDetailsRequest accountDetailsResponse,
+                                                                    HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.accountDetails(agitId, accountId,memberId, accountDetailsResponse));
     }
 }

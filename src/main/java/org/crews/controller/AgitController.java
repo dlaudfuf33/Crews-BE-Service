@@ -1,10 +1,13 @@
 package org.crews.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.DuesAlarmResponse;
+import org.crews.model.Agit;
 import org.crews.service.AgitService;
-import org.springframework.http.HttpStatus;
+import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +18,7 @@ import java.util.List;
 @RequestMapping("/agits")
 public class AgitController {
     private final AgitService agitService;
+    private final AuthUtil authUtil;
 
     @GetMapping
     public ResponseEntity<List<AgitResponse>> getAllAgits(){
@@ -22,12 +26,15 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<String> generateAgit(@RequestBody AgitRequest agitRequest){
-        boolean isGenerated=agitService.generateAgit(agitRequest);
-        if(isGenerated){
-            return ResponseEntity.ok("등록 성공하였습니다.");
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("등록 실패하였습니다.");
-        }
+    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest){
+        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
     }
+
+    @GetMapping("/{agits-id}/dues")
+    public ResponseEntity<DuesAlarmResponse> getDuesAlarm(@PathVariable("agits-id") Long agitId,
+                                                          HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId));
+    }
+
 }
