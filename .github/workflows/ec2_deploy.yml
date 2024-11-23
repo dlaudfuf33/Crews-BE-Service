@@ -87,4 +87,4 @@ jobs:
           environment_name: Crews-BE-Service-env
           version_label: ${{github.SHA}}
           region: ap-northeast-2
-          deployment_package: NoticeBoard-0.0.1-SNAPSHOT.jar
+          deployment_package: Crews-BE-Service-0.0.1-SNAPSHOT.jar
