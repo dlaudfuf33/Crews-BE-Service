@@ -30,10 +30,13 @@ public interface MemberService {
 
     MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest);
 
+    void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest);
 
     void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
 
     AddressResponse getMyAddresses(Long memberId);
 
     void updateMyAddresses(Long memberId, AddressRequest addressRequest);
+
+    List<AgitResponse> getMyAgits(Long memberId);
 }

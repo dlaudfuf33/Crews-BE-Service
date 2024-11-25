@@ -17,7 +17,7 @@ import org.crews.model.*;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
-import org.crews.utils.NicknameGenerator;
+import org.crews.utils.NicknameUtills;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +44,7 @@ public class MemberServiceImpl implements MemberService {
     private final CoreService coreService;
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
+    private final MemberShipRepository memberShipRepository;
 
 
     @Override
@@ -67,7 +68,7 @@ public class MemberServiceImpl implements MemberService {
             String ci = CIGenerator.generateCI(jumin);
             member.setCi(ci);
             // 렌덤 닉네임 설정
-            member.setNickName(NicknameGenerator.generateRandomNickname());
+            member.setNickName(NicknameUtills.generateRandomNickname());
             // 주소 처리
             Address address = addressService.findOrCreateAddress(
                     memberRequest.getAddressDo(),
@@ -76,9 +77,9 @@ public class MemberServiceImpl implements MemberService {
                     memberRequest.getAddressDong()
             );
             member.setAddress(address);
+            // 핀 번호 설정
             // 회원 저장
             Member savedMember = memberRepository.save(member);
-
             // 회원 관심사 설정 (기본 값)
             memberAndInterestingRepository.save(MemberAndInteresting.builder()
                     .member(savedMember)
@@ -235,6 +236,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest) {
+        if (NicknameUtills.validationNickname(myNicknameRequest.getNickname())) {
+            throw new CustomException(ErrorCode.INVALID_NICKNAME);
+        }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -246,9 +250,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
-        memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
 
         interestsUpdateRequest.getInterests().forEach(item -> {
             MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
@@ -281,6 +285,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+
     @Override
     @Transactional
     public void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest) {
@@ -297,6 +302,15 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+    @Override
+    public List<AgitResponse> getMyAgits(Long memberId) {
+        List<Agit> as = memberShipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream()
+                .map(Membership::getAgit).toList();
+
+        return as.stream().map(AgitResponse::from)
+                .toList();
+    }
+
     private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
 
@@ -308,7 +322,6 @@ public class MemberServiceImpl implements MemberService {
 
         return maskingResult;
     }
-
 
 
     private void validateOldPassword(String currentPassword, String oldPassword) {
@@ -323,5 +336,7 @@ public class MemberServiceImpl implements MemberService {
             throw new CustomException(ErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
         }
     }
+
+
 }
 

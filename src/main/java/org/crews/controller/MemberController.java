@@ -107,8 +107,8 @@ public class MemberController {
     @PutMapping("/me/nickname")
     public ResponseEntity<MyNicknameResponse> updateMyNickname(@RequestBody MyNicknameRequest myNicknameRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        MyNicknameResponse myNickName = memberService.updateMyNickname(memberId, myNicknameRequest);
-        return ResponseEntity.ok(myNickName);
+        memberService.updateMyNickname(memberId, myNicknameRequest);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me/interests")
@@ -142,12 +142,8 @@ public class MemberController {
     @PutMapping("/me/addresses")
     public ResponseEntity<Void> updateAddresses(@RequestBody AddressRequest addressRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        try {
-            memberService.updateMyAddresses(memberId, addressRequest);
-            return ResponseEntity.noContent().build();
-        } catch (CustomException e) {
-            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();
-        }
+        memberService.updateMyAddresses(memberId, addressRequest);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/password")
@@ -158,10 +154,18 @@ public class MemberController {
             memberService.updatePassword(memberId, passwordUpdateRequest);
             return ResponseEntity.noContent().build();
         } catch (CustomException e) {
-            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+
+    @GetMapping("/me/agits")
+    public ResponseEntity<List<AgitResponse>> getAgits(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AgitResponse> agitResponseList = memberService.getMyAgits(memberId);
+        return ResponseEntity.ok(agitResponseList);
     }
 
 }
