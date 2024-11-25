@@ -1,5 +1,6 @@
 package org.crews.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.crews.dto.request.MemberRequest;
@@ -9,23 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@NamedEntityGraph(
-        name = "Member.withAddressesAndInterestingsAndSubjects",
-        attributeNodes = {
-                @NamedAttributeNode("addresses"),
-                @NamedAttributeNode(value = "memberAndInterestings", subgraph = "memberAndInterestingsSubgraph")
-        },
-        subgraphs = {
-                @NamedSubgraph(
-                        name = "memberAndInterestingsSubgraph",
-                        attributeNodes = @NamedAttributeNode(value = "interesting", subgraph = "interestingSubgraph")
-                ),
-                @NamedSubgraph(
-                        name = "interestingSubgraph",
-                        attributeNodes = @NamedAttributeNode("subject")
-                )
-        }
-)
+
 @Getter
 @Setter
 @Builder
@@ -38,7 +23,7 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,length = 16)
+    @Column(nullable = false, length = 16)
     private String nickName;
 
     @Column(unique = true, nullable = false)
@@ -55,18 +40,19 @@ public class Member extends BaseTimeEntity {
 
     private String profileImage;
 
-    @Column(nullable = false,length = 88)
+    @Column(nullable = false, length = 88)
     private String ci;
 
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false, length = 20)
     private String role;
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
-    @OneToMany(mappedBy = "member")
-    @Builder.Default
-    private Set<Address> addresses = new HashSet<>();
+    @ManyToOne(optional = true,fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", nullable = true)
+    @JsonManagedReference
+    private Address address;
 
     @OneToMany(mappedBy = "member")
     @Builder.Default

@@ -2,7 +2,6 @@ package org.crews.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.crews.model.Address;
 import org.crews.model.Member;
 import org.crews.model.MemberAndInteresting;
 import org.crews.utils.AESUtil;
@@ -15,7 +14,7 @@ public class MyinfoResponse {
     private String email;
     private String nickname;
     private List<InterestResponse> interests;
-    private List<Address> address;
+    private AddressResponse address;
 
 
     public static MyinfoResponse from(Member member) {
@@ -27,7 +26,7 @@ public class MyinfoResponse {
                                 .map(MyinfoResponse::convertToInterestingDto)
                                 .toList()
                 )
-                .address(member.getAddresses().stream().toList())
+                .address(AddressResponse.from(member.getAddress()))
                 .build();
     }
 
