@@ -21,14 +21,14 @@ CREATE TABLE bank
 -- Address 테이블
 CREATE TABLE address
 (
-    id                 BIGINT                           NOT NULL AUTO_INCREMENT,
-    unique_address_key VARCHAR(255)                     NOT NULL UNIQUE,
+    id                 BIGINT       NOT NULL AUTO_INCREMENT,
+    unique_address_key VARCHAR(255) NOT NULL UNIQUE,
     created_at         DATETIME(6),
     updated_at         DATETIME(6),
-    address_do         VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_dong       VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_gu_gun     VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_si         VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_do         VARCHAR(255) NOT NULL DEFAULT '',
+    address_dong       VARCHAR(255) NOT NULL DEFAULT '',
+    address_gu_gun     VARCHAR(255) NOT NULL DEFAULT '',
+    address_si         VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (id)
 );
 
@@ -44,6 +44,7 @@ CREATE TABLE member
     name          VARCHAR(255) NOT NULL,
     nick_name     VARCHAR(16)  NOT NULL,
     password      VARCHAR(255) NOT NULL,
+    pinNumber     VARCHAR(255) NOT NULL DEFAULT '',
     phone_number  VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255) NOT NULL DEFAULT '',
     role          VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',
@@ -90,7 +91,6 @@ CREATE TABLE account_history
 );
 
 
-
 -- Subject 테이블
 CREATE TABLE subject
 (
@@ -127,12 +127,12 @@ CREATE TABLE agit
 -- CommonDues 테이블
 CREATE TABLE common_dues
 (
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    due_day    INT      NOT NULL,
-    created_at  DATETIME(6),
+    id         BIGINT         NOT NULL AUTO_INCREMENT,
+    due_day    INT            NOT NULL,
+    created_at DATETIME(6),
     due_amount DECIMAL(19, 2) NOT NULL,
-    updated_at  DATETIME(6),
-    agit_id     BIGINT,
+    updated_at DATETIME(6),
+    agit_id    BIGINT,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
 
@@ -272,16 +272,16 @@ CREATE TABLE membership
 -- Dues 테이블
 CREATE TABLE dues
 (
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    created_at  DATETIME(6),
-    due_amount DECIMAL(19, 2) NOT NULL,
-    product_name VARCHAR(255)  NOT NULL,
-    account_number VARCHAR(255)  NOT NULL,
-    agit_name VARCHAR(255)  NOT NULL,
-    is_payed    BOOLEAN     NOT NULL,
-    due_date    DATETIME(6),
-    updated_at  DATETIME(6),
-    membership_id BIGINT,
+    id             BIGINT         NOT NULL AUTO_INCREMENT,
+    created_at     DATETIME(6),
+    due_amount     DECIMAL(19, 2) NOT NULL,
+    product_name   VARCHAR(255)   NOT NULL,
+    account_number VARCHAR(255)   NOT NULL,
+    agit_name      VARCHAR(255)   NOT NULL,
+    is_payed       BOOLEAN        NOT NULL,
+    due_date       DATETIME(6),
+    updated_at     DATETIME(6),
+    membership_id  BIGINT,
     common_dues_id BIGINT,
     PRIMARY KEY (id),
     FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
