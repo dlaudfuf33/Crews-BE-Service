@@ -33,7 +33,7 @@ public interface MemberService {
 
     void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
 
-    AddressesResponse getMyAddresses(Long memberId);
+    AddressResponse getMyAddresses(Long memberId);
 
-    void updateMyAddresses(Long memberId, AddressesRequest addressesRequest);
+    void updateMyAddresses(Long memberId, AddressRequest addressRequest);
 }

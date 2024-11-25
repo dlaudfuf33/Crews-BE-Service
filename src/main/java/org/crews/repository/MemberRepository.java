@@ -14,7 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByEmail(String email);
 
-    // MyProfile용
+    // 내 프로필 조회
     @Query("SELECT m FROM Member m " +
             "JOIN FETCH m.memberAndInterestings mai " +
             "JOIN FETCH mai.interesting interests " +
@@ -22,14 +22,20 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "WHERE m.id = :id")
     Optional<Member> findByIdWithInterestings(@Param("id") Long id);
 
-    // MyInfo용
-    @Query("SELECT DISTINCT m FROM Member m " +
+    // 내정보 조회(주소,관심사,주제)
+    @Query("SELECT m FROM Member m " +
+            "JOIN FETCH m.address " +
             "JOIN FETCH m.memberAndInterestings mai " +
             "JOIN FETCH mai.interesting " +
             "JOIN FETCH mai.interesting.subject " +
-            "JOIN FETCH m.addresses " +
             "WHERE m.id = :id")
     Optional<Member> findByIdWithAddresses(@Param("id") Long id);
+
+    //회원&주소 조회
+    @Query("SELECT m FROM Member m " +
+            "JOIN FETCH m.address " +
+            "WHERE m.id = :id")
+    Optional<Member> findByWithAddress(@Param("id") Long id);
 
     Optional<Member> findByCi(String ci);
 

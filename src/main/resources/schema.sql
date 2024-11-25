@@ -18,6 +18,19 @@ CREATE TABLE bank
     PRIMARY KEY (id),
     UNIQUE (bank_code)
 );
+-- Address 테이블
+CREATE TABLE address
+(
+    id                 BIGINT                           NOT NULL AUTO_INCREMENT,
+    unique_address_key VARCHAR(255)                     NOT NULL UNIQUE,
+    created_at         DATETIME(6),
+    updated_at         DATETIME(6),
+    address_do         VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_dong       VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_gu_gun     VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_si         VARCHAR(255)                     NOT NULL DEFAULT '',
+    PRIMARY KEY (id)
+);
 
 -- Member 테이블
 CREATE TABLE member
@@ -34,8 +47,10 @@ CREATE TABLE member
     phone_number  VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255) NOT NULL DEFAULT '',
     role          VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',
+    address_id    BIGINT,
     PRIMARY KEY (id),
-    UNIQUE (email)
+    UNIQUE (email),
+    FOREIGN KEY (address_id) REFERENCES address (id)
 );
 
 -- Account 테이블
@@ -74,21 +89,7 @@ CREATE TABLE account_history
     FOREIGN KEY (account_id) REFERENCES account (id)
 );
 
--- Address 테이블
-CREATE TABLE address
-(
-    id             BIGINT                           NOT NULL AUTO_INCREMENT,
-    created_at     DATETIME(6),
-    member_id      BIGINT                           NOT NULL,
-    updated_at     DATETIME(6),
-    address_do     VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_dong   VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_gu_gun VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_si     VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_type   ENUM ('HOME', 'COMPANY', 'OTHER') NOT NULL DEFAULT 'HOME',
-    PRIMARY KEY (id),
-    FOREIGN KEY (member_id) REFERENCES member (id)
-);
+
 
 -- Subject 테이블
 CREATE TABLE subject
@@ -103,22 +104,23 @@ CREATE TABLE subject
 -- Agit 테이블
 CREATE TABLE agit
 (
-    id             BIGINT       NOT NULL AUTO_INCREMENT,
-    current_person INT                   DEFAULT 1,
-    is_deleted     BOOLEAN               DEFAULT FALSE,
-    is_due         BOOLEAN      NOT NULL DEFAULT FALSE,
-    introduction   VARCHAR(255) NOT NULL DEFAULT '',
-
-    max_person     INT                   DEFAULT 30,
-    created_at     DATETIME(6),
-    subject_id     BIGINT,
-    updated_at     DATETIME(6),
-    agit_name      VARCHAR(255) NOT NULL,
+    id                  BIGINT       NOT NULL AUTO_INCREMENT,
+    current_person      INT                   DEFAULT 1,
+    is_deleted          BOOLEAN               DEFAULT FALSE,
+    is_due              BOOLEAN      NOT NULL DEFAULT FALSE,
+    introduction        VARCHAR(255) NOT NULL DEFAULT '',
+    max_person          INT                   DEFAULT 30,
+    created_at          DATETIME(6),
+    subject_id          BIGINT,
+    updated_at          DATETIME(6),
+    agit_name           VARCHAR(255) NOT NULL,
     agit_and_account_id BIGINT,
-    common_dues_id BIGINT,
+    common_dues_id      BIGINT,
+    address_id          BIGINT,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
-    FOREIGN KEY (subject_id) REFERENCES subject (id)
+    FOREIGN KEY (subject_id) REFERENCES subject (id),
+    FOREIGN KEY (address_id) REFERENCES address (id)
 
 );
 
@@ -305,6 +307,7 @@ CREATE TABLE meeting
     agit_id      BIGINT,
     created_at   DATETIME(6),
     regular_time DATETIME(6)  NOT NULL,
+
     updated_at   DATETIME(6),
     content      VARCHAR(255) NOT NULL,
     image        VARCHAR(255),
