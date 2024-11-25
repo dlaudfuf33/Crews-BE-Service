@@ -16,13 +16,13 @@ public interface MemberService {
 
     Map<String, String> reissueTokens(String refresh);
 
-    public List<AccountResponse> getAccountInfoFromCore(Long id);
+    List<AccountResponse> getAccountInfoFromCore(Long id);
 
-    public MyProfileResponse getMyProfile(Long memberId);
+    MyProfileResponse getMyProfile(Long memberId);
 
-    public MyinfoResponse getMyinfo(Long memberId);
+    MyinfoResponse getMyinfo(Long memberId);
 
-    public List<InterestResponse> getMyInterests(Long memberId);
+    List<InterestResponse> getMyInterests(Long memberId);
 
     boolean validateEmail(EmailRequest request);
 

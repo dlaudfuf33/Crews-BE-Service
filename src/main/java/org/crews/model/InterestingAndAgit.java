@@ -14,10 +14,8 @@ public class InterestingAndAgit extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "interesting_id")
     private Interesting interesting;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agit_id")
     private Agit agit;
 }

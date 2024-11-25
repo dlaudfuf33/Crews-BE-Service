@@ -107,8 +107,7 @@ public class MemberController {
     @PutMapping("/me/nickname")
     public ResponseEntity<MyNicknameResponse> updateMyNickname(@RequestBody MyNicknameRequest myNicknameRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        memberService.updateMyNickname(memberId, myNicknameRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(memberService.updateMyNickname(memberId, myNicknameRequest));
     }
 
     @GetMapping("/me/interests")
