@@ -12,12 +12,10 @@ import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
 import org.crews.utils.CheckExceptionUtil;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -61,8 +59,7 @@ public class IntroducingService {
         }
 
         Introducing introducing = checkedResult.getAgit().getIntroducing();
-        interestingAndAgitRepository.deleteByAgit(checkedResult.getAgit());
-        interestingAndAgitRepository.flush();
+        interestingAndAgitRepository.deleteByAgitIdCustom(agitId);
 
         List<Long> updateInterestsId = introducingRequest.getInterests();
         if(updateInterestsId != null && !updateInterestsId.isEmpty()){
@@ -77,10 +74,10 @@ public class IntroducingService {
                             .agit(checkedResult.getAgit())
                             .interesting(interest)
                             .build())
-                    .collect(Collectors.toList());
+                    .toList();
 
-            interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
             if (updateInterestingAndAgit.size() < 1 || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
+            interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
         }else{
             throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }

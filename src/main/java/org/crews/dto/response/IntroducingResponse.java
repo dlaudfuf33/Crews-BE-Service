@@ -25,7 +25,7 @@ public class IntroducingResponse {
     public static IntroducingResponse of(String memberRole, Introducing introducing){
         List<InterestingResponse> interestingResponse = introducing.getAgit().getInterestingAndAgits().stream()
                 .map(interestingAndAgit -> InterestingResponse.from(interestingAndAgit.getInteresting()))
-                .collect(Collectors.toList());
+                .toList();
         return new IntroducingResponse(
                 memberRole,
                 introducing.getImage(),
