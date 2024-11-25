@@ -39,4 +39,8 @@ public interface MemberService {
     void updateMyAddresses(Long memberId, AddressRequest addressRequest);
 
     List<AgitResponse> getMyAgits(Long memberId);
+
+    List<AgitCardsResponse> getMyAgitsCards(Long memberId);
+
+    void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest);
 }

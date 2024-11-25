@@ -167,6 +167,21 @@ public class MemberController {
         return ResponseEntity.ok(agitResponseList);
     }
 
+    @GetMapping("/me/agits-cards")
+    public ResponseEntity<List<AgitCardsResponse>> getAgitsCards(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AgitCardsResponse> agitCardsResponseList = memberService.getMyAgitsCards(memberId);
+        return ResponseEntity.ok(agitCardsResponseList);
+    }
+
+    @DeleteMapping("/me/agits-cards")
+    public ResponseEntity<AgitCardsResponse> deleteAgitsCards(
+            HttpServletRequest request,
+            @RequestBody CardDeleteRequest cardDeleteRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.deleteMyAgitsCards(memberId, cardDeleteRequest);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

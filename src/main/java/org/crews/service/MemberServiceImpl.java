@@ -45,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
     private final MemberShipRepository memberShipRepository;
+    private final CardRepository cardRepository;
 
 
     @Override
@@ -311,6 +312,20 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
     }
 
+    @Override
+    public List<AgitCardsResponse> getMyAgitsCards(Long memberId) {
+        return cardRepository.findAgitCardsByMemberId(memberId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest) {
+        Long cardId = cardDeleteRequest.getCardId();
+        Card foundCard = cardRepository.findByIdAndMemberId(cardId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_MATCHED_MEMBER));
+        maskingCard(foundCard);
+    }
+
     private String maskedAccountNumber(String accountNumber) {
         String maskingResult = "";
 
@@ -337,6 +352,8 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
+    private void maskingCard(Card card){
+        card.maskCard();
+    }
 }
 
