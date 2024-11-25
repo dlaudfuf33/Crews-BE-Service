@@ -8,8 +8,10 @@ import org.crews.dto.response.MeetingResponse;
 import org.crews.dto.response.MeetingSliceResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
+import org.crews.model.Agit;
 import org.crews.model.Meeting;
 import org.crews.model.constants.MemberRole;
+import org.crews.repository.AgitRepository;
 import org.crews.repository.MeetingRepository;
 import org.crews.utils.CheckExceptionUtil;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ public class MeetingService {
 
     private final MeetingRepository meetingRepository;
     private final CheckExceptionUtil checkExceptionUtil;
+    private final AgitRepository agitRepository;
 
     public MeetingSliceResponse getAllEvents(Long memberId, Long agitId, int page) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
@@ -41,6 +48,15 @@ public class MeetingService {
         if(meeting.isDeleted()) throw new CustomException(ErrorCode.DELETED_MEETING);
 
         return MeetingResponse.from(meeting);
+    }
+
+    public Integer getMeetingsForMonth(Long agitId){
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
+        LocalDateTime beforeMonth = LocalDateTime.now().minusMonths(1);
+        List<Meeting> meetings = agit.getMeetings().stream()
+                .filter(meeting -> meeting.getRegularTime().compareTo(beforeMonth) >= 0).toList();
+        return meetings.size();
     }
 
     @Transactional
