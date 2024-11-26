@@ -16,6 +16,7 @@ import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
+import org.crews.utils.AuthUtil;
 import org.crews.utils.CIGenerator;
 import org.crews.utils.NicknameGenerator;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,7 @@ public class MemberServiceImpl implements MemberService {
     private final CoreService coreService;
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
+    private final AuthUtil authUtil;
 
 
     @Override
@@ -303,8 +305,14 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
         Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        String temporary = authUtil.generateRandomPassword(8);
+        member.setPassword(bCryptPasswordEncoder.encode(temporary));
+
+        coreService.postMessage(new MessageInputResponse(new MessageResponse(AESUtil.decrypt(member.getPhoneNumber()),temporary)));
+
     }
 }
