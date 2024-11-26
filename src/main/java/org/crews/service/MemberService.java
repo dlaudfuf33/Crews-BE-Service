@@ -39,5 +39,5 @@ public interface MemberService {
 
     FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
 
-    void findMemberPw(FindMemberPwRequest findMemberPwRequest);
+    void findMemberPw(FindMemberPwRequest findMemberPwRequest) throws Exception;
 }

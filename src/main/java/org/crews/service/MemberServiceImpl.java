@@ -15,10 +15,7 @@ import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
 import org.crews.repository.*;
-import org.crews.utils.AESUtil;
-import org.crews.utils.AuthUtil;
-import org.crews.utils.CIGenerator;
-import org.crews.utils.NicknameGenerator;
+import org.crews.utils.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -309,10 +306,9 @@ public class MemberServiceImpl implements MemberService {
     public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
         Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        String temporary = authUtil.generateRandomPassword(8);
+        String temporary = authUtil.generateRandomPassword(10);
         member.setPassword(bCryptPasswordEncoder.encode(temporary));
 
-        coreService.postMessage(new MessageInputResponse(new MessageResponse(AESUtil.decrypt(member.getPhoneNumber()),temporary)));
-
+        MessageUtil.send(AESUtil.decrypt(member.getPhoneNumber()),temporary);
     }
 }

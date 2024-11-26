@@ -3,7 +3,6 @@ package org.crews.service;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.TransactionDetailRequest;
-import org.crews.dto.response.MessageInputResponse;
 import org.crews.dto.response.ProductAllResponse;
 import org.crews.dto.response.TransactionDetailResponse;
 import org.crews.exception.CustomException;
@@ -305,24 +304,6 @@ public class CoreService {
         } catch (WebClientResponseException ex) {
             log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
-        }
-    }
-
-    public String postMessage(MessageInputResponse message) {
-        try {
-            return webClient.post()
-                .uri("https://api.pushcut.io/YZq8IV-2dLeFeBm3ZEYlT/execute?shortcut=SendSms.class")
-                .headers(headers -> {
-                    headers.set(HEADER_API_KEY, "dxQoAEoDctRZFA2-s6jI6Kh6");
-                    headers.setContentType(MediaType.APPLICATION_JSON);
-                })
-                .bodyValue(message)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-        } catch (WebClientResponseException e) {
-            log.error(CALL_FAILURE_MESSAGE, e);
-            throw new CustomException(ErrorCode.SEND_MESSAGE_FAILED);
         }
     }
 }
