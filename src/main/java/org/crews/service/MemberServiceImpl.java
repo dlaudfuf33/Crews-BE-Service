@@ -79,6 +79,7 @@ public class MemberServiceImpl implements MemberService {
             );
             member.setAddress(address);
             // 핀 번호 설정
+            member.setPinNumber("000000");
             // 회원 저장
             Member savedMember = memberRepository.save(member);
             // 회원 관심사 설정 (기본 값)
@@ -324,6 +325,11 @@ public class MemberServiceImpl implements MemberService {
         Card foundCard = cardRepository.findByIdAndMemberId(cardId, memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_MATCHED_MEMBER));
         maskingCard(foundCard);
+    }
+
+    @Override
+    public List<AccountsResponse> getMyAccounts(Long memberId) {
+        return accountRepository.findPersonalAccounts(memberId);
     }
 
     private String maskedAccountNumber(String accountNumber) {

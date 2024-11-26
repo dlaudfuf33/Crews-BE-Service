@@ -182,6 +182,14 @@ public class MemberController {
         memberService.deleteMyAgitsCards(memberId, cardDeleteRequest);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/me/my-accounts")
+    public ResponseEntity<List<AccountsResponse>> getMyAccounts(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AccountsResponse> accountsResponses = memberService.getMyAccounts(memberId);
+        return ResponseEntity.ok(accountsResponses);
+    }
 }
 
 
