@@ -84,9 +84,11 @@ public class SecurityConfig {
                         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html/",
                         "/v2/api-docs", "/webjars/**", "/swagger-resources/**"
                 ).permitAll()
-                .requestMatchers("/members/signup/**", "/members/login", "members/reissue").permitAll()
+                .requestMatchers("/members/signup/**", "/members/login", "/members/reissue").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agit").permitAll()
                 .requestMatchers(HttpMethod.GET, "/interests").permitAll()
+                .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/introducing").permitAll()
+                .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/meetings/recent").permitAll()
                 .anyRequest().authenticated()
         );
 

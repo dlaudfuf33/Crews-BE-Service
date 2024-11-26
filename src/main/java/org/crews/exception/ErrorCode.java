@@ -16,13 +16,16 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
     CI_CODE_SEND_ERROR("CI 코드 전송 오류. 다시 회원가입을 진행 해 주세요.", HttpStatus.BAD_REQUEST),
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.BAD_REQUEST),
-    PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.BAD_REQUEST),
+    PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND
