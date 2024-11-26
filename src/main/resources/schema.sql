@@ -15,6 +15,7 @@ CREATE TABLE bank
     updated_at DATETIME(6),
     bank_code  VARCHAR(255) NOT NULL,
     bank_name  VARCHAR(255) NOT NULL,
+    bank_image  VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (bank_code)
 );
@@ -44,7 +45,7 @@ CREATE TABLE member
     name          VARCHAR(255) NOT NULL,
     nick_name     VARCHAR(16)  NOT NULL,
     password      VARCHAR(255) NOT NULL,
-    pinNumber     VARCHAR(255) NOT NULL DEFAULT '',
+    pin_number     VARCHAR(255) NOT NULL DEFAULT '',
     phone_number  VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255) NOT NULL DEFAULT '',
     role          VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',

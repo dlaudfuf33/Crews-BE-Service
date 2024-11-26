@@ -1,9 +1,17 @@
-insert into member(email, name, nick_name, password, phone_number, ci, role)
-values ('test1@test.com', 'tester1', '파란QA', '1234', '010-0000-0000', 'ID001', 'ROLE_USER');
+-- Address 테이블에 더미 데이터 삽입
+INSERT INTO address (id, unique_address_key, created_at, updated_at, address_do, address_si, address_gu_gun,
+                     address_dong)
+VALUES (1, '없음-서울-관악구-신림동', NOW(), NOW(), '없음', '서울', '관악구', '신림동'),
+       (2, '경기-수원시-팔달구-수원', NOW(), NOW(), '경기', '성남시', '분당구', '백현동');
+
+insert into member(email, name, nick_name, password, phone_number, ci, role,pin_number,profile_image,address_id)
+values ('test1@test.com', 'tester1', '연두정박장치', '$2a$10$YU1tTAjWeldKBJq33C4xwu.AIQd2Y6Wh4OPLMeVDxo4Ax9qcepEr2', '010-tttt-tttt', 'jF6io0GS0f7LLdbTwTJVkh+mldw4kG40wokqVX2OGnmUBVSu/AG7qu+jVxViNLaB93yFaqS4aQGxGYVY7Q9pSA==', 'ROLE_USER','123456','https://picsum.photos/250/250',1),
+       ('tester1@test.com', 'tester1', '산호색갑판장', '$2a$10$Ey8jH4/cc24C08VhzlioIepHtL/6m/UndPk8X6nWqxJaywWchycyO', '010-tttt-tttf', 'HwWmne5IvaaNlJuUpCkiFhQ2NXFRSneVdTFcjfBxO4FSedDt+UjWi7zXrmKnyy47AT/iCHCCa2xwOekEFPGNxA==', 'ROLE_USER','123456','https://picsum.photos/250/250',1),
+       ('tester2@test.com', 'tester1', '은색구명보트', '$2a$10$iiTy45JgFSAz2use2FL3DOAGCDXEyWp44yeASNun8GwTdYFkFyCsG', '010-tttt-ttff', 'syJFbuJsBA1Ky96OHt5HpJsPa8q5brNsrEnoAani6+RkjMushEis1Uv3a6zu8crBdHJxOg6Qv9EK0ir4c187dw==', 'ROLE_USER','123456','https://picsum.photos/250/250',1);
 -- Bank 테이블에 더미 데이터 삽입
-INSERT INTO bank (created_at, updated_at, bank_code, bank_name)
-VALUES (NOW(), NOW(), '020', '우리은행'),
-       (NOW(), NOW(), '002', '하나은행');
+INSERT INTO bank (created_at, updated_at, bank_code, bank_name, bank_image)
+VALUES (NOW(), NOW(), '020', '우리은행','https://picsum.photos/250/250'),
+       (NOW(), NOW(), '002', '하나은행','https://picsum.photos/250/250');
 
 -- Member 테이블에 더미 데이터 삽입
 INSERT INTO member (is_deleted, created_at, updated_at, ci, email, name, nick_name, password, phone_number,
@@ -13,23 +21,6 @@ VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동'
        (FALSE, NOW(), NOW(), 'CI002', 'user2@example.com', '김영희', '영희', 'password456', '01056781234', 'profile2.png',
         'ROLE_ADMIN');
 
--- Account 테이블에 더미 데이터 삽입
-INSERT INTO account (balance, bank_id, created_at, member_id, updated_at, account_number, fintec_number,
-                     masked_account_number, account_type, product_name)
-VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSONAL', '우리 일반통장 상품'),
-       (250000.00, 2, NOW(), 2, NOW(), '9876543210', 'FT002', '*****210', 'CREW', '우리 일반통장 상품');
-
--- Account History 테이블에 더미 데이터 삽입
-INSERT INTO account_history (account_id, after_balance_amount, created_at, transaction_amount, transaction_time,
-                             updated_at, card_number, description, tran_type)
-VALUES (1, 90000, NOW(), 10000, NOW(), NOW(), '1234567890121234', 'ATM Withdrawal', 'WITHDRAW'),
-       (2, 260000, NOW(), 10000, NOW(), NOW(), '9876543210981234', 'Direct Deposit', 'DEPOSIT');
-
--- Address 테이블에 더미 데이터 삽입
-INSERT INTO address (id, unique_address_key, created_at, updated_at, address_do, address_si, address_gu_gun,
-                     address_dong)
-VALUES (1, '없음-서울-관악구-신림동', NOW(), NOW(), '없음', '서울', '관악구', '신림동'),
-       (2, '경기-수원시-팔달구-수원', NOW(), NOW(), '경기', '성남시', '분당구', '백현동');
 -- Subject 테이블에 더미 데이터 삽입
 INSERT INTO subject (id, created_at, updated_at, subject_name)
 VALUES (1, NOW(), NOW(), '미분류'),
@@ -40,46 +31,7 @@ VALUES (1, NOW(), NOW(), '미분류'),
        (6, NOW(), NOW(), '게임/오락'),
        (7, NOW(), NOW(), '식도락');
 
-
--- Card 테이블에 더미 데이터 삽입
-INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
-                  masked_card_number)
-VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234567812345678', '********12345678'),
-       (FALSE, 2, NOW(), 2, NOW(), NOW(), '9876543298765432', '********98765432');
-
--- Agit 테이블에 더미 데이터 삽입
-INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, subject_id, updated_at, agit_name,
-                  introduction, address_id)
-VALUES (1, FALSE, TRUE, 10, NOW(), 2, NOW(), 'Agit 1', 'hi', 1),
-       (2, FALSE, FALSE, 15, NOW(), 2, NOW(), 'Agit 2', 'hi2', 2);
--- Membership 테이블에 더미 데이터 삽입
-INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, role)
-VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
-       (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
-
-INSERT INTO common_dues (due_day, due_amount, created_at, updated_at, agit_id)
-VALUES ('3', 500.00, NOW(), NOW(), 1),
-       ('3', 750.50, NOW(), NOW(), 2);
-
--- Dues 테이블에 더미 데이터 삽입
-INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id, is_payed, product_name,
-                  account_number, agit_name)
-VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1'),
-       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2');
-
-
--- Feed 테이블에 더미 데이터 삽입
-INSERT INTO feed (is_deleted, agit_id, created_at, member_id, updated_at, content, image, like_count)
-VALUES (FALSE, 1, NOW(), 1, NOW(), '첫 번째 피드 내용입니다.', 'feed1.png', '10'),
-       (FALSE, 2, NOW(), 2, NOW(), '두 번째 피드 내용입니다.', 'feed2.png', '20');
-
--- Heart 테이블에 더미 데이터 삽입
-INSERT INTO heart (created_at, feed_id, member_id, updated_at)
-VALUES (NOW(), 1, 1, NOW()),
-       (NOW(), 2, 2, NOW());
-
 -- Interesting 테이블에 더미 데이터 삽입
-
 INSERT INTO interesting (id, created_at, updated_at, name, subject_id)
 VALUES (1, NOW(), NOW(), '미설정', 1),
 
@@ -135,6 +87,59 @@ VALUES (1, NOW(), NOW(), '미설정', 1),
        (40, NOW(), NOW(), '와인', 7),
        (41, NOW(), NOW(), '농장 체험', 7),
        (42, NOW(), NOW(), '로컬 푸드', 7);
+
+-- Agit 테이블에 더미 데이터 삽입
+INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, subject_id, updated_at, agit_name,
+                  introduction, address_id)
+VALUES (1, FALSE, TRUE, 10, NOW(), 2, NOW(), 'Agit 1', 'hi', 1),
+       (2, FALSE, FALSE, 15, NOW(), 2, NOW(), 'Agit 2', 'hi2', 2);
+
+
+-- Account 테이블에 더미 데이터 삽입
+INSERT INTO account (balance, bank_id, created_at, member_id, updated_at, account_number, fintec_number,
+                     masked_account_number, account_type, product_name)
+VALUES (100000.00, 1, NOW(), 1, NOW(), '1234567890', 'FT001', '*****890', 'PERSONAL', '우리 일반통장 상품'),
+       (250000.00, 2, NOW(), 2, NOW(), '9876543210', 'FT002', '*****210', 'CREW', '우리 일반통장 상품');
+
+-- Account History 테이블에 더미 데이터 삽입
+INSERT INTO account_history (account_id, after_balance_amount, created_at, transaction_amount, transaction_time,
+                             updated_at, card_number, description, tran_type)
+VALUES (1, 90000, NOW(), 10000, NOW(), NOW(), '1234567890121234', 'ATM Withdrawal', 'WITHDRAW'),
+       (2, 260000, NOW(), 10000, NOW(), NOW(), '9876543210981234', 'Direct Deposit', 'DEPOSIT');
+
+-- Card 테이블에 더미 데이터 삽입
+INSERT INTO card (is_deleted, account_id, created_at, member_id, registered_at, updated_at, card_number,
+                  masked_card_number)
+VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234567812345678', '********12345678'),
+       (FALSE, 2, NOW(), 2, NOW(), NOW(), '9876543298765432', '********98765432');
+
+
+-- Membership 테이블에 더미 데이터 삽입
+INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, role)
+VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
+       (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
+
+INSERT INTO common_dues (due_day, due_amount, created_at, updated_at, agit_id)
+VALUES ('3', 500.00, NOW(), NOW(), 1),
+       ('3', 750.50, NOW(), NOW(), 2);
+
+-- Dues 테이블에 더미 데이터 삽입
+INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id, is_payed, product_name,
+                  account_number, agit_name)
+VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1'),
+       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2');
+
+
+-- Feed 테이블에 더미 데이터 삽입
+INSERT INTO feed (is_deleted, agit_id, created_at, member_id, updated_at, content, image, like_count)
+VALUES (FALSE, 1, NOW(), 1, NOW(), '첫 번째 피드 내용입니다.', 'feed1.png', '10'),
+       (FALSE, 2, NOW(), 2, NOW(), '두 번째 피드 내용입니다.', 'feed2.png', '20');
+
+-- Heart 테이블에 더미 데이터 삽입
+INSERT INTO heart (created_at, feed_id, member_id, updated_at)
+VALUES (NOW(), 1, 1, NOW()),
+       (NOW(), 2, 2, NOW());
+
 
 -- Interesting And Agit 테이블에 더미 데이터 삽입
 INSERT INTO interesting_and_agit (agit_id, interesting_id, created_at, updated_at)
