@@ -302,4 +302,9 @@ public class MemberServiceImpl implements MemberService {
         return FindMemberIdResponse.from(member);
     }
 
+    @Override
+    public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
+        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 }

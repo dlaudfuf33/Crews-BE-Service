@@ -38,4 +38,6 @@ public interface MemberService {
     void updateMyAddresses(Long memberId, AddressRequest addressRequest);
 
     FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
+
+    void findMemberPw(FindMemberPwRequest findMemberPwRequest);
 }
