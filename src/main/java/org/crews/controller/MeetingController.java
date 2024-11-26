@@ -21,7 +21,7 @@ public class MeetingController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<MeetingSliceResponse> getAllEvents(
+    public ResponseEntity<MeetingSliceResponse> getAllMeetings(
             @PathVariable("agits-id") Long agitId,
             @RequestParam int page,
             HttpServletRequest request) {
@@ -31,7 +31,7 @@ public class MeetingController {
     }
 
     @GetMapping("/{meeting-id}")
-    public ResponseEntity<MeetingResponse> getEvent(
+    public ResponseEntity<MeetingResponse> getMeeting(
             @PathVariable("agits-id") Long agitId,
             @PathVariable("meeting-id") Long meetingId,
             HttpServletRequest request) {
@@ -40,8 +40,14 @@ public class MeetingController {
         return ResponseEntity.ok().body(meetingService.getEvent(memberId, agitId,meetingId));
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<Integer> getMeetingsForMonth(
+            @PathVariable("agits-id") Long agitId){
+        return ResponseEntity.ok().body(meetingService.getMeetingsForMonth(agitId));
+    }
+
     @PostMapping
-    public ResponseEntity<MeetingResponse> createEvent(
+    public ResponseEntity<MeetingResponse> createMeeting(
             @PathVariable("agits-id") Long agitId,
             @RequestBody MeetingRequest meetingRequest,
             HttpServletRequest request){

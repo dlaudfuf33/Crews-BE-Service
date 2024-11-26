@@ -26,5 +26,4 @@ public class Introducing extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String content;
-
 }

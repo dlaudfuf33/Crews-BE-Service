@@ -16,11 +16,14 @@ public enum ErrorCode {
     MEMBER_NOT_MATCHED("해당하는 번호의 멤버가 없습니다.", HttpStatus.BAD_REQUEST),
     ACCOUNT_NOT_MATCHED_FINNUM("해당 핀테크에 해당하는 계좌를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     CARD_NOT_MATCHED_MEMBER("해당 회원에 해당하는 카드를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
