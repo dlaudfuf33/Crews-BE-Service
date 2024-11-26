@@ -19,7 +19,7 @@ public class MessageUtil {
     private static final String API_KEY = "dxQoAEoDctRZFA2-s6jI6Kh6";
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
-    private MessageUtil() {
+    protected MessageUtil() {
         throw new UnsupportedOperationException("Utility class should not be instantiated.");
     }
 
@@ -54,7 +54,7 @@ public class MessageUtil {
             throw new CustomException(ErrorCode.SEND_MESSAGE_FAILED, "Thread was interrupted");
         } catch (Exception e) {
             log.error("Failed to send message", e);
-            throw new CustomException(ErrorCode.SEND_MESSAGE_FAILED, "An error occurred while sending the message");
+            throw new CustomException(ErrorCode.SEND_MESSAGE_FAILED);
         }
     }
 }
