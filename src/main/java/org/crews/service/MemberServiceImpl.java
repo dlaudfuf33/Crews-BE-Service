@@ -293,6 +293,13 @@ public class MemberServiceImpl implements MemberService {
         return maskingResult;
     }
 
+    @Override
+    public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
 
+        Member member = memberRepository.findByNameAndPhoneNumber(AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber()))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return FindMemberIdResponse.from(member);
+    }
 
 }

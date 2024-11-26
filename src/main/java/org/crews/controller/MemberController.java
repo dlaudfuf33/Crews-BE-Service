@@ -150,7 +150,10 @@ public class MemberController {
         }
     }
 
-
+    @PostMapping("/find-id")
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+        return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
+    }
 }
 
 
