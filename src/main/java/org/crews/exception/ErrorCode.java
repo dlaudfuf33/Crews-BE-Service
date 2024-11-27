@@ -42,11 +42,13 @@ public enum ErrorCode {
     ACCOUNT_ID_NOT_FOUND("계좌에 해당하는 id가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     FEED_NOT_FOUND("해당하는 번호의 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_FOUND("해당 회원의 주소를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    NO_ACCOUNTS_RETURNED("계좌가 없습니다.", HttpStatus.NOT_FOUND),
 
     // 409 CONFLICT
     CARD_ALREADY_EXISTS("카드가 이미 존재하여 추가 발급할 수 없습니다.", HttpStatus.CONFLICT),
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
+    ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),
@@ -61,6 +63,7 @@ public enum ErrorCode {
     DATABASE_ACCESS_FAILED("데이터베이스 접근 실패", HttpStatus.INTERNAL_SERVER_ERROR),
     UNKNOWN_EXCEPTION("예상 외 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_ENCRYPTION_FAILED("이메일 암호화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    CORE_RESPONSE_ERROR("CORE_RESPONSE_ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 501
     IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.", HttpStatus.NOT_IMPLEMENTED);

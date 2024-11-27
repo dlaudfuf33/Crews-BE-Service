@@ -1,6 +1,7 @@
 package org.crews.dto.response;
 
 import lombok.Getter;
+import org.crews.model.Account;
 
 import java.math.BigDecimal;
 @Getter
@@ -19,5 +20,15 @@ public class AccountsResponse {
         this.accountName = accountName;
         this.accountNumber = accountNumber;
         this.balance = balance;
+    }
+    public static AccountsResponse from(Account account) {
+        return new AccountsResponse(
+                account.getId(),
+                account.getBank().getBankImage(),
+                account.getBank().getBankCode(),
+                account.getProductName(),
+                account.getMaskedAccountNumber(),
+                account.getBalance()
+        );
     }
 }

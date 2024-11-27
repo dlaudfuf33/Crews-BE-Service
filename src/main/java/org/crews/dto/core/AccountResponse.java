@@ -1,8 +1,13 @@
 package org.crews.dto.core;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.crews.dto.response.AccountsInfoResponse;
+import org.crews.model.constants.AccountType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,22 +15,39 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AccountResponse.class, name = "account"),
+        @JsonSubTypes.Type(value = AttachResponse.class, name = "attach")
+})
 public class AccountResponse {
     private String customerName;
-    private String bankName;
+    private String bankCode;
+    private String bankImage;
+    private String productName;
     private String accountNumber;
-    private String accountType;
+    private AccountType accountType;
     private BigDecimal balance;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public AccountResponse(String customerName, String bankName, String accountNumber, String accountType, BigDecimal balance, LocalDate createdAt, LocalDate updatedAt) {
-        this.customerName = customerName;
-        this.bankName = bankName;
-        this.accountNumber = accountNumber;
-        this.accountType = accountType;
-        this.balance = balance;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+
+
+    public AccountResponse(AccountsInfoResponse.AccountInfo accountInfo) {
+        this.customerName = accountInfo.getCustomerName();
+        this.bankCode = accountInfo.getBankCode();
+        this.bankImage = accountInfo.getBankImage();
+        this.productName = accountInfo.getProductName();
+        this.accountNumber = accountInfo.getAccountNumber();
+        this.accountType = accountInfo.getAccountType();
+        this.balance = accountInfo.getBalance();
+        this.createdAt = accountInfo.getCreatedAt();
+        this.updatedAt = accountInfo.getUpdatedAt();
     }
+
 }
