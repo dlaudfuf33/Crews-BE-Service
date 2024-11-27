@@ -49,12 +49,22 @@ public class AccountController {
         return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberIdRequest));
     }
 
-    @PostMapping("/{accounts-id}/details")
+    @GetMapping("/details")
     public ResponseEntity<TransactionDetailResponse> accountDetails(@PathVariable("agits-id") Long agitId,
-                                                                    @PathVariable("accounts-id") Long accountId,
-                                                                    @RequestBody AccountDetailsRequest accountDetailsResponse,
+                                                                    @RequestParam Integer selectPeriod,
+                                                                    @RequestParam String transactionType,
+                                                                    @RequestParam String order,
                                                                     HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(accountService.accountDetails(agitId, accountId,memberId, accountDetailsResponse));
+        AccountDetailsRequest accountDetailsRequest = AccountDetailsRequest.builder().selectPeriod(selectPeriod).transactionType(transactionType).order(order).build();
+        return ResponseEntity.ok().body(accountService.accountDetails(agitId, memberId, accountDetailsRequest));
     }
+
+    @GetMapping("/deposit")
+    public ResponseEntity<TransactionDetailResponse> getAccountDeposit(@PathVariable("agits-id") Long agitId,
+                                                             HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.getAccountDeposit(agitId, memberId));
+    }
+
 }

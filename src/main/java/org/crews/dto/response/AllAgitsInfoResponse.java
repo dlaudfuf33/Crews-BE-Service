@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DuesAlarmResponse {
-    private BigDecimal dueAmount;
-    private Integer dueDay;
+public class AllAgitsInfoResponse {
+    private List<AgitInfoResponse> agitInfoList;
 }

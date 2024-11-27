@@ -2,10 +2,14 @@ package org.crews.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.AgitRegisterRequest;
+import org.crews.dto.response.AgitRegisterResponse;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.AllAgitsInfoResponse;
 import org.crews.dto.response.DuesAlarmResponse;
-import org.crews.model.Agit;
+import org.crews.model.constants.MemberRole;
 import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/agits")
 public class AgitController {
     private final AgitService agitService;
@@ -37,4 +42,21 @@ public class AgitController {
         return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId));
     }
 
+    @GetMapping("/{agits-id}/role")
+    public ResponseEntity<MemberRole> getMemberRole(@PathVariable("agits-id") Long agitId,
+                                                    HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getMemberRole(agitId, memberId));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<AllAgitsInfoResponse> getAgitsInfo(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getAgitsInfo(memberId));
+    }
+
+    @PostMapping("/registrations")
+    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitRegisterRequest agitRegisterRequest){
+        return agitService.agitRestration(agitRegisterRequest);
+    }
 }

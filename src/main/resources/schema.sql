@@ -119,8 +119,12 @@ CREATE TABLE agit
     agit_and_account_id BIGINT,
     common_dues_id      BIGINT,
     address_id          BIGINT,
+    dues_id          BIGINT,
     PRIMARY KEY (id),
-    UNIQUE (agit_name)
+    UNIQUE (agit_name),
+    FOREIGN KEY (subject_id) REFERENCES subject (id),
+    FOREIGN KEY (address_id) REFERENCES address (id),
+    FOREIGN KEY (dues_id) REFERENCES dues (id)
 );
 
 -- Agit and Account 테이블
@@ -287,7 +291,7 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    role       ENUM ('LEADER', 'MEMBER', 'STAFF') DEFAULT 'MEMBER',
+    role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
