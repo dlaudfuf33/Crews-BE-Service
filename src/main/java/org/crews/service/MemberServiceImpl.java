@@ -112,7 +112,7 @@ public class MemberServiceImpl implements MemberService {
         if (refresh == null) {
 
             //response status code
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
         }
 
         //expired check
@@ -121,7 +121,7 @@ public class MemberServiceImpl implements MemberService {
         } catch (ExpiredJwtException e) {
 
             //response status code
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
@@ -130,14 +130,14 @@ public class MemberServiceImpl implements MemberService {
         if (!category.equals(tokenName)) {
 
             //response status code
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         //DB에 저장되어 있는지 확인
         boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {
 
             //response body
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         return null;

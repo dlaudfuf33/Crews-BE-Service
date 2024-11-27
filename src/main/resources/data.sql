@@ -11,7 +11,9 @@ INSERT INTO member (is_deleted, created_at, updated_at, ci, email, name, nick_na
 VALUES (FALSE, NOW(), NOW(), 'CI001', 'user1@example.com', '홍길동', '길동', 'password123', '01012345678', 'profile1.png',
         'ROLE_USER'),
        (FALSE, NOW(), NOW(), 'CI002', 'user2@example.com', '김영희', '영희', 'password456', '01056781234', 'profile2.png',
-        'ROLE_ADMIN');
+        'ROLE_ADMIN'),
+        (FALSE, NOW(), NOW(), 'CI003', 'user3@example.com', '김철수', '철수', 'password456', '01056781235', 'profile3.png',
+        'ROLE_USER');
 
 -- Account 테이블에 더미 데이터 삽입
 INSERT INTO account (balance, bank_id, created_at, member_id, updated_at, account_number, fintec_number,
@@ -55,7 +57,8 @@ VALUES (1, FALSE, TRUE, 10, NOW(), 1, NOW(), 'Agit 1', 'hi', 1),
 -- Membership 테이블에 더미 데이터 삽입
 INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, role)
 VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
-       (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
+       (2, NOW(), NOW(), 2, NOW(), 'MEMBER'),
+       (2, NOW(), NOW(), 3, NOW(), 'TEMP');
 
 INSERT INTO common_dues (due_day, due_amount, created_at, updated_at, agit_id)
 VALUES ('3', 500.00, NOW(), NOW(), 1),
