@@ -24,13 +24,7 @@ public class AuthUtil {
     }
 
     public Long getMemberId(HttpServletRequest request){
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) return 0L;
-
-        Long memberId = jwtUtil.getMemberId(header.substring(7));
-        if (memberId == null) return 0L;
-
-        return memberId;
+        return jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
     }
 
     public static String generateRandomPassword(int length) {

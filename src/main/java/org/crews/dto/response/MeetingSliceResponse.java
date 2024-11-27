@@ -14,17 +14,15 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public class MeetingSliceResponse {
-    private MemberRole memberRole;
     private boolean hasNext;
     private List<MeetingResponse> data;
 
     public static MeetingSliceResponse of(Membership membership, Slice<Meeting> events) {
-        MemberRole memberRole = membership.getRole();
         boolean hasNext = events.hasNext();
         List<MeetingResponse> meetingResponse = events.getContent().stream()
                 .map(MeetingResponse::from)
                 .toList();
 
-        return new MeetingSliceResponse(memberRole, hasNext, meetingResponse);
+        return new MeetingSliceResponse(hasNext, meetingResponse);
     }
 }
