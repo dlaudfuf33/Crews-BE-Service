@@ -14,8 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface InterestingAndAgitRepository extends JpaRepository<InterestingAndAgit, Long> {
-    void deleteByAgit(Agit agit);
-
     @Modifying
     @Query("DELETE FROM InterestingAndAgit m WHERE m.agit.id = :agitId")
     void deleteByAgitIdCustom(@Param("agitId") Long agitId);

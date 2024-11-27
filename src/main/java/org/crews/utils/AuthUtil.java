@@ -44,4 +44,9 @@ public class AuthUtil {
 
         return password.toString();
     }
+
+    public static String verifyRandomNumber(){
+        int randomNumber = (int) (Math.random() * 1000000);
+        return String.format("%06d", randomNumber);
+    }
 }
