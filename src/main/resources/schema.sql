@@ -117,10 +117,12 @@ CREATE TABLE agit
     agit_and_account_id BIGINT,
     common_dues_id      BIGINT,
     address_id          BIGINT,
+    dues_id          BIGINT,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id),
-    FOREIGN KEY (address_id) REFERENCES address (id)
+    FOREIGN KEY (address_id) REFERENCES address (id),
+    FOREIGN KEY (dues_id) REFERENCES dues (id)
 
 );
 

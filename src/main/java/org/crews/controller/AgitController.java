@@ -4,8 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.crews.dto.response.AgitResponse;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.AllAgitsInfoResponse;
 import org.crews.dto.response.DuesAlarmResponse;
-import org.crews.model.Agit;
+import org.crews.model.constants.MemberRole;
 import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,19 @@ public class AgitController {
                                                           HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId));
+    }
+
+    @GetMapping("/{agits-id}/role")
+    public ResponseEntity<MemberRole> getMemberRole(@PathVariable("agits-id") Long agitId,
+                                                    HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getMemberRole(agitId, memberId));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<AllAgitsInfoResponse> getAgitsInfo(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getAgitsInfo(memberId));
     }
 
 }
