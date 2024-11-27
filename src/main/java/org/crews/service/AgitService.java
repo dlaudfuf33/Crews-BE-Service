@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.AgitRegisterRequest;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.AgitInfoResponse;
+import org.crews.dto.response.AllAgitsInfoResponse;
 import org.crews.dto.response.AgitRegisterResponse;
 import org.crews.dto.response.DuesAlarmResponse;
 import org.crews.dto.response.AgitResponse;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -84,29 +87,50 @@ public class AgitService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
-        CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElseThrow(
-                () -> new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND)
-        );
+        Optional<CommonDues> optionalCommonDues = commonDuesRepository.findByAgit(agit);
+        if(optionalCommonDues.isEmpty()) return DuesAlarmResponse.builder().build();
+        CommonDues commonDues = optionalCommonDues.get();
         List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
                 .stream().filter(
                         content -> content.getDueDate().getMonth().equals(LocalDate.now().getMonth())
                                 && (content.getDueDate().getYear() == LocalDate.now().getYear()))
                 .toList();
         if(duesList.isEmpty()){
-            return DuesAlarmResponse.builder().duesAmount(commonDues.getDueAmount()).build();
+            return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount()).dueDay(commonDues.getDueDay()).build();
         }else {
             BigDecimal amount = BigDecimal.ZERO;
             for(Dues dues : duesList){
                 amount = amount.add(dues.getDueAmount());
             }
             if(amount.compareTo(commonDues.getDueAmount()) < 0){
-                return DuesAlarmResponse.builder().duesAmount(commonDues.getDueAmount().subtract(amount)).build();
+                return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount().subtract(amount)).dueDay(commonDues.getDueDay()).build();
             }
             else
-                return DuesAlarmResponse.builder().build();
+                return DuesAlarmResponse.builder().dueAmount(BigDecimal.ZERO).dueDay(commonDues.getDueDay()).build();
         }
     }
 
+    public MemberRole getMemberRole(Long agitId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
+        );
+        return membership.getRole();
+    }
+
+    public AllAgitsInfoResponse getAgitsInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        List<Membership> membershipList = memberShipRepository.findByMember(member);
+        List<AgitInfoResponse> agitInfoResponseList = membershipList.stream().map(AgitInfoResponse::from).toList();
+        return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
+    }
     @Transactional
     public ResponseEntity<AgitRegisterResponse> agitRestration(AgitRegisterRequest agitRegisterRequest) {
         try {
