@@ -47,7 +47,7 @@ public class CommonService {
                 if (agit.getAgitAndAccount() == null)
                     continue;
                 DuesAlarmResponse duesAlarm = agitService.getDuesAlarm(agit.getId(), memberId);
-                accountV2CrewResponses.add(AccountV2CrewResponse.of(agit, duesAlarm.getDuesAmount()));
+                accountV2CrewResponses.add(AccountV2CrewResponse.of(agit, duesAlarm.getDueAmount()));
             }
         }
         AccountInfoResponse allAccounts = coreService.getAllAccounts(CIOnlyRequest.builder().ci(member.getCi()).build());

@@ -41,42 +41,45 @@ public class MemberController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<ReissueResponse> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
-        String tokenName = "refresh";
+        String accessTokenName = "access";
+        String refreshTokenName = "refresh";
         Cookie[] cookies = request.getCookies();
         try {
             for (Cookie cookie : cookies) {
-
-                if (cookie.getName().equals(tokenName)) {
-
+                if (cookie.getName().equals(refreshTokenName)) {
                     refresh = cookie.getValue();
                 }
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cookie is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ReissueResponse("유효하지 않은 요청입니다."));
         }
 
         ResponseEntity<String> responseEntity = memberService.refreshCheck(refresh);
-
         if (responseEntity != null) {
-            return responseEntity;
+            return ResponseEntity.status(responseEntity.getStatusCode())
+                    .body(new ReissueResponse("유효하지 않은 토큰입니다."));
         }
 
         Map<String, String> tokens = memberService.reissueTokens(refresh);
 
-        response.setHeader("access", tokens.get("access"));
+        String accessToken = tokens.get(accessTokenName);
+        String refreshToken = tokens.get(refreshTokenName);
 
-        Cookie cookie = new Cookie(tokenName, tokens.get(tokenName));
+        // Set headers and cookies
+        response.setHeader(accessTokenName, accessToken);
+
+        Cookie cookie = new Cookie(refreshTokenName, refreshToken);
         cookie.setMaxAge(24 * 60 * 60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
         cookie.setHttpOnly(true);
-
         response.addCookie(cookie);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        // Return JSON response
+        return ResponseEntity.ok(new ReissueResponse("재발행이 성공하였습니다."));
     }
+
 
 
     @GetMapping("/signup/validate-email")
