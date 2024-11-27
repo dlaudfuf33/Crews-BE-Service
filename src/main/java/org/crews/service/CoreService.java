@@ -10,7 +10,6 @@ import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -26,7 +25,6 @@ import java.util.List;
 public class CoreService {
     private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
     private static final String HEADER_SECRET_KEY = "X-SECRET-KEY";
-    private static final String HEADER_API_KEY = "API-Key";
     private static final String CALL_FAILURE_MESSAGE = "호출 실패: ";
     private static final String WEBCLIENT_COMMUNICATION_ERROR = "WebClient 통신중 오류 발생: ";
 
