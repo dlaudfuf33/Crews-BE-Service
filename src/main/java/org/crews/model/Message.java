@@ -18,5 +18,5 @@ public class Message extends BaseTimeEntity{
     private String phoneNumber;
 
     @Column(nullable = false)
-    private String message;
+    private String verifyNumber;
 }

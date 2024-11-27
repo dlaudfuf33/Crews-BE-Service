@@ -323,7 +323,7 @@ public class MemberServiceImpl implements MemberService {
         Message message = messageRepository.findByPhoneNumber(verifyPhoneRequest.getPhoneNumber())
                 .orElse(new Message());
         message.setPhoneNumber(verifyPhoneRequest.getPhoneNumber());
-        message.setMessage(verifyNumber);
+        message.setVerifyNumber(verifyNumber);
 
         messageRepository.save(message);
 
@@ -336,12 +336,20 @@ public class MemberServiceImpl implements MemberService {
         Message message = messageRepository.findByPhoneNumber(verifyNumberRequest.getPhoneNumber())
                 .orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
 
-        if(Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3){
-            messageRepository.deleteMessage(message.getId());
-            throw new CustomException(ErrorCode.VERIFY_NUMBER_EXPIRED);
-        }
+        if(Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3) throw new CustomException(ErrorCode.VERIFY_NUMBER_EXPIRED);
 
-        if (!message.getMessage().equals(verifyNumberRequest.getVerifyNumber())) throw new CustomException(ErrorCode.VERIFY_NUMBER_MISMATCH);
+        if (!message.getVerifyNumber().equals(verifyNumberRequest.getVerifyNumber())) throw new CustomException(ErrorCode.VERIFY_NUMBER_MISMATCH);
         else messageRepository.deleteMessage(message.getId());
+    }
+
+    @Override
+    @Transactional
+    public void deleteVerifyMessages(){
+        List<Message> messages = messageRepository.findAll();
+        List<Message> expiredMessages = messages.stream()
+                .filter(message -> Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
+                .toList();
+
+        if (!expiredMessages.isEmpty()) messageRepository.deleteAll(expiredMessages);
     }
 }

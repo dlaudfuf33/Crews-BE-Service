@@ -44,4 +44,6 @@ public interface MemberService {
     void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest);
 
     void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest);
+
+    void deleteVerifyMessages();
 }
