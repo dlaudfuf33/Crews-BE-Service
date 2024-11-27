@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.core.AccountResponse;
 import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
@@ -176,8 +177,7 @@ public class MemberController {
 
     @DeleteMapping("/me/agits-cards")
     public ResponseEntity<AgitCardsResponse> deleteAgitsCards(
-            HttpServletRequest request,
-            @RequestBody CardDeleteRequest cardDeleteRequest) {
+            HttpServletRequest request, @RequestBody CardDeleteRequest cardDeleteRequest) {
         Long memberId = authUtil.getMemberId(request);
         memberService.deleteMyAgitsCards(memberId, cardDeleteRequest);
         return ResponseEntity.noContent().build();
@@ -190,6 +190,33 @@ public class MemberController {
         List<AccountsResponse> accountsResponses = memberService.getMyAccounts(memberId);
         return ResponseEntity.ok(accountsResponses);
     }
+
+    @DeleteMapping("/me/my-accounts")
+    public ResponseEntity<Void> deleteMyAccounts(@RequestBody AccountDeleteRequest cardDeleteRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        try {
+            memberService.deleteMyAccounts(memberId, cardDeleteRequest);
+            return ResponseEntity.noContent().build();
+        }  catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/me/agits-account-info")
+    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
+    }
+
+    @PostMapping("/me/agits-account-info")
+    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest,HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        memberService.attachAccount(memberId,attachAccountRequest);
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
 

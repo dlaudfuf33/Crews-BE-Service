@@ -45,4 +45,8 @@ public interface MemberService {
     void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest);
 
     List<AccountsResponse> getMyAccounts(Long memberId);
+
+    void deleteMyAccounts(Long memberId, AccountDeleteRequest cardDeleteRequest);
+
+    void attachAccount(Long memberId, AttachAccountRequest attachAccountRequest);
 }
