@@ -3,7 +3,9 @@ package org.crews.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.AgitRegisterRequest;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.response.AgitRegisterResponse;
 import org.crews.dto.response.DuesAlarmResponse;
 import org.crews.dto.response.AgitResponse;
 
@@ -12,6 +14,8 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -102,4 +106,36 @@ public class AgitService {
                 return DuesAlarmResponse.builder().build();
         }
     }
+
+    @Transactional
+    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitRegisterRequest agitRegisterRequest) {
+        try {
+            Membership membership = Membership.builder()
+                    .agit(Agit.builder().id(agitRegisterRequest.getAgitId()).build())
+                    .member(Member.builder().id(agitRegisterRequest.getMemberId()).build())
+                    .role(MemberRole.TEMP)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
+
+            boolean isAlreadyJoined = memberShipRepository.findByMemberAndAgit(
+                    Member.builder().id(agitRegisterRequest.getMemberId()).build(),
+                    Agit.builder().id(agitRegisterRequest.getAgitId()).build()
+            ).isPresent();
+
+            if (isAlreadyJoined) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new AgitRegisterResponse("이미 가입한 아지트입니다."));
+            }
+
+            memberShipRepository.save(membership);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new AgitRegisterResponse("가입 신청이 완료되었습니다."));
+        } catch (Exception e) {
+            log.error("Error during agit registration: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AgitRegisterResponse("아지트 가입신청을 하는 도중 문제가 발생하였습니다. 나중에 다시 시도해주세요."));
+        }
+    }
+
 }
