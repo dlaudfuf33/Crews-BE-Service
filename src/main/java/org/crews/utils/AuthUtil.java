@@ -43,4 +43,16 @@ public class AuthUtil {
         int randomNumber = (int) (Math.random() * 1000000);
         return String.format("%06d", randomNumber);
     }
+
+    public static String generateRandomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(ALL_CHARACTERS.length());
+            password.append(ALL_CHARACTERS.charAt(index));
+        }
+
+        return password.toString();
+    }
 }

@@ -48,6 +48,7 @@ public class MemberServiceImpl implements MemberService {
     private final MessageRepository messageRepository;
 
 
+
     @Override
     @Transactional
     public MemberResponse signUp(MemberRequest memberRequest) {
@@ -340,6 +341,7 @@ public class MemberServiceImpl implements MemberService {
 
         if (!message.getVerifyNumber().equals(verifyNumberRequest.getVerifyNumber())) throw new CustomException(ErrorCode.VERIFY_NUMBER_MISMATCH);
         else messageRepository.deleteMessage(message.getId());
+
     }
 
     @Override

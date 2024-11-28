@@ -174,6 +174,7 @@ public class MemberController {
     public ResponseEntity<String> verifyNumberCheck(@RequestBody VerifyNumberRequest verifyNumberRequest) {
         memberService.verifyNumberCheck(verifyNumberRequest);
         return ResponseEntity.ok().body("인증이 완료되었습니다!");
+
     }
 }
 
