@@ -2,7 +2,7 @@ package org.crews.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ public class Membership extends BaseTimeEntity{
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'temp'")
-    private MemberRole agitRole;
+    private AgitRole agitRole;
 
     @Column(nullable = false)
     private LocalDateTime joinedAt;
