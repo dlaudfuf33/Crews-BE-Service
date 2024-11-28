@@ -40,4 +40,11 @@ public interface MemberService {
     FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
 
     void findMemberPw(FindMemberPwRequest findMemberPwRequest) throws Exception;
+
+    void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest);
+
+    void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest);
+
+    void deleteVerifyMessages();
+
 }

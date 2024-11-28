@@ -20,6 +20,8 @@ public enum ErrorCode {
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
+    VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -45,6 +47,7 @@ public enum ErrorCode {
     ACCOUNT_ID_NOT_FOUND("계좌에 해당하는 id가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     FEED_NOT_FOUND("해당하는 번호의 기록이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_FOUND("해당 회원의 주소를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    MESSAGE_NOT_FOUND("해당 번호로 발송된 메세지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 409 CONFLICT
     CARD_ALREADY_EXISTS("카드가 이미 존재하여 추가 발급할 수 없습니다.", HttpStatus.CONFLICT),

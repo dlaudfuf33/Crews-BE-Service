@@ -24,13 +24,24 @@ public class AuthUtil {
     }
 
     public Long getMemberId(HttpServletRequest request){
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) return 0L;
+        return jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+    }
 
-        Long memberId = jwtUtil.getMemberId(header.substring(7));
-        if (memberId == null) return 0L;
+    public static String generateRandomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
 
-        return memberId;
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(ALL_CHARACTERS.length());
+            password.append(ALL_CHARACTERS.charAt(index));
+        }
+
+        return password.toString();
+    }
+
+    public static String verifyRandomNumber(){
+        int randomNumber = (int) (Math.random() * 1000000);
+        return String.format("%06d", randomNumber);
     }
 
     public static String generateRandomPassword(int length) {

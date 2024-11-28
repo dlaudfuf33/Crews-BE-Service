@@ -163,6 +163,19 @@ public class MemberController {
         memberService.findMemberPw(findMemberPwRequest);
         return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
     }
+
+    @PostMapping("/verify-number")
+    public ResponseEntity<String> getVerifyNumber(@RequestBody VerifyPhoneRequest verifyPhoneRequest) {
+        memberService.getVerifyNumber(verifyPhoneRequest);
+        return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
+    }
+
+    @PostMapping("/verify-phone")
+    public ResponseEntity<String> verifyNumberCheck(@RequestBody VerifyNumberRequest verifyNumberRequest) {
+        memberService.verifyNumberCheck(verifyNumberRequest);
+        return ResponseEntity.ok().body("인증이 완료되었습니다!");
+
+    }
 }
 
 

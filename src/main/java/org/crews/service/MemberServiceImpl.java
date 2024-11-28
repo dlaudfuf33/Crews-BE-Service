@@ -22,6 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -43,6 +45,8 @@ public class MemberServiceImpl implements MemberService {
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
     private final AuthUtil authUtil;
+    private final MessageRepository messageRepository;
+
 
 
     @Override
@@ -310,5 +314,44 @@ public class MemberServiceImpl implements MemberService {
         member.setPassword(bCryptPasswordEncoder.encode(temporary));
 
         MessageUtil.send(AESUtil.decrypt(member.getPhoneNumber()),temporary);
+    }
+
+    @Override
+    @Transactional
+    public void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest){
+        String verifyNumber = authUtil.verifyRandomNumber();
+
+        Message message = messageRepository.findByPhoneNumber(verifyPhoneRequest.getPhoneNumber())
+                .orElse(new Message());
+        message.setPhoneNumber(verifyPhoneRequest.getPhoneNumber());
+        message.setVerifyNumber(verifyNumber);
+
+        messageRepository.save(message);
+
+        MessageUtil.send(verifyPhoneRequest.getPhoneNumber(),verifyNumber);
+    }
+
+    @Override
+    @Transactional
+    public void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest){
+        Message message = messageRepository.findByPhoneNumber(verifyNumberRequest.getPhoneNumber())
+                .orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        if(Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3) throw new CustomException(ErrorCode.VERIFY_NUMBER_EXPIRED);
+
+        if (!message.getVerifyNumber().equals(verifyNumberRequest.getVerifyNumber())) throw new CustomException(ErrorCode.VERIFY_NUMBER_MISMATCH);
+        else messageRepository.deleteMessage(message.getId());
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteVerifyMessages(){
+        List<Message> messages = messageRepository.findAll();
+        List<Message> expiredMessages = messages.stream()
+                .filter(message -> Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
+                .toList();
+
+        if (!expiredMessages.isEmpty()) messageRepository.deleteAll(expiredMessages);
     }
 }

@@ -15,19 +15,17 @@ import java.util.stream.Collectors;
 @ToString
 @AllArgsConstructor
 public class IntroducingResponse {
-    private String memberRole;
     private String image;
     private String introduce;
     private String content;
     private String subject;
     private List<InterestingResponse> interests;
 
-    public static IntroducingResponse of(String memberRole, Introducing introducing){
+    public static IntroducingResponse of(Introducing introducing){
         List<InterestingResponse> interestingResponse = introducing.getAgit().getInterestingAndAgits().stream()
                 .map(interestingAndAgit -> InterestingResponse.from(interestingAndAgit.getInteresting()))
                 .toList();
         return new IntroducingResponse(
-                memberRole,
                 introducing.getImage(),
                 introducing.getIntroduce(),
                 introducing.getContent(),
