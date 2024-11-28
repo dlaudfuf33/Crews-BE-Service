@@ -15,20 +15,21 @@ CREATE TABLE bank
     updated_at DATETIME(6),
     bank_code  VARCHAR(255) NOT NULL,
     bank_name  VARCHAR(255) NOT NULL,
+    bank_image VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (bank_code)
 );
 -- Address 테이블
 CREATE TABLE address
 (
-    id                 BIGINT                           NOT NULL AUTO_INCREMENT,
-    unique_address_key VARCHAR(255)                     NOT NULL UNIQUE,
+    id                 BIGINT       NOT NULL AUTO_INCREMENT,
+    unique_address_key VARCHAR(255) NOT NULL UNIQUE,
     created_at         DATETIME(6),
     updated_at         DATETIME(6),
-    address_do         VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_dong       VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_gu_gun     VARCHAR(255)                     NOT NULL DEFAULT '',
-    address_si         VARCHAR(255)                     NOT NULL DEFAULT '',
+    address_do         VARCHAR(255) NOT NULL DEFAULT '',
+    address_dong       VARCHAR(255) NOT NULL DEFAULT '',
+    address_gu_gun     VARCHAR(255) NOT NULL DEFAULT '',
+    address_si         VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (id)
 );
 
@@ -44,6 +45,7 @@ CREATE TABLE member
     name          VARCHAR(255) NOT NULL,
     nick_name     VARCHAR(16)  NOT NULL,
     password      VARCHAR(255) NOT NULL,
+    pin_number    VARCHAR(255) NOT NULL DEFAULT '',
     phone_number  VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255) NOT NULL DEFAULT '',
     role          VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',
@@ -61,8 +63,9 @@ CREATE TABLE account
     bank_id               BIGINT,
     created_at            DATETIME(6),
     member_id             BIGINT,
+    dues_id               BIGINT,
     updated_at            DATETIME(6),
-    account_number        VARCHAR(255)              NOT NULL,
+    account_number        VARCHAR(255) UNIQUE       NOT NULL,
     fintec_number         VARCHAR(255)              NOT NULL,
     masked_account_number VARCHAR(255)              NOT NULL,
     account_type          ENUM ('CREW', 'PERSONAL') NOT NULL,
@@ -71,6 +74,7 @@ CREATE TABLE account
     FOREIGN KEY (bank_id) REFERENCES bank (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
+
 
 -- Account History 테이블
 CREATE TABLE account_history
@@ -90,7 +94,6 @@ CREATE TABLE account_history
 );
 
 
-
 -- Subject 테이블
 CREATE TABLE subject
 (
@@ -100,7 +103,6 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
-
 -- Agit 테이블
 CREATE TABLE agit
 (
@@ -123,25 +125,9 @@ CREATE TABLE agit
     FOREIGN KEY (subject_id) REFERENCES subject (id),
     FOREIGN KEY (address_id) REFERENCES address (id),
     FOREIGN KEY (dues_id) REFERENCES dues (id)
-
 );
 
--- CommonDues 테이블
-CREATE TABLE common_dues
-(
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    due_day    INT      NOT NULL,
-    created_at  DATETIME(6),
-    due_amount DECIMAL(19, 2) NOT NULL,
-    updated_at  DATETIME(6),
-    agit_id     BIGINT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (agit_id) REFERENCES agit (id)
-
-
-);
-
--- Agit And Account 테이블
+-- Agit and Account 테이블
 CREATE TABLE agit_and_account
 (
     id         BIGINT NOT NULL AUTO_INCREMENT,
@@ -149,10 +135,48 @@ CREATE TABLE agit_and_account
     agit_id    BIGINT,
     created_at DATETIME(6),
     updated_at DATETIME(6),
-    PRIMARY KEY (id),
-    FOREIGN KEY (account_id) REFERENCES account (id),
-    FOREIGN KEY (agit_id) REFERENCES agit (id)
+    PRIMARY KEY (id)
 );
+
+-- CommonDues 테이블
+CREATE TABLE common_dues
+(
+    id         BIGINT         NOT NULL AUTO_INCREMENT,
+    due_day    INT            NOT NULL,
+    created_at DATETIME(6),
+    due_amount decimal(38, 2) NOT NULL,
+    updated_at DATETIME(6),
+    agit_id    BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (agit_id) REFERENCES agit (id)
+
+
+);
+
+-- 외래 키 제약 조건 나중에 추가
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_subject
+        FOREIGN KEY (subject_id) REFERENCES subject (id);
+
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_address
+        FOREIGN KEY (address_id) REFERENCES address (id);
+
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_agit_and_account
+        FOREIGN KEY (agit_and_account_id) REFERENCES agit_and_account (id);
+
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_common_dues
+        FOREIGN KEY (common_dues_id) REFERENCES common_dues (id);
+
+ALTER TABLE agit_and_account
+    ADD CONSTRAINT fk_agit_and_account_account
+        FOREIGN KEY (account_id) REFERENCES account (id);
+
+ALTER TABLE agit_and_account
+    ADD CONSTRAINT fk_agit_and_account_agit
+        FOREIGN KEY (agit_id) REFERENCES agit (id);
 
 
 -- Card 테이블
@@ -167,6 +191,8 @@ CREATE TABLE card
     updated_at         DATETIME(6),
     card_number        VARCHAR(255) NOT NULL,
     masked_card_number VARCHAR(255) NOT NULL,
+    card_name          VARCHAR(255) NOT NULL,
+    card_image         VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (account_id) REFERENCES account (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -177,14 +203,14 @@ CREATE TABLE card
 CREATE TABLE feed
 (
     id         BIGINT       NOT NULL AUTO_INCREMENT,
-    is_deleted BOOLEAN      DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT FALSE,
     agit_id    BIGINT,
     created_at DATETIME(6),
     member_id  BIGINT,
     updated_at DATETIME(6),
     content    VARCHAR(255) NOT NULL,
     image      VARCHAR(255),
-    like_count VARCHAR(255) DEFAULT '0',
+    like_count BIGINT  DEFAULT '0',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -274,16 +300,16 @@ CREATE TABLE membership
 -- Dues 테이블
 CREATE TABLE dues
 (
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    created_at  DATETIME(6),
-    due_amount DECIMAL(19, 2) NOT NULL,
-    product_name VARCHAR(255)  NOT NULL,
-    account_number VARCHAR(255)  NOT NULL,
-    agit_name VARCHAR(255)  NOT NULL,
-    is_payed    BOOLEAN     NOT NULL,
-    due_date    DATETIME(6),
-    updated_at  DATETIME(6),
-    membership_id BIGINT,
+    id             BIGINT         NOT NULL AUTO_INCREMENT,
+    created_at     DATETIME(6),
+    due_amount     DECIMAL(19, 2) NOT NULL,
+    product_name   VARCHAR(255)   NOT NULL,
+    account_number VARCHAR(255)   NOT NULL,
+    agit_name      VARCHAR(255)   NOT NULL,
+    is_payed       BOOLEAN        NOT NULL,
+    due_date       DATETIME(6),
+    updated_at     DATETIME(6),
+    membership_id  BIGINT,
     common_dues_id BIGINT,
     PRIMARY KEY (id),
     FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 public class Card extends BaseTimeEntity{
+    private static final String MASKING = "=========DELETED==========";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,12 @@ public class Card extends BaseTimeEntity{
     private Member member;
 
     @Column(nullable = false)
+    private String cardImage;
+
+    @Column(nullable = false)
+    private String cardName;
+
+    @Column(nullable = false)
     private String maskedCardNumber;
 
     @Column(nullable = false)
@@ -34,4 +41,12 @@ public class Card extends BaseTimeEntity{
 
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    public void maskCard() {
+        this.cardNumber = MASKING;
+        this.maskedCardNumber = MASKING;
+        this.cardImage = MASKING;
+        this.isDeleted = true;
+    }
+
 }

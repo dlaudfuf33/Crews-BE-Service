@@ -63,7 +63,7 @@ public class IntroducingService {
                             .build())
                     .toList();
 
-            if (updateInterestingAndAgit.size() < 1 || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
+            if (updateInterestingAndAgit.isEmpty() || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
             interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
         }else{
             throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);

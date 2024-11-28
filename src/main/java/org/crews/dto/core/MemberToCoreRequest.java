@@ -9,16 +9,13 @@ import org.crews.model.Member;
 @Setter
 @NoArgsConstructor
 public class MemberToCoreRequest {
-    private String name;
-    private String phoneNumber;
+    private String ci;
 
-    public MemberToCoreRequest(String name, String phoneNumber) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
+    public MemberToCoreRequest(String ci) {
+        this.ci = ci;
     }
 
-    // 엔티티에서 DTO로 변환하는 메서드
     public static MemberToCoreRequest from(Member member) {
-        return new MemberToCoreRequest(member.getName(), member.getPhoneNumber());
+        return new MemberToCoreRequest(member.getCi());
     }
 }

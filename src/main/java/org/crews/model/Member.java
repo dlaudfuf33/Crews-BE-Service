@@ -33,6 +33,9 @@ public class Member extends BaseTimeEntity {
     private String password;
 
     @Column(nullable = false)
+    private String pinNumber;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -70,7 +73,7 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private List<Heart> hearts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Account> accounts = new ArrayList<>();
 
@@ -94,5 +97,15 @@ public class Member extends BaseTimeEntity {
         if (this.role == null) {
             this.role = "ROLE_USER";
         }
+    }
+
+    public void addAccount(Account account) {
+        accounts.add(account);
+        account.setMember(this);
+    }
+
+    public void removeAccount(Account account) {
+        accounts.remove(account);
+        account.setMember(null);
     }
 }
