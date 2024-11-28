@@ -3,13 +3,10 @@ package org.crews.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.crews.model.Meeting;
-import org.crews.model.Member;
 import org.crews.model.Membership;
-import org.crews.model.constants.MemberRole;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor

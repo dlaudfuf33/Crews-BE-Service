@@ -22,9 +22,11 @@ public class Account extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id")
     private Bank bank;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Column(nullable = false)
@@ -46,14 +48,14 @@ public class Account extends BaseTimeEntity {
     @Column(nullable = false)
     private String fintecNumber;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private AgitAndAccount agitAndAccount;
 
-    @OneToOne(mappedBy = "account")
-    private AccountHistory accountHistory;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<AccountHistory> accountHistories = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Card> cards = new ArrayList<>();
 
 }
