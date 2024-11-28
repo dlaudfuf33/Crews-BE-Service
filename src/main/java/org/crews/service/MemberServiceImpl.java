@@ -12,9 +12,7 @@ import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
 import org.crews.repository.*;
-import org.crews.utils.AESUtil;
-import org.crews.utils.CIGenerator;
-import org.crews.utils.NicknameUtills;
+import org.crews.utils.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +20,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +45,8 @@ public class MemberServiceImpl implements MemberService {
     private final AddressService addressService;
     private final MemberShipRepository memberShipRepository;
     private final CardRepository cardRepository;
+    private final AuthUtil authUtil;
+    private final MessageRepository messageRepository;
 
 
     @Override
@@ -114,7 +116,7 @@ public class MemberServiceImpl implements MemberService {
         if (refresh == null) {
 
             //response status code
-            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         //expired check
@@ -123,7 +125,7 @@ public class MemberServiceImpl implements MemberService {
         } catch (ExpiredJwtException e) {
 
             //response status code
-            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
@@ -476,11 +478,71 @@ public class MemberServiceImpl implements MemberService {
         return maskingResult;
     }
 
+    @Override
+    public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
+
+        Member member = memberRepository.findByNameAndPhoneNumber(AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber()))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return FindMemberIdResponse.from(member);
+    }
+
+    @Override
+    @Transactional
+    public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
+        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        String temporary = authUtil.generateRandomPassword(10);
+        member.setPassword(bCryptPasswordEncoder.encode(temporary));
+
+        MessageUtil.send(AESUtil.decrypt(member.getPhoneNumber()), temporary);
+    }
+
+    @Override
+    @Transactional
+    public void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest) {
+        String verifyNumber = authUtil.verifyRandomNumber();
+
+        Message message = messageRepository.findByPhoneNumber(verifyPhoneRequest.getPhoneNumber())
+                .orElse(new Message());
+        message.setPhoneNumber(verifyPhoneRequest.getPhoneNumber());
+        message.setVerifyNumber(verifyNumber);
+
+        messageRepository.save(message);
+
+        MessageUtil.send(verifyPhoneRequest.getPhoneNumber(), verifyNumber);
+    }
+
+    @Override
+    @Transactional
+    public void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest) {
+        Message message = messageRepository.findByPhoneNumber(verifyNumberRequest.getPhoneNumber())
+                .orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        if (Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
+            throw new CustomException(ErrorCode.VERIFY_NUMBER_EXPIRED);
+
+        if (!message.getVerifyNumber().equals(verifyNumberRequest.getVerifyNumber()))
+            throw new CustomException(ErrorCode.VERIFY_NUMBER_MISMATCH);
+        else messageRepository.deleteMessage(message.getId());
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteVerifyMessages() {
+        List<Message> messages = messageRepository.findAll();
+        List<Message> expiredMessages = messages.stream()
+                .filter(message -> Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
+                .toList();
+
+        if (!expiredMessages.isEmpty()) messageRepository.deleteAll(expiredMessages);
+    }
+
 
     private void validateOldPassword(String currentPassword, String oldPassword) {
         if (!bCryptPasswordEncoder.matches(oldPassword, currentPassword)) {
             throw new CustomException(ErrorCode.INVALID_OLD_PASSWORD);
-
         }
     }
 

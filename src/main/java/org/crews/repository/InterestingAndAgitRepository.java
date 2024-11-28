@@ -1,6 +1,5 @@
 package org.crews.repository;
 
-import org.crews.model.Agit;
 import org.crews.model.InterestingAndAgit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InterestingAndAgitRepository extends JpaRepository<InterestingAndAgit, Long> {
-    void deleteByAgit(Agit agit);
-
     @Modifying
     @Query("DELETE FROM InterestingAndAgit m WHERE m.agit.id = :agitId")
     void deleteByAgitIdCustom(@Param("agitId") Long agitId);

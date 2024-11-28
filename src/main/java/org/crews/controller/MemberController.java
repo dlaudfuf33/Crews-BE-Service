@@ -213,6 +213,16 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
     }
 
+    @PostMapping("/find-id")
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+        return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
+    }
+
+    @PostMapping("/find-pw")
+    public ResponseEntity<String> findMemberId(@RequestBody FindMemberPwRequest findMemberPwRequest) throws Exception {
+        memberService.findMemberPw(findMemberPwRequest);
+        return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
+    }
     @PostMapping("/me/agits-account-info")
     public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest,HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
@@ -220,6 +230,18 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/verify-number")
+    public ResponseEntity<String> getVerifyNumber(@RequestBody VerifyPhoneRequest verifyPhoneRequest) {
+        memberService.getVerifyNumber(verifyPhoneRequest);
+        return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
+    }
+
+    @PostMapping("/verify-phone")
+    public ResponseEntity<String> verifyNumberCheck(@RequestBody VerifyNumberRequest verifyNumberRequest) {
+        memberService.verifyNumberCheck(verifyNumberRequest);
+        return ResponseEntity.ok().body("인증이 완료되었습니다!");
+
+    }
 }
 
 

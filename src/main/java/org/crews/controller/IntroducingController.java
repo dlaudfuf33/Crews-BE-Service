@@ -19,13 +19,8 @@ public class IntroducingController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<IntroducingResponse> getIntroducing(
-            @PathVariable("agits-id") Long agitsId,
-            HttpServletRequest request
-    ) {
-        Long memberId = authUtil.getMemberId(request);
-
-        return ResponseEntity.ok().body(introducingService.getIntroducing(memberId, agitsId));
+    public ResponseEntity<IntroducingResponse> getIntroducing(@PathVariable("agits-id") Long agitsId) {
+        return ResponseEntity.ok().body(introducingService.getIntroducing(agitsId));
     }
 
     @PutMapping
@@ -38,6 +33,4 @@ public class IntroducingController {
 
         return ResponseEntity.ok().body(introducingService.updateIntroducing(memberId, agitsId, introducingRequest));
     }
-
-
 }

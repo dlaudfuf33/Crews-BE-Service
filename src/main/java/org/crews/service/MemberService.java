@@ -49,4 +49,15 @@ public interface MemberService {
     void deleteMyAccounts(Long memberId, AccountDeleteRequest cardDeleteRequest);
 
     void attachAccount(Long memberId, AttachAccountRequest attachAccountRequest);
+
+    FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
+
+    void findMemberPw(FindMemberPwRequest findMemberPwRequest) throws Exception;
+
+    void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest);
+
+    void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest);
+
+    void deleteVerifyMessages();
+
 }
