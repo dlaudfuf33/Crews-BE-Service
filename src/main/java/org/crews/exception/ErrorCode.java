@@ -53,7 +53,10 @@ public enum ErrorCode {
     DATABASE_ACCESS_FAILED("데이터베이스 접근 실패", HttpStatus.INTERNAL_SERVER_ERROR),
     UNKNOWN_EXCEPTION("예상 외 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_ENCRYPTION_FAILED("이메일 암호화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.",HttpStatus.INTERNAL_SERVER_ERROR);
+    IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.",HttpStatus.INTERNAL_SERVER_ERROR),
+    SEND_MESSAGE_FAILED("메세지 발송에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+
+
     private final String message;
     private final HttpStatus httpStatus;
 

@@ -153,7 +153,16 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/find-id")
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+        return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
+    }
 
+    @PostMapping("/find-pw")
+    public ResponseEntity<String> findMemberId(@RequestBody FindMemberPwRequest findMemberPwRequest) throws Exception {
+        memberService.findMemberPw(findMemberPwRequest);
+        return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
+    }
 }
 
 
