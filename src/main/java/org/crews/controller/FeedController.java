@@ -48,4 +48,16 @@ public class FeedController {
 
         return ResponseEntity.ok().body(feedService.postFeed(memberId, agitId, feedRequest));
     }
+
+    @PutMapping("/{feed-id}")
+    public ResponseEntity<FeedResponse> editFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            @RequestBody FeedRequest feedRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+
+        return ResponseEntity.ok().body(feedService.editFeed(memberId,agitId,feedId,feedRequest ));
+    }
+
+
 }

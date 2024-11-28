@@ -48,4 +48,16 @@ public class FeedService {
         Feed feed = Feed.of(feedRequest, checkedResult.getAgit(), checkedResult.getMember());
         return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
     }
+
+    public FeedResponse editFeed(Long memberId, Long agitId, Long feedId, FeedRequest feedRequest) {
+        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(
+                ()-> new CustomException(ErrorCode.FEED_NOT_FOUND));
+        if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
+        if(!feed.getMember().getId().equals(memberId)){
+            throw new CustomException(ErrorCode.AUTHORIZED_FEED_UPDATE);
+        }
+        feed.update(feedRequest);
+        return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
+    }
 }

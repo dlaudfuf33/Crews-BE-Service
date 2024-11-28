@@ -50,4 +50,12 @@ public class Feed extends BaseTimeEntity{
                 .member(member)
                 .build();
     }
+
+    public void update(FeedRequest feedRequest) {
+        this.image = feedRequest.getImage();
+        if (feedRequest.getContent() != null && !feedRequest.getContent().isEmpty()) {
+            this.content = feedRequest.getContent();
+        }
+
+    }
 }
