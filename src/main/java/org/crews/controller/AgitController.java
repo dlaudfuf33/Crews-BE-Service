@@ -67,7 +67,7 @@ public class AgitController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(AgitManageResponse.builder().message("접근 권한이 없습니다.").build());
         }
 
-        AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, memberId, agitRole);
+        AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, agitRole);
 
         return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
     }

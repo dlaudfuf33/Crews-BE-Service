@@ -10,7 +10,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.Agit;
 import org.crews.model.Meeting;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.AgitRepository;
 import org.crews.repository.MeetingRepository;
 import org.crews.utils.CheckExceptionUtil;
@@ -62,7 +62,7 @@ public class MeetingService {
     public MeetingResponse postEvent(Long memberId, Long agitId, MeetingRequest meetingRequest) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        if(!checkedResult.getMembership().getRole().equals(MemberRole.LEADER)){
+        if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_MEETING_CREATION);
         }
 
