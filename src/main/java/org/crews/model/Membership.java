@@ -28,8 +28,8 @@ public class Membership extends BaseTimeEntity{
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("'member'")
-    private MemberRole role;
+    @ColumnDefault("'temp'")
+    private MemberRole agitRole;
 
     @Column(nullable = false)
     private LocalDateTime joinedAt;
