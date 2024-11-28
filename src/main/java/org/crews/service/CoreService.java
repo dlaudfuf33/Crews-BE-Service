@@ -189,7 +189,6 @@ public class CoreService {
     // 사용자의 계좌 등록 - 블로킹 방식
     public List<AttachResponse> attachAccount(FintechNumRequest fintechNumRequest) {
         try {
-            // Null 체크
             if (fintechNumRequest == null || fintechNumRequest.getCi() == null || fintechNumRequest.getAccountNumbers() == null) {
                 log.info("입력 값이 null: {}", fintechNumRequest);
                 throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
@@ -198,7 +197,6 @@ public class CoreService {
             log.info("블로킹 방식 모든 계좌 호출 시작 - AccessKey: {}, SecretKey: {}", accessKey, secretKey);
             validateKeys();
 
-            // WebClient 호출 및 응답 처리
             AccountsInfoResponse response = webClient.post()
                     .uri(ISUUE_MULTIFINTECHNUM)
                     .headers(headers -> {
@@ -207,8 +205,8 @@ public class CoreService {
                     })
                     .bodyValue(fintechNumRequest)
                     .retrieve()
-                    .bodyToMono(AccountsInfoResponse.class) // 응답 매핑
-                    .block(); // 블로킹 방식
+                    .bodyToMono(AccountsInfoResponse.class)
+                    .block();
 
             if (response == null || response.getAccounts().isEmpty()) {
                 log.warn("응답이 null이거나 계좌가 없습니다. 빈 리스트를 반환합니다.");
@@ -220,18 +218,19 @@ public class CoreService {
 
             // AttachResponse 리스트 반환
             return response.getAccounts().stream()
-                    .map(accountInfo -> new AttachResponse(
-                            accountInfo.getCustomerName(),
-                            accountInfo.getBankCode(),
-                            accountInfo.getBankImage(),
-                            accountInfo.getProductName(),
-                            accountInfo.getAccountNumber(),
-                            accountInfo.getAccountType(),
-                            accountInfo.getBalance(),
-                            accountInfo.getCreatedAt(),
-                            accountInfo.getUpdatedAt(),
-                            accountInfo.getFintechUseNum()
-                    ))
+                    .<AttachResponse>map(accountInfo -> AttachResponse.builder()
+                            .customerName(accountInfo.getCustomerName())
+                            .bankCode(accountInfo.getBankCode())
+                            .bankImage(accountInfo.getBankImage())
+                            .productName(accountInfo.getProductName())
+                            .accountNumber(accountInfo.getAccountNumber())
+                            .accountType(accountInfo.getAccountType())
+                            .balance(accountInfo.getBalance())
+                            .createdAt(accountInfo.getCreatedAt())
+                            .updatedAt(accountInfo.getUpdatedAt())
+                            .fintechUseNum(accountInfo.getFintechUseNum())
+                            .build()
+                    )
                     .toList();
 
         } catch (IllegalArgumentException e) {
