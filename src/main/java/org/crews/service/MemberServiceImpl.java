@@ -17,6 +17,7 @@ import org.crews.model.*;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
+import org.crews.utils.MaskedNumber;
 import org.crews.utils.NicknameGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,7 @@ public class MemberServiceImpl implements MemberService {
             Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
                     () -> new CustomException(ErrorCode.WRONG_BANKCODE)
             );
-            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
+            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(MaskedNumber.maskedAccountNumber(response.getAccountNumber()))
                     .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
                     accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
@@ -280,19 +281,6 @@ public class MemberServiceImpl implements MemberService {
         ));
         memberRepository.save(member);
     }
-
-    private String maskedAccountNumber(String accountNumber) {
-        String maskingResult = "";
-
-        if (accountNumber.length() >= 7) {
-            maskingResult = accountNumber.replaceAll("(?<=.{4}).(?=.{2})", "*");
-        } else {
-            maskingResult = accountNumber;
-        }
-
-        return maskingResult;
-    }
-
 
 
 }

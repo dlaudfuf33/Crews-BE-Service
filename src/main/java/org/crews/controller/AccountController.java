@@ -4,10 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountInfoResponse;
+import org.crews.dto.core.ApiResponse;
 import org.crews.dto.request.AccountDetailsRequest;
 import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.request.AccountTransferRequest;
 import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
 
@@ -62,9 +64,19 @@ public class AccountController {
 
     @GetMapping("/deposit")
     public ResponseEntity<TransactionDetailResponse> getAccountDeposit(@PathVariable("agits-id") Long agitId,
+                                                             @RequestParam Integer year,
+                                                             @RequestParam Integer month,
                                                              HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(accountService.getAccountDeposit(agitId, memberId));
+        return ResponseEntity.ok().body(accountService.getAccountDeposit(agitId, memberId, year, month));
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<ApiResponse> transferCrewAccount(@PathVariable("agits-id") Long agitId,
+                                                           @RequestBody AccountTransferRequest accountTransferRequest,
+                                                           HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.transferCrewAccount(agitId, memberId, accountTransferRequest));
     }
 
 }

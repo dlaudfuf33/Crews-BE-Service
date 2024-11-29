@@ -12,6 +12,7 @@ import org.crews.model.constants.MemberRole;
 import org.crews.model.constants.TranType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
+import org.crews.utils.DuesCommon;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,7 @@ public class DuesService {
                 .selectPeriod(1)
                 .fintechUseNum(agit.getAgitAndAccount().getAccount().getFintecNumber())
                 .transactionType(TranType.DEPOSIT.toString())
-                .order("ASC")
+                .order("DESC")
                 .build();
         TransactionDetailResponse response = coreService.filteredAccountHistory(transactionDetailRequest);
         List<TransactionHistoryResponse> tranList = response.getTranList();
@@ -96,13 +97,13 @@ public class DuesService {
 
         List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
         List<Member> memberList = new ArrayList<>(searchMembershipList.stream().map(Membership::getMember).toList());
-        Map<Member, BigDecimal> memberMap = calculateTotalDueAmountByMembership(dues);
+        Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
-                setPayedChange(dues,filterMember,true);
+                DuesCommon.setPayedChange(dues,filterMember,true);
             }else {
-                setPayedChange(dues,filterMember,false);
+                DuesCommon.setPayedChange(dues,filterMember,false);
             }
         });
         List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();
@@ -110,25 +111,7 @@ public class DuesService {
         return GetDuesResponse.builder().profileResponses(profileResponses).memberCount(profileResponses.size()).build();
     }
 
-    private Map<Member, BigDecimal> calculateTotalDueAmountByMembership(List<Dues> duesList) {
-        return duesList.stream()
-                .filter(d -> d.getMembership() != null) // Membership이 있는 항목만 처리
-                .collect(Collectors.groupingBy(
-                        d -> d.getMembership().getMember(), // Membership ID로 그룹화
-                        Collectors.mapping(
-                                Dues::getDueAmount, // dueAmount를 추출
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add) // 합산
-                        )
-                ));
-    }
 
-    private void setPayedChange(List<Dues> dues, Member filterMember, boolean setPayed) {
-        dues.forEach(content -> {
-            if (content.getMembership().getMember().equals(filterMember)) {
-                content.setPayed(setPayed);
-            }
-        });
-    }
 
 
     @Transactional

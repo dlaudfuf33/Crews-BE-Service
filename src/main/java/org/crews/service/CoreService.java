@@ -9,6 +9,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -301,6 +302,43 @@ public class CoreService {
             return response;
         } catch (WebClientResponseException ex) {
             log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+
+    public ApiResponse<TransferResponse> transfer(TransferRequest transferRequest) {
+        try {
+            return webClient.post()
+                    .uri("/v1/transfer")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(transferRequest) //
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<ApiResponse<TransferResponse>>() {})
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public BalanceInfoResponse getBalanceInfo(BalanceInfoRequest balanceInfoRequest) {
+        try {
+            return webClient.post()
+                    .uri("/v1//balance/info")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(balanceInfoRequest) //
+                    .retrieve()
+                    .bodyToMono(BalanceInfoResponse.class)
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }

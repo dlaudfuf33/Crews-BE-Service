@@ -3,7 +3,6 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.DateRequest;
 import org.crews.dto.response.AccountHistoryFinalV2Response;
 import org.crews.dto.response.AccountV2Response;
 import org.crews.dto.response.ProductAllResponse;
@@ -11,12 +10,7 @@ import org.crews.service.CommonService;
 import org.crews.service.CoreService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -32,11 +26,12 @@ public class CommonController {
         return ResponseEntity.ok().body(commonService.getAllAccounts(memberId));
     }
 
-    @PostMapping("/accounts/history")
+    @GetMapping("/accounts/history")
     public ResponseEntity<AccountHistoryFinalV2Response> getAccountHistoryV2(HttpServletRequest request,
-                                                                             @RequestBody DateRequest dateRequest){
+                                                                             @RequestParam Integer year,
+                                                                             @RequestParam Integer month){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(commonService.getMyAccountsHistory(memberId,dateRequest));
+        return ResponseEntity.ok().body(commonService.getMyAccountsHistory(memberId,year,month));
     }
 
     @GetMapping("/products")
