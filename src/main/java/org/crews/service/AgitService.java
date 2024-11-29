@@ -5,17 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.AgitRegisterRequest;
 import org.crews.dto.request.AgitRequest;
-import org.crews.dto.response.AgitInfoResponse;
-import org.crews.dto.response.AllAgitsInfoResponse;
-import org.crews.dto.response.AgitRegisterResponse;
-import org.crews.dto.response.DuesAlarmResponse;
-import org.crews.dto.response.AgitResponse;
+import org.crews.dto.response.*;
 
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,4 +162,9 @@ public class AgitService {
         }
     }
 
+    public AgitSliceResponse searchAgit(String keyWord, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByIntroductionLikeAndIsDeletedFalse(keyWord, pageable);
+
+        return AgitSliceResponse.of(agitSlice);
+    }
 }
