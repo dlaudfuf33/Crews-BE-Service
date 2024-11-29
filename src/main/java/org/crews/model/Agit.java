@@ -37,7 +37,7 @@ public class Agit extends BaseTimeEntity {
     private boolean isDeleted;
 
     @Builder.Default
-    @OneToMany(mappedBy = "agit")
+    @OneToMany(mappedBy = "agit", fetch = FetchType.LAZY)
     private List<Membership> memberships = new ArrayList<>();
 
     @ManyToOne(optional = true,fetch = FetchType.LAZY)

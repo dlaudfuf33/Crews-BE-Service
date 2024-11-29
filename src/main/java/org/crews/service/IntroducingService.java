@@ -29,25 +29,12 @@ public class IntroducingService {
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;
 
-    public IntroducingResponse getIntroducing(Long memberId, Long agitId) {
+    public IntroducingResponse getIntroducing(Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-
-        String memberRole;
-        if (memberId == 0L) {
-            memberRole = "NOTMEMBER";
-        }else{
-            Member member = memberRepository.findById(memberId).orElseThrow(
-                    ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-            Optional<Membership> membershipOptional = Optional.ofNullable(
-                    memberShipRepository.findByMemberAndAgit(member, agit).orElse(null));
-            memberRole = membershipOptional
-                    .map(membership -> membership.getRole().toString())
-                    .orElse("NOTMEMBER");
-        }
         Introducing introducing = agit.getIntroducing();
 
-        return IntroducingResponse.of(memberRole,introducing);
+        return IntroducingResponse.of(introducing);
     }
 
     @Transactional
@@ -76,7 +63,7 @@ public class IntroducingService {
                             .build())
                     .toList();
 
-            if (updateInterestingAndAgit.size() < 1 || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
+            if (updateInterestingAndAgit.isEmpty() || updateInterestingAndAgit.size() > 3) throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
             interestingAndAgitRepository.saveAll(updateInterestingAndAgit);
         }else{
             throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
@@ -86,6 +73,6 @@ public class IntroducingService {
         introducing.setIntroduce(introducingRequest.getIntroduce());
         introducing.setContent(introducingRequest.getContent());
 
-        return IntroducingResponse.of("LEADER",introducing);
+        return IntroducingResponse.of(introducing);
     }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.core.AccountResponse;
 import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
@@ -110,8 +111,7 @@ public class MemberController {
     @PutMapping("/me/nickname")
     public ResponseEntity<MyNicknameResponse> updateMyNickname(@RequestBody MyNicknameRequest myNicknameRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        MyNicknameResponse myNickName = memberService.updateMyNickname(memberId, myNicknameRequest);
-        return ResponseEntity.ok(myNickName);
+        return ResponseEntity.ok(memberService.updateMyNickname(memberId, myNicknameRequest));
     }
 
     @GetMapping("/me/interests")
@@ -145,15 +145,103 @@ public class MemberController {
     @PutMapping("/me/addresses")
     public ResponseEntity<Void> updateAddresses(@RequestBody AddressRequest addressRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
+        memberService.updateMyAddresses(memberId, addressRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody PasswordUpdateRequest passwordUpdateRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
         try {
-            memberService.updateMyAddresses(memberId, addressRequest);
+            // 비밀번호 변경 서비스 호출
+            memberService.updatePassword(memberId, passwordUpdateRequest);
             return ResponseEntity.noContent().build();
         } catch (CustomException e) {
-            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).build();
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
 
+    @GetMapping("/me/agits")
+    public ResponseEntity<List<AgitResponse>> getAgits(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AgitResponse> agitResponseList = memberService.getMyAgits(memberId);
+        return ResponseEntity.ok(agitResponseList);
+    }
+
+    @GetMapping("/me/agits-cards")
+    public ResponseEntity<List<AgitCardsResponse>> getAgitsCards(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AgitCardsResponse> agitCardsResponseList = memberService.getMyAgitsCards(memberId);
+        return ResponseEntity.ok(agitCardsResponseList);
+    }
+
+    @DeleteMapping("/me/agits-cards")
+    public ResponseEntity<AgitCardsResponse> deleteAgitsCards(
+            HttpServletRequest request, @RequestBody CardDeleteRequest cardDeleteRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.deleteMyAgitsCards(memberId, cardDeleteRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/me/my-accounts")
+    public ResponseEntity<List<AccountsResponse>> getMyAccounts(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        List<AccountsResponse> accountsResponses = memberService.getMyAccounts(memberId);
+        return ResponseEntity.ok(accountsResponses);
+    }
+
+    @DeleteMapping("/me/my-accounts")
+    public ResponseEntity<Void> deleteMyAccounts(@RequestBody AccountDeleteRequest cardDeleteRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        try {
+            memberService.deleteMyAccounts(memberId, cardDeleteRequest);
+            return ResponseEntity.noContent().build();
+        }  catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/me/agits-account-info")
+    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
+    }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+        return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
+    }
+
+    @PostMapping("/find-pw")
+    public ResponseEntity<String> findMemberId(@RequestBody FindMemberPwRequest findMemberPwRequest) throws Exception {
+        memberService.findMemberPw(findMemberPwRequest);
+        return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
+    }
+    @PostMapping("/me/agits-account-info")
+    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest,HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        memberService.attachAccount(memberId,attachAccountRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-number")
+    public ResponseEntity<String> getVerifyNumber(@RequestBody VerifyPhoneRequest verifyPhoneRequest) {
+        memberService.getVerifyNumber(verifyPhoneRequest);
+        return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
+    }
+
+    @PostMapping("/verify-phone")
+    public ResponseEntity<String> verifyNumberCheck(@RequestBody VerifyNumberRequest verifyNumberRequest) {
+        memberService.verifyNumberCheck(verifyNumberRequest);
+        return ResponseEntity.ok().body("인증이 완료되었습니다!");
+
+    }
 }
 
 

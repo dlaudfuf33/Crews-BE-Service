@@ -16,13 +16,13 @@ public interface MemberService {
 
     Map<String, String> reissueTokens(String refresh);
 
-    public List<AccountResponse> getAccountInfoFromCore(Long id);
+    List<AccountResponse> getAccountInfoFromCore(Long id);
 
-    public MyProfileResponse getMyProfile(Long memberId);
+    MyProfileResponse getMyProfile(Long memberId);
 
-    public MyinfoResponse getMyinfo(Long memberId);
+    MyinfoResponse getMyinfo(Long memberId);
 
-    public List<InterestResponse> getMyInterests(Long memberId);
+    List<InterestResponse> getMyInterests(Long memberId);
 
     boolean validateEmail(EmailRequest request);
 
@@ -30,10 +30,34 @@ public interface MemberService {
 
     MyNicknameResponse updateMyNickname(Long memberId, MyNicknameRequest myNicknameRequest);
 
+    void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest);
 
     void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest);
 
     AddressResponse getMyAddresses(Long memberId);
 
     void updateMyAddresses(Long memberId, AddressRequest addressRequest);
+
+    List<AgitResponse> getMyAgits(Long memberId);
+
+    List<AgitCardsResponse> getMyAgitsCards(Long memberId);
+
+    void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest);
+
+    List<AccountsResponse> getMyAccounts(Long memberId);
+
+    void deleteMyAccounts(Long memberId, AccountDeleteRequest cardDeleteRequest);
+
+    void attachAccount(Long memberId, AttachAccountRequest attachAccountRequest);
+
+    FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
+
+    void findMemberPw(FindMemberPwRequest findMemberPwRequest) throws Exception;
+
+    void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest);
+
+    void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest);
+
+    void deleteVerifyMessages();
+
 }

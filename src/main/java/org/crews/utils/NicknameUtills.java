@@ -6,7 +6,8 @@ import org.crews.exception.ErrorCode;
 import java.util.List;
 import java.util.Random;
 
-public final class NicknameGenerator {
+public final class NicknameUtills {
+    private static final String NICKNAMEPATTERN = "^[^\\s\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]{1,16}$";
     private static final List<String> COLORS = List.of(
             "빨간", "파란", "초록", "노란", "보라", "검은", "흰", "분홍", "연두", "연보라", "주황",
             "하늘색", "자주색", "청록", "금색", "은색", "갈색", "회색", "민트색", "버건디", "옥색", "산호색"
@@ -21,8 +22,10 @@ public final class NicknameGenerator {
             "라운지", "무대", "극장", "연기자", "스포트라이트", "댄스홀", "헬스장", "러닝머신", "요트", "스쿠버장비",
             "산호초", "해양생물", "프런트데스크", "조명", "운전대", "레이다", "선박호출기", "구명밧줄", "정박장치"
     );
+
+
     private static final Random RANDOM = new Random();
-    private NicknameGenerator() {
+    private NicknameUtills() {
         throw new CustomException(ErrorCode.IS_UTILITY_CLASS);
     }
 
@@ -30,5 +33,8 @@ public final class NicknameGenerator {
         String randomColor = COLORS.get(RANDOM.nextInt(COLORS.size()));
         String randomObject = OBJECTS.get(RANDOM.nextInt(OBJECTS.size()));
         return randomColor + randomObject;
+    }
+    public static boolean validationNickname(String nickname) {
+        return nickname != null && !nickname.matches(NICKNAMEPATTERN);
     }
 }

@@ -18,6 +18,9 @@ public class Bank extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String bankImage;
+
     @Column(nullable = false, unique = true)
     private String bankCode;
 
