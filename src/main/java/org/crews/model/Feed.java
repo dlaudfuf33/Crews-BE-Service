@@ -46,6 +46,7 @@ public class Feed extends BaseTimeEntity{
                 .image(feedRequest.getImage())
                 .content(feedRequest.getContent())
                 .likeCount(0L)
+                .isDeleted(false)
                 .agit(agit)
                 .member(member)
                 .build();

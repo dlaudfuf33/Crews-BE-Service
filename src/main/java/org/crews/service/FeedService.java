@@ -15,6 +15,7 @@ import org.crews.utils.CheckExceptionUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -59,5 +60,22 @@ public class FeedService {
         }
         feed.update(feedRequest);
         return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
+    }
+
+    public ResponseEntity<String> deleteFeed(Long memberId,  Long feedId){
+
+        Feed feed = feedRepository.findById(feedId).orElseThrow(
+                () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+
+        if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
+
+        if(!feed.getMember().getId().equals(memberId)){
+            throw new CustomException(ErrorCode.AUTHORIZED_FEED_DELETE);
+        }
+
+        feed.setDeleted(true);
+        feedRepository.save(feed);
+
+        return ResponseEntity.ok("기록을 삭제하였습니다.");
     }
 }

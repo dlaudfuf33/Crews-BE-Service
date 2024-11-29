@@ -59,5 +59,13 @@ public class FeedController {
         return ResponseEntity.ok().body(feedService.editFeed(memberId,agitId,feedId,feedRequest ));
     }
 
+    @DeleteMapping("/{feed-id}")
+    public ResponseEntity<ResponseEntity<String>> deleteFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(feedService.deleteFeed(memberId,feedId));
+    }
 
 }
