@@ -80,7 +80,7 @@ public class MemberServiceImpl implements MemberService {
             );
             member.setAddress(address);
             // 핀 번호 설정
-            member.setPinNumber("000000");
+            member.setPinNumber(bCryptPasswordEncoder.encode(memberRequest.getPinNumber()));
             // 회원 저장
             Member savedMember = memberRepository.save(member);
             // 회원 관심사 설정 (기본 값)
@@ -556,5 +556,20 @@ public class MemberServiceImpl implements MemberService {
         card.maskCard();
     }
 
+    @Override
+    public void verifyPinNumber(Long memberId, PinNumberRequest pinNumberRequest) {
+        Member member = memberRepository.findByIdWithAddresses(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if(!bCryptPasswordEncoder.matches(pinNumberRequest.getPinNumber(), member.getPinNumber())) {
+            throw new CustomException(ErrorCode.VERIFY_PIN_MISMATCH);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePinNumber(Long memberId, PinNumberRequest pinNumberRequest) {
+        Member member = memberRepository.findByIdWithAddresses(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        member.setPinNumber(bCryptPasswordEncoder.encode(pinNumberRequest.getPinNumber()));
+    }
 }
 
