@@ -558,7 +558,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void verifyPinNumber(Long memberId, PinNumberRequest pinNumberRequest) {
-        Member member = memberRepository.findByIdWithAddresses(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if(!bCryptPasswordEncoder.matches(pinNumberRequest.getPinNumber(), member.getPinNumber())) {
             throw new CustomException(ErrorCode.VERIFY_PIN_MISMATCH);
@@ -568,7 +568,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void updatePinNumber(Long memberId, PinNumberRequest pinNumberRequest) {
-        Member member = memberRepository.findByIdWithAddresses(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         member.setPinNumber(bCryptPasswordEncoder.encode(pinNumberRequest.getPinNumber()));
     }
 }
