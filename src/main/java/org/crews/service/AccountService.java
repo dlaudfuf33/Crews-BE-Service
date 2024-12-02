@@ -13,7 +13,7 @@ import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.TranType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
@@ -60,14 +60,14 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId, MemberIdRequest memberIdRequest, MemberRole memberRole) {
+    public AccountIssuedResponse accountIssued(Long agitId, MemberIdRequest memberIdRequest, AgitRole memberRole) {
         Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndRole(agit, memberRole).orElseThrow(
+        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, memberRole).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -93,7 +93,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndRole(agit, MemberRole.LEADER).orElseThrow(
+        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();

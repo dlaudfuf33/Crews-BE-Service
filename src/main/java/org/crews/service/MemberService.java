@@ -60,4 +60,7 @@ public interface MemberService {
 
     void deleteVerifyMessages();
 
+    void verifyPinNumber(Long memberId, PinNumberRequest pinNumberRequest);
+
+    void updatePinNumber(Long memberId, PinNumberRequest pinNumberRequest);
 }
