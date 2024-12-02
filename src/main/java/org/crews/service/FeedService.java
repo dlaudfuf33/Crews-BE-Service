@@ -42,7 +42,7 @@ public class FeedService {
     public FeedResponse getFeed(Long memberId, Long agitId, Long feedId) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        Feed feed = feedRepository.findById(feedId).orElseThrow(
+        Feed feed = feedRepository.findByIdAndAgit(feedId, checkedResult.getAgit()).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
 

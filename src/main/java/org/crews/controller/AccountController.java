@@ -12,7 +12,7 @@ import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
 
 import org.crews.dto.request.MemberIdRequest;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.service.AccountService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@PathVariable("agits-id") Long agitId,
                                                                @RequestBody MemberIdRequest memberIdRequest){
-        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdRequest, MemberRole.LEADER));
+        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdRequest, AgitRole.LEADER));
     }
 
     @PostMapping("/link")

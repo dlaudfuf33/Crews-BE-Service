@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
+    VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
