@@ -1,14 +1,13 @@
 package org.crews.repository;
 
 import org.crews.model.Agit;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
 import java.util.List;
 
 @Repository
@@ -21,6 +20,16 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "JOIN FETCH ia.interesting " +
             "WHERE a.isDeleted = false")
     List<Agit> findAllWithFetchJoin();
+
+    Slice<Agit> findByIntroductionLikeAndIsDeletedFalse(String keyWord, Pageable pageable);
+
+    @Query("SELECT a FROM Agit a " +
+            "WHERE a.isDeleted = false " +
+            "AND a.introduction LIKE %:keyword% " +
+            "AND a.id NOT IN (" +
+            "    SELECT m.agit.id FROM Membership m WHERE m.member.id = :memberId" +
+            ")")
+    Slice<Agit> findByKeywordAndNotJoined(@Param("keyword") String keyword, @Param("memberId") Long memberId, Pageable pageable);
 
     @Query("SELECT DISTINCT a FROM Agit a " +
             "JOIN FETCH a.introducing " +
@@ -43,7 +52,4 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "AND (:memberId IS NULL OR a NOT IN (SELECT m.agit FROM Membership m WHERE m.member.id = :memberId)) " +
             "ORDER BY a.currentPerson DESC")
     List<Agit> findRecruitAgits(@Param("memberId") Long memberId);
-
-
-
 }
