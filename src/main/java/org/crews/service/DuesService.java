@@ -44,6 +44,9 @@ public class DuesService {
 
     @Transactional
     public GetDuesResponse getDues(Long agitId, Long memberId, Integer year, Integer month) {
+        LocalDateTime today = LocalDateTime.now();
+        if((today.getMonthValue() < month && today.getYear() == year) || today.getYear() < year)
+            throw new CustomException(ErrorCode.DATE_AFTER_NOW);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -90,13 +93,13 @@ public class DuesService {
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
                         .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
-                        .productName(account.getProductName()).agitName(agit.getAgitName()).build();
+                        .productName(account.getProductName()).agitName(agit.getAgitName()).standardDate(generateStandardDate(year,month,dto.getTransactionTime())).build();
                 saveDues.add(buildDues);
             }
         }
         duesRepository.saveAll(saveDues);
         List<Dues> dues = duesRepository.findByCommonDues(agit.getCommonDues()).stream().filter(content ->
-            content.getDueDate().getMonthValue() == month && (content.getDueDate().getYear() == year))
+            content.getStandardDate().getMonthValue() == month && (content.getStandardDate().getYear() == year))
                 .toList();
 
         List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
@@ -199,5 +202,11 @@ public class DuesService {
         // YearMonth 객체를 생성하여 해당 월의 마지막 날을 반환
         YearMonth yearMonth = YearMonth.of(year, month);
         return yearMonth.lengthOfMonth();
+    }
+    private LocalDateTime generateStandardDate(Integer year, Integer month, LocalDateTime dueDate) {
+        if((dueDate.getMonthValue() >= month && dueDate.getYear() == year) || dueDate.getYear() > year) {
+            return LocalDateTime.of(year,month,dueDate.getDayOfMonth(),dueDate.getHour(),dueDate.getMinute(),dueDate.getSecond());
+        }
+        throw new CustomException(ErrorCode.DATE_AFTER_NOW);
     }
 }
