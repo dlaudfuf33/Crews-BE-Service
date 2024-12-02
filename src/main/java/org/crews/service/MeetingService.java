@@ -42,7 +42,7 @@ public class MeetingService {
     public MeetingResponse getEvent(Long memberId, Long agitId, Long meetingId) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(
+        Meeting meeting = meetingRepository.findByIdAndAgit(meetingId, checkedResult.getAgit()).orElseThrow(
                 () -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
         if(meeting.isDeleted()) throw new CustomException(ErrorCode.DELETED_MEETING);
 
