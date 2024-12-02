@@ -23,4 +23,7 @@ public class AccountTransferRequest {
     @NotBlank
     private BigDecimal amount;
 
+    @NotBlank
+    private String pinNumber;
+
 }

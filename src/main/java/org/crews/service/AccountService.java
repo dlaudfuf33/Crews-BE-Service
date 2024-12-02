@@ -198,8 +198,9 @@ public class AccountService {
 
     @Transactional
     public ApiResponse<TransferResponse> transferCrewAccount(Long agitId, Long memberId, AccountTransferRequest accountTransferRequest) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+
+        Member member = memberRepository.findByIdAndPinNumber(memberId,accountTransferRequest.getPinNumber()).orElseThrow(
+                () -> new CustomException(ErrorCode.PINNUMBER_AND_ID_NOT_MATCH)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
