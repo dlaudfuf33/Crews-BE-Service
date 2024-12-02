@@ -41,9 +41,11 @@ public class AgitService {
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
-    public List<AgitResponse> getAllAgits(){
-        return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::from).toList();
+    public List<AgitResponse> getAllAgits(Long subjectId){
+        List<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(subjectId);
+        return agits.stream().map(AgitResponse::from).toList();
     }
+
     @Transactional
     public AgitResponse generateAgit(AgitRequest agitRequest) {
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(

@@ -26,8 +26,8 @@ public class AgitController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<List<AgitResponse>> getAllAgits(){
-        return ResponseEntity.ok().body(agitService.getAllAgits());
+    public ResponseEntity<List<AgitResponse>> getAllAgits(@RequestParam(value="subject-id",required = false)Long subjectId){
+        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId));
     }
 
     @PostMapping
