@@ -57,8 +57,9 @@ public class AgitController {
     }
 
     @PostMapping("/registrations")
-    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest){
-        return agitService.agitRestration(agitRegisterRequest);
+    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return agitService.agitRestration(agitRegisterRequest, memberId);
     }
 
     @GetMapping("/search")

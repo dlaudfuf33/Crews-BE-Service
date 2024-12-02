@@ -131,17 +131,17 @@ public class AgitService {
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
     @Transactional
-    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest) {
+    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest, Long memberId) {
         try {
             Membership membership = Membership.builder()
                     .agit(Agit.builder().id(agitInfoRequest.getAgitId()).build())
-                    .member(Member.builder().id(agitInfoRequest.getMemberId()).build())
+                    .member(Member.builder().id(memberId).build())
                     .agitRole(AgitRole.TEMP)
                     .joinedAt(LocalDateTime.now())
                     .build();
 
             boolean isAlreadyJoined = memberShipRepository.findByMemberAndAgit(
-                    Member.builder().id(agitInfoRequest.getMemberId()).build(),
+                    Member.builder().id(memberId).build(),
                     Agit.builder().id(agitInfoRequest.getAgitId()).build()
             ).isPresent();
 
