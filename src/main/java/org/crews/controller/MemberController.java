@@ -3,12 +3,14 @@ package org.crews.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountResponse;
 import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.service.MemberService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
@@ -83,13 +85,13 @@ public class MemberController {
 
 
 
-    @GetMapping("/signup/validate-email")
+    @PostMapping("/signup/validate-email")
     public ResponseEntity<String> validateEmail(@RequestBody EmailRequest request) {
         boolean isExist = memberService.validateEmail(request);
         if (isExist) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already Exist Email");
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
         } else {
-            return ResponseEntity.status(HttpStatus.OK).body("Email Available For Registration.");
+            return ResponseEntity.status(HttpStatus.OK).body("사용 가능한 이메일입니다.");
         }
     }
 
@@ -240,7 +242,26 @@ public class MemberController {
     public ResponseEntity<String> verifyNumberCheck(@RequestBody VerifyNumberRequest verifyNumberRequest) {
         memberService.verifyNumberCheck(verifyNumberRequest);
         return ResponseEntity.ok().body("인증이 완료되었습니다!");
+    }
 
+    @PostMapping("/me/pin-number")
+    public ResponseEntity<String> verifyPinNumber(
+            @RequestBody @Valid PinNumberRequest pinNumberRequest,
+            HttpServletRequest request
+    ) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.verifyPinNumber(memberId, pinNumberRequest);
+        return ResponseEntity.ok().body("인증이 완료되었습니다!");
+    }
+
+    @PutMapping("/me/pin-number")
+    public ResponseEntity<String> updatePinNumber(
+            @RequestBody @Valid PinNumberRequest pinNumberRequest,
+            HttpServletRequest request
+    ) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.updatePinNumber(memberId, pinNumberRequest);
+        return ResponseEntity.ok().body("변경이 완료되었습니다!");
     }
 }
 

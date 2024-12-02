@@ -87,9 +87,11 @@ public class SecurityConfig {
                 .requestMatchers("/members/signup/**", "/members/login", "/members/reissue", "/members/find-id", "/members/find-pw", "/members/verify-number", "/members/verify-phone").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/agit").permitAll()
+                .requestMatchers(HttpMethod.GET, "/agits/home").permitAll()
                 .requestMatchers(HttpMethod.GET, "/interests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/introducing").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/meetings/recent").permitAll()
+                .requestMatchers(HttpMethod.GET, "/agits/search").permitAll()
                 .anyRequest().authenticated()
         );
 
