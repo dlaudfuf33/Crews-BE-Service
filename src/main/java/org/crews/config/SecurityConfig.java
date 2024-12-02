@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/interests").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/introducing").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/meetings/recent").permitAll()
+                .requestMatchers(HttpMethod.GET, "/agits/search").permitAll()
                 .anyRequest().authenticated()
         );
 

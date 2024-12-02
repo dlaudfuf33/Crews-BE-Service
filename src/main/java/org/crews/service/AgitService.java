@@ -12,6 +12,8 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -157,6 +159,19 @@ public class AgitService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new AgitRegisterResponse("아지트 가입신청을 하는 도중 문제가 발생하였습니다. 나중에 다시 시도해주세요."));
         }
+    }
+
+    public AgitSliceResponse searchAgit(String keyWord, Long memberId, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByKeywordAndNotJoined(keyWord, memberId, pageable);
+
+
+        return AgitSliceResponse.of(agitSlice);
+    }
+
+    public AgitSliceResponse searchAgitAll(String keyWord, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByIntroductionLikeAndIsDeletedFalse(keyWord, pageable);
+
+        return AgitSliceResponse.of(agitSlice);
     }
 
     public AgitRole getAgitRole(Long agitId, Long memberId) {
