@@ -1,6 +1,7 @@
 package org.crews.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.FeedRequest;
@@ -42,7 +43,7 @@ public class FeedController {
     @PostMapping
     public ResponseEntity<FeedResponse> createFeed(
             @PathVariable("agits-id") Long agitId,
-            @RequestBody FeedRequest feedRequest,
+            @RequestBody @Valid FeedRequest feedRequest,
             HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
 
