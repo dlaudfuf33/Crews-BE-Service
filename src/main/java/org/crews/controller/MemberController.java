@@ -3,6 +3,7 @@ package org.crews.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.AccountResponse;
@@ -245,7 +246,7 @@ public class MemberController {
 
     @PostMapping("/me/pin-number")
     public ResponseEntity<String> verifyPinNumber(
-            @RequestBody PinNumberRequest pinNumberRequest,
+            @RequestBody @Valid PinNumberRequest pinNumberRequest,
             HttpServletRequest request
     ) {
         Long memberId = authUtil.getMemberId(request);
@@ -255,7 +256,7 @@ public class MemberController {
 
     @PutMapping("/me/pin-number")
     public ResponseEntity<String> updatePinNumber(
-            @RequestBody PinNumberRequest pinNumberRequest,
+            @RequestBody @Valid PinNumberRequest pinNumberRequest,
             HttpServletRequest request
     ) {
         Long memberId = authUtil.getMemberId(request);
