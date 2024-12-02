@@ -74,7 +74,7 @@ public class MeetingService {
     public MeetingResponse editEvent(Long memberId, Long agitId, Long meetingId, MeetingRequest meetingRequest) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Meeting meeting=meetingRepository.findById(meetingId).orElseThrow(()->new CustomException(ErrorCode.EVENT_NOT_FOUND));
-        if(!checkedResult.getMembership().getRole().equals(MemberRole.LEADER)){
+        if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
         }
 
