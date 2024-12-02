@@ -10,7 +10,9 @@ import org.crews.dto.response.FeedSliceResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.Feed;
+import org.crews.model.Heart;
 import org.crews.repository.FeedRepository;
+import org.crews.repository.HeartRepository;
 import org.crews.utils.CheckExceptionUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -18,11 +20,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FeedService {
     private final FeedRepository feedRepository;
+    private final HeartRepository heartRepository;
     private final CheckExceptionUtil checkExceptionUtil;
 
     public FeedSliceResponse getAllFeeds(Long memberId, Long agitId, int page) {
@@ -77,5 +82,25 @@ public class FeedService {
         feedRepository.save(feed);
 
         return ResponseEntity.ok("기록을 삭제하였습니다.");
+    }
+
+    public String toggleHeartFeed(Long memberId, Long agitId, Long feedId){
+        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(()->new CustomException(ErrorCode.FEED_NOT_FOUND));
+        if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
+
+        Optional<Heart>existingHeart= heartRepository.findByFeedIdAndMemberId(feedId,memberId);
+        if(existingHeart.isPresent()){
+            heartRepository.delete(existingHeart.get());
+            feed.setLikeCount(feed.getLikeCount()-1);
+            feedRepository.save(feed);
+            return "좋아요 등록 취소";
+        }else{
+            Heart newHeart=Heart.builder().feed(feed).member(checkedResult.getMember()).build();
+            heartRepository.save(newHeart);
+            feed.setLikeCount(feed.getLikeCount()+1);
+            feedRepository.save(feed);
+            return "좋아요 등록 완료";
+        }
     }
 }

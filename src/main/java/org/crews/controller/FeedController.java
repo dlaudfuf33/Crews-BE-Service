@@ -68,4 +68,14 @@ public class FeedController {
         return ResponseEntity.ok().body(feedService.deleteFeed(memberId,feedId));
     }
 
+    @PostMapping("/{feed-id}/heart")
+    public ResponseEntity<String> heartFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId, HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+        String responseMessage = feedService.toggleHeartFeed(memberId, agitId, feedId);
+        return ResponseEntity.ok(responseMessage);
+    }
+
 }
