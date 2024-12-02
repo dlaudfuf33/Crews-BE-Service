@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,12 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
     List<Agit> findAllWithFetchJoin();
 
     Slice<Agit> findByIntroductionLikeAndIsDeletedFalse(String keyWord, Pageable pageable);
+
+    @Query("SELECT a FROM Agit a " +
+            "WHERE a.isDeleted = false " +
+            "AND a.introduction LIKE %:keyword% " +
+            "AND a.id NOT IN (" +
+            "    SELECT m.agit.id FROM Membership m WHERE m.member.id = :memberId" +
+            ")")
+    Slice<Agit> findByKeywordAndNotJoined(@Param("keyword") String keyword, @Param("memberId") Long memberId, Pageable pageable);
 }

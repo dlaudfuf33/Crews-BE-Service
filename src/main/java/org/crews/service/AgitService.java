@@ -12,7 +12,6 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,7 +160,14 @@ public class AgitService {
         }
     }
 
-    public AgitSliceResponse searchAgit(String keyWord, Pageable pageable) {
+    public AgitSliceResponse searchAgit(String keyWord, Long memberId, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByKeywordAndNotJoined(keyWord, memberId, pageable);
+
+
+        return AgitSliceResponse.of(agitSlice);
+    }
+
+    public AgitSliceResponse searchAgitAll(String keyWord, Pageable pageable) {
         Slice<Agit> agitSlice = agitRepository.findByIntroductionLikeAndIsDeletedFalse(keyWord, pageable);
 
         return AgitSliceResponse.of(agitSlice);
