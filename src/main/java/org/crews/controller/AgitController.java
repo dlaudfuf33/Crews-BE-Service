@@ -63,7 +63,7 @@ public class AgitController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<AgitSliceResponse> searchAgits(@RequestParam String keyWord, @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, HttpServletRequest request){
+    public ResponseEntity<AgitSliceResponse> searchAgits(@RequestParam String keyWord, @PageableDefault( size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, HttpServletRequest request){
         if(request.getHeader("Authorization") == null) {
             return ResponseEntity.status(HttpStatus.OK).body(agitService.searchAgitAll("%" + keyWord + "%", pageable));
         }

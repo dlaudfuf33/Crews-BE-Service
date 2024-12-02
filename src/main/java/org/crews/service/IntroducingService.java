@@ -20,10 +20,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class IntroducingService {
-    private final IntroducingRepository introducingRepository;
     private final AgitRepository agitRepository;
-    private final MemberRepository memberRepository;
-    private final MemberShipRepository memberShipRepository;
     private final CheckExceptionUtil checkExceptionUtil;
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;
