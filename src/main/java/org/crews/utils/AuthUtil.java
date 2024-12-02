@@ -23,8 +23,17 @@ public class AuthUtil {
     }
 
     public Long getMemberId(HttpServletRequest request) {
-        return jwtUtil.getMemberId(request.getHeader("Authorization").substring(7));
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null ) return null;
+
+        try {
+            String token = authorizationHeader.substring(7);
+            return jwtUtil.getMemberId(token);
+        } catch (Exception e) {
+            return null;
+        }
     }
+
 
     public static String generateRandomPassword(int length) {
         SecureRandom random = new SecureRandom();
