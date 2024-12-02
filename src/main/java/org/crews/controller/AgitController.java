@@ -3,15 +3,15 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.AgitRegisterRequest;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
-import org.crews.model.constants.MemberRole;
 import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.crews.dto.request.AgitInfoRequest;
+import org.crews.model.constants.AgitRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +44,8 @@ public class AgitController {
     }
 
     @GetMapping("/{agits-id}/role")
-    public ResponseEntity<MemberRole> getMemberRole(@PathVariable("agits-id") Long agitId,
-                                                    HttpServletRequest request) {
+    public ResponseEntity<AgitRole> getMemberRole(@PathVariable("agits-id") Long agitId,
+                                                  HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(agitService.getMemberRole(agitId, memberId));
     }
@@ -57,7 +57,7 @@ public class AgitController {
     }
 
     @PostMapping("/registrations")
-    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitRegisterRequest agitRegisterRequest){
+    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest){
         return agitService.agitRestration(agitRegisterRequest);
     }
 
@@ -70,5 +70,19 @@ public class AgitController {
         Long memberId = authUtil.getMemberId(request);
 
         return ResponseEntity.status(HttpStatus.OK).body(agitService.searchAgit("%" + keyWord + "%", memberId, pageable));
+    }
+
+    @GetMapping("/{agits-id}/manage")
+    public ResponseEntity<AgitManageResponse> agitManage(@PathVariable("agits-id") Long agitId, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        AgitRole agitRole = agitService.getAgitRole(agitId, memberId);
+
+        if(agitRole.equals(AgitRole.TEMP)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(AgitManageResponse.builder().message("접근 권한이 없습니다.").build());
+        }
+
+        AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, agitRole);
+
+        return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
     }
 }

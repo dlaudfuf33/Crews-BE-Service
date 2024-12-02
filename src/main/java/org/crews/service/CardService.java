@@ -11,7 +11,7 @@ import org.crews.dto.request.CardRemoveRequest;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.springframework.stereotype.Service;
@@ -48,7 +48,7 @@ public class CardService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
-        if(membership.getRole().equals(MemberRole.MEMBER)){
+        if(membership.getAgitRole().equals(AgitRole.MEMBER)){
             throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
         }
         List<Card> cardList = cardRepository.findByAccountAndMemberAndIsDeletedFalse(account, member);
@@ -84,7 +84,7 @@ public class CardService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new IllegalStateException("해당하는 아지트의 멤버가 아닙니다.")
         );
-        if(membership.getRole().equals(MemberRole.MEMBER)){
+        if(membership.getAgitRole().equals(AgitRole.MEMBER)){
             throw new IllegalStateException("모임장이나 공동모임장만 카드를 해지 할 수 있습니다.");
         }
         CoreCardRemoveRequest coreCardRemoveRequest = CoreCardRemoveRequest.builder().ci(member.getCi())
