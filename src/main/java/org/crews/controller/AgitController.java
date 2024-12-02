@@ -9,9 +9,7 @@ import org.crews.dto.request.AgitRequest;
 import org.crews.model.constants.MemberRole;
 import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -66,13 +64,10 @@ public class AgitController {
     @GetMapping("/search")
     public ResponseEntity<AgitSliceResponse> searchAgits(@RequestParam String keyWord, @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, HttpServletRequest request){
         if(request.getHeader("Authorization") == null) {
-            log.info("여기가 찍히나?");
             return ResponseEntity.status(HttpStatus.OK).body(agitService.searchAgitAll("%" + keyWord + "%", pageable));
         }
 
         Long memberId = authUtil.getMemberId(request);
-        log.info("여기 찍히나?");
-        log.info(String.valueOf(memberId));
 
         return ResponseEntity.status(HttpStatus.OK).body(agitService.searchAgit("%" + keyWord + "%", memberId, pageable));
     }
