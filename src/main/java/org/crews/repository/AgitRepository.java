@@ -31,7 +31,7 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "AND (:memberId IS NULL OR a.address.id = (SELECT m.address.id FROM Member m WHERE m.id = :memberId)) " +
             "AND (:memberId IS NULL OR a NOT IN (SELECT m.agit FROM Membership m WHERE m.member.id = :memberId)) " +
             "ORDER BY a.createdAt DESC")
-    List<Agit> findNewAgitsForMember(@Param("memberId") Long memberId);
+    List<Agit> findNewAgits(@Param("memberId") Long memberId);
 
     @Query("SELECT DISTINCT a FROM Agit a " +
             "JOIN FETCH a.introducing " +
@@ -42,7 +42,7 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "AND (:memberId IS NULL OR a.address.id = (SELECT m.address.id FROM Member m WHERE m.id = :memberId)) " +
             "AND (:memberId IS NULL OR a NOT IN (SELECT m.agit FROM Membership m WHERE m.member.id = :memberId)) " +
             "ORDER BY a.currentPerson DESC")
-    List<Agit> findRecruitAgitsForMember(@Param("memberId") Long memberId);
+    List<Agit> findRecruitAgits(@Param("memberId") Long memberId);
 
 
 

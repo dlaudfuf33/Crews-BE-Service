@@ -169,11 +169,11 @@ public class AgitService {
     public AgitSortResponse getHomeAgits(Optional<Long> memberId){
         Long memberIdOptional = memberId.orElse(null);
 
-        List<Agit> newAgitList = agitRepository.findNewAgitsForMember(memberIdOptional);
+        List<Agit> newAgitList = agitRepository.findNewAgits(memberIdOptional);
         List<AgitResponse> newAgitResponses = newAgitList.stream()
                 .map(AgitResponse::from).limit(3).toList();
 
-        List<Agit> recruitAgitList = agitRepository.findRecruitAgitsForMember(memberIdOptional);
+        List<Agit> recruitAgitList = agitRepository.findRecruitAgits(memberIdOptional);
         List<AgitResponse> recruitAgitResponses = recruitAgitList.stream()
                 .map(AgitResponse::from).limit(3).toList();
 
