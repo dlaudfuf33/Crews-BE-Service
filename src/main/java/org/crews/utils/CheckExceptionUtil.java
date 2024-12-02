@@ -34,12 +34,14 @@ public class CheckExceptionUtil {
         return new AgitVaildationResponse(agit, member, membership);
     }
 
-    public AgitVaildationResponse checkFeedException(Long memberId, Long feedId) {
+    public AgitVaildationResponse checkFeedException(Long memberId,Long agitId, Long feedId) {
 
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         Agit agit = feed.getAgit();
-
+        if(agit.getId()!=agitId){
+            throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
+        }
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 

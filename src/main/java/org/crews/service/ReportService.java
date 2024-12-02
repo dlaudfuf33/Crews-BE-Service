@@ -24,16 +24,17 @@ public class ReportService {
     private final CheckExceptionUtil checkExceptionUtil;
 
     @Transactional
-    public ReportResponse reportFeed(Long memberId, Long feedId, ReportRequest reportRequest){
+    public ReportResponse reportFeed(Long memberId, Long feedId, Long agitId, ReportRequest reportRequest){
 
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkFeedException(memberId, feedId);
+        AgitVaildationResponse checkedResult = checkExceptionUtil.checkFeedException(memberId,agitId, feedId);
+
         Feed feed = checkedResult.getFeed();
         Member member = checkedResult.getMember();
 
         if(feed.isDeleted()){
             throw new CustomException(ErrorCode.DELETED_FEED);
         }
-        if (reportRepository.existsByFeedAndMember(checkedResult.getFeed(), checkedResult.getMember())) {
+        if (reportRepository.existsByFeedAndMember(feed, member)) {
             throw new CustomException(ErrorCode.ALREADY_REPORTED_FEED);
         }
         Report report = Report.of(reportRequest, feed, member);

@@ -65,7 +65,7 @@ public class FeedController {
             @PathVariable("feed-id") Long feedId,
             HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(feedService.deleteFeed(memberId,feedId));
+        return ResponseEntity.ok().body(feedService.deleteFeed(memberId,agitId,feedId));
     }
 
     @PostMapping("/{feed-id}/heart")

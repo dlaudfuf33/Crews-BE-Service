@@ -30,6 +30,7 @@ public class FeedService {
     private final HeartRepository heartRepository;
     private final CheckExceptionUtil checkExceptionUtil;
 
+    @Transactional
     public FeedSliceResponse getAllFeeds(Long memberId, Long agitId, int page) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
@@ -37,6 +38,7 @@ public class FeedService {
         return FeedSliceResponse.of(checkedResult.getMember(), feeds);
     }
 
+    @Transactional
     public FeedResponse getFeed(Long memberId, Long agitId, Long feedId) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
@@ -55,6 +57,7 @@ public class FeedService {
         return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
     }
 
+    @Transactional
     public FeedResponse editFeed(Long memberId, Long agitId, Long feedId, FeedRequest feedRequest) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Feed feed = feedRepository.findById(feedId).orElseThrow(
@@ -67,11 +70,14 @@ public class FeedService {
         return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
     }
 
-    public ResponseEntity<String> deleteFeed(Long memberId,  Long feedId){
+    @Transactional
+    public ResponseEntity<String> deleteFeed(Long memberId, Long agitId, Long feedId){
 
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-
+        if(feed.getAgit().getId()!=agitId){
+            throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
+        }
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
 
         if(!feed.getMember().getId().equals(memberId)){
@@ -84,12 +90,13 @@ public class FeedService {
         return ResponseEntity.ok("기록을 삭제하였습니다.");
     }
 
+    @Transactional
     public String toggleHeartFeed(Long memberId, Long agitId, Long feedId){
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Feed feed = feedRepository.findById(feedId).orElseThrow(()->new CustomException(ErrorCode.FEED_NOT_FOUND));
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
 
-        Optional<Heart>existingHeart= heartRepository.findByFeedIdAndMemberId(feedId,memberId);
+        Optional<Heart>existingHeart= heartRepository.findByFeedAndMember(feed,checkedResult.getMember());
         if(existingHeart.isPresent()){
             heartRepository.delete(existingHeart.get());
             feed.setLikeCount(feed.getLikeCount()-1);
