@@ -37,9 +37,11 @@ public class AgitController {
 
     @GetMapping("/{agits-id}/dues")
     public ResponseEntity<DuesAlarmResponse> getDuesAlarm(@PathVariable("agits-id") Long agitId,
+                                                          @RequestParam Integer year,
+                                                          @RequestParam Integer month,
                                                           HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId));
+        return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId, year, month));
     }
 
     @GetMapping("/{agits-id}/role")

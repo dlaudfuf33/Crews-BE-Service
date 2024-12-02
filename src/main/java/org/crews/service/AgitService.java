@@ -77,7 +77,7 @@ public class AgitService {
 
     }
 
-    public DuesAlarmResponse getDuesAlarm(Long agitId, Long memberId) {
+    public DuesAlarmResponse getDuesAlarm(Long agitId, Long memberId, Integer year, Integer month) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -92,8 +92,8 @@ public class AgitService {
         CommonDues commonDues = optionalCommonDues.get();
         List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
                 .stream().filter(
-                        content -> content.getDueDate().getMonth().equals(LocalDate.now().getMonth())
-                                && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+                        content -> content.getDueDate().getMonthValue() == month
+                                && (content.getDueDate().getYear() == year))
                 .toList();
         if(duesList.isEmpty()){
             return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount()).dueDay(commonDues.getDueDay()).build();

@@ -31,7 +31,7 @@ public class CommonService {
     private final DuesRepository duesRepository;
 
     @Transactional
-    public AccountV2Response getAllAccounts(Long memberId) {
+    public AccountV2Response getAllAccounts(Long memberId, Integer year, Integer month) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -42,7 +42,7 @@ public class CommonService {
             for (Agit agit : agitList) {
                 if (agit.getAgitAndAccount() == null)
                     continue;
-                DuesAlarmResponse duesAlarm = agitService.getDuesAlarm(agit.getId(), memberId);
+                DuesAlarmResponse duesAlarm = agitService.getDuesAlarm(agit.getId(), memberId, year, month);
                 accountV2CrewResponses.add(AccountV2CrewResponse.of(agit, duesAlarm.getDueAmount()));
             }
         }

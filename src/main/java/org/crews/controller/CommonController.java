@@ -21,9 +21,11 @@ public class CommonController {
     private final AuthUtil authUtil;
 
     @GetMapping("/accounts")
-    public ResponseEntity<AccountV2Response> getAccountV2(HttpServletRequest request){
+    public ResponseEntity<AccountV2Response> getAccountV2(HttpServletRequest request,
+                                                          @RequestParam Integer year,
+                                                          @RequestParam Integer month){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(commonService.getAllAccounts(memberId));
+        return ResponseEntity.ok().body(commonService.getAllAccounts(memberId, year, month));
     }
 
     @GetMapping("/accounts/history")

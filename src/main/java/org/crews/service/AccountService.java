@@ -220,7 +220,7 @@ public class AccountService {
         );
         String fintechNum = account.getFintecNumber();
         TransferRequest transferRequest = TransferRequest.builder().finUseNum(fintechNum).recvAccountNum(accountTransferRequest.getRecvAccountNumber())
-                .amt(accountTransferRequest.getAmount()).description(member.getName()).build();
+                .amt(accountTransferRequest.getAmount()).description(AESUtil.decrypt(member.getName())).build();
         ApiResponse<TransferResponse> transfer = coreService.transfer(transferRequest);
         BalanceInfoRequest balanceInfoRequest = BalanceInfoRequest.builder().fintecUseNum(account.getFintecNumber()).recvFintecUseNum(recvAccount.getFintecNumber()).build();
         BalanceInfoResponse response = coreService.getBalanceInfo(balanceInfoRequest);
