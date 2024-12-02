@@ -13,6 +13,7 @@ import org.crews.service.MemberService;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthUtil authUtil;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody MemberRequest memberRequest) {
@@ -80,7 +82,6 @@ public class MemberController {
         // Return JSON response
         return ResponseEntity.ok(new ReissueResponse("재발행이 성공하였습니다."));
     }
-
 
 
     @GetMapping("/signup/validate-email")
@@ -200,21 +201,53 @@ public class MemberController {
         try {
             memberService.deleteMyAccounts(memberId, cardDeleteRequest);
             return ResponseEntity.noContent().build();
-        }  catch (CustomException e) {
+        } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/me/agits-account-info")
-    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request){
+    @GetMapping("/me/core-accounts")
+    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
     }
 
+    @PostMapping("/me/core-accounts")
+    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.attachAccount(memberId, attachAccountRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/agits-accounts")
+    public ResponseEntity<AgitAccountInfoListResponse> getAgitsAccountsInfo(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.getAgitsAccountsInfo(memberId));
+    }
+
+
+    @GetMapping("/me/account-withdraws")
+    public ResponseEntity<List<WithdrawResponse>> getMyAccountWithdrawHisotry(
+            HttpServletRequest request,
+            @RequestParam Long crewAccountId,
+            @RequestParam Long myAccountId) {
+        Long memberId = authUtil.getMemberId(request);
+        List<WithdrawResponse> withdrawResponse =
+                memberService.getwithdraws(memberId, myAccountId, crewAccountId);
+        return ResponseEntity.ok(withdrawResponse);
+    }
+
+    @PostMapping("/me/fees/payment")
+    public ResponseEntity<TransferMsgResponse> paymentFee(HttpServletRequest request,
+                                                          @RequestBody PaymentRequest paymentRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.paymentFee(memberId, paymentRequest));
+    }
+
     @PostMapping("/find-id")
-    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest) {
         return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
     }
 
@@ -223,12 +256,7 @@ public class MemberController {
         memberService.findMemberPw(findMemberPwRequest);
         return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
     }
-    @PostMapping("/me/agits-account-info")
-    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest,HttpServletRequest request){
-        Long memberId = authUtil.getMemberId(request);
-        memberService.attachAccount(memberId,attachAccountRequest);
-        return ResponseEntity.noContent().build();
-    }
+
 
     @PostMapping("/verify-number")
     public ResponseEntity<String> getVerifyNumber(@RequestBody VerifyPhoneRequest verifyPhoneRequest) {

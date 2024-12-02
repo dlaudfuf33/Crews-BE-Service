@@ -2,8 +2,8 @@ package org.crews.repository;
 
 import org.crews.model.Agit;
 import org.crews.model.Member;
-import org.crews.model.constants.MemberRole;
 import org.crews.model.Membership;
+import org.crews.model.constants.MemberRole;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,4 +36,28 @@ public interface MemberShipRepository extends JpaRepository<Membership, Long> {
     List<Membership> findMembershipsWithAgitDetailsByMemberId(@Param("memberid") Long memberId);
 
 
+    @Query("""
+                SELECT m
+                FROM Membership m
+                LEFT JOIN FETCH m.agit a
+                LEFT JOIN FETCH a.agitAndAccount aa
+                LEFT JOIN FETCH aa.account acc
+                LEFT JOIN FETCH acc.bank bank
+                LEFT JOIN FETCH a.commonDues cd
+                WHERE m.member.id = :memberId
+            """)
+    List<Membership> findMembershipsWithDetailsByMemberId(Long memberId);
+
+    @Query("""
+    SELECT m
+    FROM Membership m
+    LEFT JOIN FETCH m.member
+    LEFT JOIN FETCH m.agit a
+    LEFT JOIN FETCH a.agitAndAccount aa
+    LEFT JOIN FETCH aa.account acc
+    LEFT JOIN FETCH acc.bank
+    WHERE m.member.id = :memberId AND m.agit.id = :agitId
+""")
+    Optional<Membership> findByMemberIdAndAgitId(@Param("memberId") Long memberId, @Param("agitId") Long agitId);
 }
+

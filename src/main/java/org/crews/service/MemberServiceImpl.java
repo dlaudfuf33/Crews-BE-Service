@@ -11,6 +11,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
+import org.crews.model.constants.AccountType;
 import org.crews.repository.*;
 import org.crews.utils.*;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,9 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,9 @@ public class MemberServiceImpl implements MemberService {
     private final CardRepository cardRepository;
     private final AuthUtil authUtil;
     private final MessageRepository messageRepository;
+    private final DuesRepository duesRepository;
+    private final AgitRepository agitRepository;
+    private final AgitAndAccountRepository agitAndAccountRepository;
 
 
     @Override
@@ -72,36 +78,22 @@ public class MemberServiceImpl implements MemberService {
             // 렌덤 닉네임 설정
             member.setNickName(NicknameUtills.generateRandomNickname());
             // 주소 처리
-            Address address = addressService.findOrCreateAddress(
-                    memberRequest.getAddressDo(),
-                    memberRequest.getAddressSi(),
-                    memberRequest.getAddressGuGun(),
-                    memberRequest.getAddressDong()
-            );
+            Address address = addressService.findOrCreateAddress(memberRequest.getAddressDo(), memberRequest.getAddressSi(), memberRequest.getAddressGuGun(), memberRequest.getAddressDong());
             member.setAddress(address);
             // 핀 번호 설정
             member.setPinNumber("000000");
             // 회원 저장
             Member savedMember = memberRepository.save(member);
             // 회원 관심사 설정 (기본 값)
-            memberAndInterestingRepository.save(MemberAndInteresting.builder()
-                    .member(savedMember)
-                    .interesting(interestingRepository.findById(1L).orElseThrow())
-                    .build());
+            memberAndInterestingRepository.save(MemberAndInteresting.builder().member(savedMember).interesting(interestingRepository.findById(1L).orElseThrow()).build());
 
 
-            CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName())
-                    .email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
+            CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName()).email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<AccountIssuedResponse> stringMono = coreService.sendCICode(ciRequest);
             AccountIssuedResponse response = stringMono.block();
-            if (response == null)
-                throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
-            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
-                    () -> new CustomException(ErrorCode.WRONG_BANKCODE)
-            );
-            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber()))
-                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
-                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
+            if (response == null) throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
+            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_BANKCODE));
+            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber())).accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             return MemberResponse.from(savedMember);
 
@@ -191,30 +183,18 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MyProfileResponse getMyProfile(Long memberId) {
-        return MyProfileResponse.from(
-                memberRepository
-                        .findByIdWithInterestings(memberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
+        return MyProfileResponse.from(memberRepository.findByIdWithInterestings(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
 
     }
 
     @Override
     public MyinfoResponse getMyinfo(Long memberId) {
-        return MyinfoResponse.from(
-                memberRepository
-                        .findByIdWithAddresses(memberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
+        return MyinfoResponse.from(memberRepository.findByIdWithAddresses(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     @Override
     public List<InterestResponse> getMyInterests(Long memberId) {
-        return memberRepository
-                .findByIdWithInterestings(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND))
-                .getMemberAndInterestings().stream()
-                .map(MemberAndInteresting::getInteresting)
-                .map(InterestResponse::from)
-                .toList();
+        return memberRepository.findByIdWithInterestings(memberId).orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND)).getMemberAndInterestings().stream().map(MemberAndInteresting::getInteresting).map(InterestResponse::from).toList();
     }
 
     @Override
@@ -224,9 +204,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MyNicknameResponse getMyNickname(Long memberId) {
-        return MyNicknameResponse.from(memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND))
-        );
+        return MyNicknameResponse.from(memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     @Override
@@ -235,8 +213,7 @@ public class MemberServiceImpl implements MemberService {
         if (NicknameUtills.validationNickname(myNicknameRequest.getNickname())) {
             throw new CustomException(ErrorCode.INVALID_NICKNAME);
         }
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         member.setNickName(myNicknameRequest.getNickname());
         Member savedMember = memberRepository.saveAndFlush(member);
@@ -248,15 +225,13 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void updateMyInterestings(Long memberId, InterestsUpdateRequest interestsUpdateRequest) {
         StringBuilder interestsBuilder = new StringBuilder();
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member foundMember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         memberAndInterestingRepository.deleteByMemberIdCustom(memberId);
 
         interestsUpdateRequest.getInterests().forEach(item -> {
             MemberAndInteresting memberAndInteresting = new MemberAndInteresting();
             memberAndInteresting.setMember(foundMember);
-            memberAndInteresting.setInteresting(interestingRepository.findById(item.getInterestId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND)));
+            memberAndInteresting.setInteresting(interestingRepository.findById(item.getInterestId()).orElseThrow(() -> new CustomException(ErrorCode.INTERESTS_NOT_FOUND)));
             memberAndInterestingRepository.save(memberAndInteresting);
             if (!interestsBuilder.isEmpty()) {
                 interestsBuilder.append(", ");
@@ -268,24 +243,16 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public AddressResponse getMyAddresses(Long memberId) {
-        return AddressResponse.from(memberRepository.findByWithAddress(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
-        ).getAddress());
+        return AddressResponse.from(memberRepository.findByWithAddress(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)).getAddress());
     }
 
     @Override
     @Transactional
     public void updateMyAddresses(Long memberId, AddressRequest addressRequest) {
-        Member member = memberRepository.findByWithAddress(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findByWithAddress(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         String oldAddress = member.getAddress() != null ? member.getAddress().getUniqueAddressKey() : "없음";
 
-        member.setAddress(addressService.findOrCreateAddress(
-                addressRequest.getDoName(),
-                addressRequest.getSiName(),
-                addressRequest.getGuName(),
-                addressRequest.getDongName()
-        ));
+        member.setAddress(addressService.findOrCreateAddress(addressRequest.getDoName(), addressRequest.getSiName(), addressRequest.getGuName(), addressRequest.getDongName()));
         memberRepository.save(member);
         log.info("회원 '{}'의 주소가 '{}'에서 '{}'으로 변경되었습니다.", member.getId(), oldAddress, member.getAddress().getUniqueAddressKey());
     }
@@ -294,9 +261,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void updatePassword(Long memberId, PasswordUpdateRequest passwordUpdateRequest) {
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
-        );
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         validateOldPassword(member.getPassword(), passwordUpdateRequest.getOldPassword());
 
@@ -310,11 +275,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<AgitResponse> getMyAgits(Long memberId) {
-        List<Agit> as = memberShipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream()
-                .map(Membership::getAgit).toList();
+        List<Agit> as = memberShipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream().map(Membership::getAgit).toList();
 
-        return as.stream().map(AgitResponse::from)
-                .toList();
+        return as.stream().map(AgitResponse::from).toList();
     }
 
     @Override
@@ -326,8 +289,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest) {
         Long cardId = cardDeleteRequest.getCardId();
-        Card foundCard = cardRepository.findByIdAndMemberId(cardId, memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_MATCHED_MEMBER));
+        Card foundCard = cardRepository.findByIdAndMemberId(cardId, memberId).orElseThrow(() -> new CustomException(ErrorCode.CARD_NOT_MATCHED_MEMBER));
         maskingCard(foundCard);
         log.info("회원 '{}'가 모임카드'{}'를 해지하였습니다.", memberId, foundCard);
     }
@@ -343,12 +305,7 @@ public class MemberServiceImpl implements MemberService {
             try {
                 List<FintechBalancePairResponse> fintechBalancePairResponseList = coreService.balanceLoad(balanceRequest);
 
-                Map<String, BigDecimal> balanceMap = fintechBalancePairResponseList.stream()
-                        .collect(Collectors.toMap(
-                                FintechBalancePairResponse::getFintechNumber,
-                                FintechBalancePairResponse::getBalance,
-                                (existing, replacement) -> replacement
-                        ));
+                Map<String, BigDecimal> balanceMap = fintechBalancePairResponseList.stream().collect(Collectors.toMap(FintechBalancePairResponse::getFintechNumber, FintechBalancePairResponse::getBalance, (existing, replacement) -> replacement));
 
                 personalAccounts.forEach(account -> {
                     BigDecimal updatedBalance = balanceMap.get(account.getFintecNumber());
@@ -361,16 +318,13 @@ public class MemberServiceImpl implements MemberService {
             }
         }
         log.info("회원 '{}'가 등록된 본인계좌 조회 하였습니다.", memberId);
-        return personalAccounts.stream()
-                .map(AccountsResponse::from)
-                .toList();
+        return personalAccounts.stream().map(AccountsResponse::from).toList();
     }
 
     @Override
     @Transactional
     public void deleteMyAccounts(Long memberId, AccountDeleteRequest accountDeleteRequest) {
-        Account account = accountRepository.findByIdAndMember_Id(accountDeleteRequest.getAccountId(), memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_ID_NOT_FOUND));
+        Account account = accountRepository.findByIdAndMemberId(accountDeleteRequest.getAccountId(), memberId).orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_ID_NOT_FOUND));
 
         if (!account.getCards().isEmpty()) {
             account.getCards().forEach(Card::maskCard);
@@ -384,8 +338,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void attachAccount(Long memberId, AttachAccountRequest attachAccountRequest) {
         try {
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+            Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             FintechNumRequest fintechNumRequest = new FintechNumRequest(member.getCi(), attachAccountRequest.getAccountNumbers());
             List<AttachResponse> attachResponses = coreService.attachAccount(fintechNumRequest);
@@ -394,24 +347,14 @@ public class MemberServiceImpl implements MemberService {
             }
 
             for (AttachResponse attachResponse : attachResponses) {
-                Bank bank = bankRepository.findByBankCode(attachResponse.getBankCode())
-                        .orElseThrow(() -> new CustomException(ErrorCode.BANK_NOT_FOUND));
+                Bank bank = bankRepository.findByBankCode(attachResponse.getBankCode()).orElseThrow(() -> new CustomException(ErrorCode.BANK_NOT_FOUND));
 
                 boolean accountExists = accountRepository.existsByMemberIdAndAccountNumber(memberId, AESUtil.encrypt(attachResponse.getAccountNumber()));
                 if (accountExists) {
                     throw new CustomException(ErrorCode.ACCOUNT_ALREADY_EXISTS);
                 }
 
-                Account account = Account.builder()
-                        .accountNumber(AESUtil.encrypt(attachResponse.getAccountNumber()))
-                        .maskedAccountNumber(maskedAccountNumber(attachResponse.getAccountNumber()))
-                        .accountType(attachResponse.getAccountType())
-                        .productName(attachResponse.getProductName())
-                        .bank(bank)
-                        .balance(attachResponse.getBalance())
-                        .fintecNumber(attachResponse.getFintechUseNum())
-                        .member(member)
-                        .build();
+                Account account = Account.builder().accountNumber(AESUtil.encrypt(attachResponse.getAccountNumber())).maskedAccountNumber(maskedAccountNumber(attachResponse.getAccountNumber())).accountType(attachResponse.getAccountType()).productName(attachResponse.getProductName()).bank(bank).balance(attachResponse.getBalance()).fintecNumber(attachResponse.getFintechUseNum()).member(member).build();
                 log.info("확인 {}.", account.getFintecNumber());
 
                 accountRepository.save(account);
@@ -431,8 +374,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<AccountResponse> getAccountInfoFromCore(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         try {
 
             List<AccountResponse> coreAccounts = coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
@@ -443,21 +385,17 @@ public class MemberServiceImpl implements MemberService {
             }
 
             List<Account> existingAccounts = accountRepository.findAccountsByMemberId(memberId);
-            Set<String> existingAccountNumbers = existingAccounts.stream()
-                    .map(Account::getAccountNumber)
-                    .collect(Collectors.toSet());
+            Set<String> existingAccountNumbers = existingAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
 
-            List<AccountResponse> newAccounts = coreAccounts.stream()
-                    .filter(accountResponse -> {
-                        boolean isNew = !existingAccountNumbers.contains(AESUtil.encrypt(accountResponse.getAccountNumber()));
-                        if (!isNew) {
-                            log.info("이미 등록된 계좌 제외: '{}'", accountResponse.getAccountNumber());
-                        }
-                        return isNew;
-                    })
-                    .toList();
-            log.info("회원 '{}'에 대한 등록되지않은 계좌 수: '{}'", memberId, newAccounts.size());
+            List<AccountResponse> newAccounts = coreAccounts.stream().filter(accountResponse -> accountResponse.getAccountType() == AccountType.PERSONAL).filter(accountResponse -> {
+                boolean isNew = !existingAccountNumbers.contains(AESUtil.encrypt(accountResponse.getAccountNumber()));
+                if (!isNew) {
+                    log.info("이미 등록된 계좌 제외: '{}'", accountResponse.getAccountNumber());
+                }
+                return isNew;
+            }).toList();
 
+            log.info("회원 '{}'에 대한 PERSONAL 타입 계좌 중 신규 계좌의 수: '{}'", memberId, newAccounts.size());
             return newAccounts;
         } catch (Exception e) {
             log.warn("Core 서비스에서 계좌정보 조회를 실패했습니다. {}", e.getMessage());
@@ -465,24 +403,85 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
-    private String maskedAccountNumber(String accountNumber) {
-        String maskingResult = "";
-
-        if (accountNumber.length() >= 7) {
-            maskingResult = accountNumber.replaceAll("(?<=.{4}).(?=.{2})", "*");
-        } else {
-            maskingResult = accountNumber;
+    public AgitAccountInfoListResponse getAgitsAccountsInfo(Long memberId) {
+        List<Membership> memberships = memberShipRepository.findMembershipsWithDetailsByMemberId(memberId);
+        if (memberships.isEmpty()) {
+            throw new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND);
         }
 
-        return maskingResult;
+        List<AgitAccountInfoResponse> agitAccountInfoResponses = memberships.stream().filter(membership -> {
+            boolean valid = membership.getAgit() != null && membership.getAgit().getAgitAndAccount() != null && membership.getAgit().getAgitAndAccount().getAccount() != null;
+
+            if (!valid) {
+                logInvalidMembership(membership);
+            }
+            return valid;
+        }).map(this::mapToAgitAccountInfoResponse).toList();
+
+        AgitAccountInfoListResponse response = new AgitAccountInfoListResponse();
+        response.setCrewAccounts(agitAccountInfoResponses);
+
+        return response;
     }
+
+    @Override
+    public List<WithdrawResponse> getwithdraws(Long memberId, Long myAccountId, Long crewAccountId) {
+        Account myAccount = accountRepository.findByIdAndMemberId(myAccountId, memberId).orElseThrow(() -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
+
+        Account agitAccount = accountRepository.findById(crewAccountId).orElseThrow(() -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND));
+
+        String decryptedAgitAccountNumber = AESUtil.decrypt(agitAccount.getAccountNumber());
+        TransactionDetailResponse transactionDetailResponse = coreService.getWithdrawHistory(WithdrawTransactionRequest.from(myAccount));
+        log.info("Transaction :: Response: {}", transactionDetailResponse);
+
+
+        return transactionDetailResponse.getTranList().stream().filter(tx -> decryptedAgitAccountNumber.equals(tx.getCounterpartyAccountNum())).map(tx -> new WithdrawResponse(tx.getTransactionTime(), agitAccount.getAgitAndAccount().getAgit().getAgitName(), tx.getCounterpartyBankCode(), tx.getCounterpartyAccountNum(), tx.getTranAmount())).toList();
+    }
+
+    @Override
+    @Transactional
+    public TransferMsgResponse paymentFee(Long memberId, PaymentRequest paymentRequest) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        validateOldPassword(member.getPinNumber(), paymentRequest.getPinNumber());
+        Account myAccount = accountRepository.findByIdAndMemberId(paymentRequest.getMyAccountId(), memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED, "my"));
+        Account agitAccount = accountRepository.findById(paymentRequest.getCrewAccountId()).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED, "crew"));
+
+        Agit agit = agitRepository.findByIdWithCommonDues(paymentRequest.getAgitId()).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
+        Membership membership = memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId()).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+        log.warn("{}", paymentRequest.getAmount());
+        TransferResponse transferResponse =
+                coreService.transferFee(
+                        TransferRequest.builder().
+                                finUseNum(myAccount.getFintecNumber())
+                                .recvAccountNum(AESUtil.decrypt(agitAccount.getAccountNumber()))
+                                .amt(paymentRequest.getAmount())
+                                .build()).getData();
+
+        duesRepository.save(Dues.builder()
+                .dueAmount(transferResponse.getAmount())
+                .productName(myAccount.getProductName())
+                .accountNumber(myAccount.getAccountNumber())
+                .agitName(agit.getAgitName())
+                .membership(membership)
+                .isPayed(true)
+                .dueDate(LocalDateTime.now())
+                .commonDues(agit.getCommonDues())
+                .build());
+
+        return TransferMsgResponse.builder().message(transferResponse.getAmount() + "원 이체 성공하였습니다!").build();
+    }
+
 
     @Override
     public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
 
-        Member member = memberRepository.findByNameAndPhoneNumber(AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber()))
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findByNameAndPhoneNumber(AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber())).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return FindMemberIdResponse.from(member);
     }
@@ -490,8 +489,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
-        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber())).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         String temporary = authUtil.generateRandomPassword(10);
         member.setPassword(bCryptPasswordEncoder.encode(temporary));
 
@@ -503,8 +501,7 @@ public class MemberServiceImpl implements MemberService {
     public void getVerifyNumber(VerifyPhoneRequest verifyPhoneRequest) {
         String verifyNumber = authUtil.verifyRandomNumber();
 
-        Message message = messageRepository.findByPhoneNumber(verifyPhoneRequest.getPhoneNumber())
-                .orElse(new Message());
+        Message message = messageRepository.findByPhoneNumber(verifyPhoneRequest.getPhoneNumber()).orElse(new Message());
         message.setPhoneNumber(verifyPhoneRequest.getPhoneNumber());
         message.setVerifyNumber(verifyNumber);
 
@@ -516,8 +513,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void verifyNumberCheck(VerifyNumberRequest verifyNumberRequest) {
-        Message message = messageRepository.findByPhoneNumber(verifyNumberRequest.getPhoneNumber())
-                .orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
+        Message message = messageRepository.findByPhoneNumber(verifyNumberRequest.getPhoneNumber()).orElseThrow(() -> new CustomException(ErrorCode.MESSAGE_NOT_FOUND));
 
         if (Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
             throw new CustomException(ErrorCode.VERIFY_NUMBER_EXPIRED);
@@ -532,9 +528,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void deleteVerifyMessages() {
         List<Message> messages = messageRepository.findAll();
-        List<Message> expiredMessages = messages.stream()
-                .filter(message -> Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3)
-                .toList();
+        List<Message> expiredMessages = messages.stream().filter(message -> Duration.between(message.getUpdatedAt(), LocalDateTime.now()).toMinutes() > 3).toList();
 
         if (!expiredMessages.isEmpty()) messageRepository.deleteAll(expiredMessages);
     }
@@ -555,6 +549,108 @@ public class MemberServiceImpl implements MemberService {
     private void maskingCard(Card card) {
         card.maskCard();
     }
+
+    private String maskedAccountNumber(String accountNumber) {
+        String maskingResult = "";
+
+        if (accountNumber.length() >= 7) {
+            maskingResult = accountNumber.replaceAll("(?<=.{4}).(?=.{2})", "*");
+        } else {
+            maskingResult = accountNumber;
+        }
+
+        return maskingResult;
+    }
+
+    private void logInvalidMembership(Membership membership) {
+        if (membership.getAgit() == null) {
+            log.info("Membership ID {}에 연결된 Agit이 없습니다.", membership.getId());
+        } else if (membership.getAgit().getAgitAndAccount() == null) {
+            log.info("Agit ID {}에 연결된 AgitAndAccount가 없습니다.", membership.getAgit().getId());
+        } else if (membership.getAgit().getAgitAndAccount().getAccount() == null) {
+            log.info("AgitAndAccount ID {}에 연결된 Account가 없습니다.", membership.getAgit().getAgitAndAccount().getId());
+        }
+    }
+
+    private AgitAccountInfoResponse mapToAgitAccountInfoResponse(Membership membership) {
+        Agit agit = membership.getAgit();
+        AgitAndAccount agitAndAccount = agit.getAgitAndAccount();
+        Account account = agitAndAccount.getAccount();
+        Bank bank = account.getBank();
+        CommonDues commonDues = agit.getCommonDues();
+
+        BigDecimal amount = commonDues != null ? commonDues.getDueAmount() : BigDecimal.ZERO;
+
+        // 특정 기간 동안의 납부 내역만 고려하여 paidAmount 계산
+        BigDecimal paidAmount = calculatePaidAmount(membership, commonDues);
+
+        // remainingAmount 계산
+        BigDecimal remainingAmount = amount.subtract(paidAmount);
+        if (remainingAmount.compareTo(BigDecimal.ZERO) < 0) {
+            remainingAmount = BigDecimal.ZERO;
+        }
+
+        // remainingAmount가 0이면 납부 완료로 표시
+        boolean isPaid = remainingAmount.compareTo(BigDecimal.ZERO) == 0;
+
+        return new AgitAccountInfoResponse(
+                agit.getId(),
+                agit.getAgitName(),
+                account.getId(),
+                bank != null ? bank.getBankImage() : "",
+                account.getProductName(),
+                AESUtil.decrypt(account.getAccountNumber()),
+                commonDues != null ? commonDues.getDueDay() : 0,
+                amount,
+                remainingAmount,
+                isPaid
+        );
+    }
+
+    private BigDecimal calculatePaidAmount(Membership membership, CommonDues commonDues) {
+        if (commonDues == null) {
+            return BigDecimal.ZERO;
+        }
+
+        int dueDay = commonDues.getDueDay();
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        LocalDateTime now = LocalDateTime.now();
+        if (now.getDayOfMonth() <= dueDay) {
+            // 현재 날짜가 1일부터 dueDay일 사이인 경우: 이전 달의 dueDay부터 이번 달의 dueDay까지
+            YearMonth previousMonth = YearMonth.now().minusMonths(1);
+            startDate = calculateStartDate(previousMonth, dueDay);
+            endDate = calculateEndDate(YearMonth.now(), dueDay);
+        } else {
+            // 현재 날짜가 dueDay 이후인 경우: 이번 달의 dueDay부터 다음 달의 dueDay까지
+            YearMonth currentMonth = YearMonth.now();
+            startDate = calculateStartDate(currentMonth, dueDay);
+            endDate = calculateEndDate(currentMonth.plusMonths(1), dueDay);
+        }
+
+        return duesRepository.findByMembershipAndCommonDues(membership, commonDues)
+                .stream()
+                .filter(dues -> {
+                    LocalDateTime dueDate = dues.getDueDate();
+                    return !dueDate.isBefore(startDate) && dueDate.isBefore(endDate);
+                })
+                .map(Dues::getDueAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private LocalDateTime calculateStartDate(YearMonth month, int dueDay) {
+        // 주어진 월의 dueDay 일자 (예: 14일) 또는 해당 월의 마지막 일자를 반환합니다.
+        int dayOfMonth = Math.min(dueDay, month.lengthOfMonth());
+        return month.atDay(dayOfMonth).atStartOfDay();
+    }
+
+    private LocalDateTime calculateEndDate(YearMonth month, int dueDay) {
+        // 주어진 월의 dueDay 다음날 자정 (예: 14일 + 1)을 반환합니다.
+        int dayOfMonth = Math.min(dueDay, month.lengthOfMonth());
+        return month.atDay(dayOfMonth).plusDays(1).atStartOfDay();
+    }
+
 
 }
 

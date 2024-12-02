@@ -60,4 +60,9 @@ public interface MemberService {
 
     void deleteVerifyMessages();
 
+    AgitAccountInfoListResponse getAgitsAccountsInfo(Long memberId);
+
+    List<WithdrawResponse> getwithdraws(Long memberId, Long myAccountId, Long crewAccountId);
+
+    TransferMsgResponse paymentFee(Long memberId, PaymentRequest paymentRequest);
 }

@@ -119,7 +119,7 @@ CREATE TABLE agit
     agit_and_account_id BIGINT,
     common_dues_id      BIGINT,
     address_id          BIGINT,
-    dues_id          BIGINT,
+    dues_id             BIGINT,
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id),
@@ -344,5 +344,16 @@ CREATE TABLE meeting
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
 );
+-- Message 테이블
+CREATE TABLE message
+(
+    id            BIGINT       NOT NULL AUTO_INCREMENT,
+    phone_number  VARCHAR(255) NOT NULL,
+    verify_number VARCHAR(255) NOT NULL,
+    created_at    DATETIME(6),
+    updated_at    DATETIME(6),
+    PRIMARY KEY (id)
+);
+
 
 

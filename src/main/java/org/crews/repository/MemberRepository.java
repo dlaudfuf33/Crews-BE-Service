@@ -1,7 +1,5 @@
 package org.crews.repository;
 
-import org.crews.dto.request.FindMemberRequest;
-import org.crews.dto.response.FindMemberIdResponse;
 import org.crews.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -46,4 +44,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m WHERE m.email = :email AND m.name = :name AND m.phoneNumber = :phoneNumber")
     Optional<Member> findByEmailAndNameAndPhoneNumber(@Param("email") String email, @Param("name") String name, @Param("phoneNumber") String phoneNumber);
+
+    @Query("SELECT DISTINCT m FROM Member m " +
+            "JOIN FETCH m.accounts a " +
+            "WHERE m.id = :id")
+    Optional<Member> findByIdWithAccounts(@Param("id") Long id);
+
 }
