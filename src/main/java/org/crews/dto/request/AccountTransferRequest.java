@@ -26,4 +26,8 @@ public class AccountTransferRequest {
     @NotBlank
     private String pinNumber;
 
+    private Integer year;
+
+    private Integer month;
+
 }

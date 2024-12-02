@@ -19,6 +19,7 @@ import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.DuesCommon;
 import org.crews.utils.MaskedNumber;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,8 @@ public class AccountService {
     private final DuesRepository duesRepository;
     private final AgitAndAccountRepository agitAndAccountRepository;
     private final CoreService coreService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     @Transactional
     public AccountOneResponse accountInfo(Long agitId) {
@@ -198,10 +201,12 @@ public class AccountService {
 
     @Transactional
     public ApiResponse<TransferResponse> transferCrewAccount(Long agitId, Long memberId, AccountTransferRequest accountTransferRequest) {
-
-        Member member = memberRepository.findByIdAndPinNumber(memberId,accountTransferRequest.getPinNumber()).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.PINNUMBER_AND_ID_NOT_MATCH)
         );
+        if(!bCryptPasswordEncoder.matches(accountTransferRequest.getPinNumber(), member.getPinNumber())){
+            throw new CustomException(ErrorCode.VERIFY_PIN_MISMATCH);
+        }
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
