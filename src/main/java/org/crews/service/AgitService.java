@@ -3,19 +3,17 @@ package org.crews.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.AgitRegisterRequest;
+import org.crews.dto.request.AgitInfoRequest;
 import org.crews.dto.request.AgitRequest;
-import org.crews.dto.response.AgitInfoResponse;
-import org.crews.dto.response.AllAgitsInfoResponse;
-import org.crews.dto.response.AgitRegisterResponse;
-import org.crews.dto.response.DuesAlarmResponse;
-import org.crews.dto.response.AgitResponse;
+import org.crews.dto.response.*;
 
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +69,7 @@ public class AgitService {
         Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        Membership membership = Membership.builder().agit(savedAgit).member(member).role(MemberRole.LEADER).joinedAt(
+        Membership membership = Membership.builder().agit(savedAgit).member(member).agitRole(AgitRole.LEADER).joinedAt(
                 LocalDateTime.now()).build();
         memberShipRepository.save(membership);
         return AgitResponse.from(savedAgit);
@@ -110,7 +109,7 @@ public class AgitService {
         }
     }
 
-    public MemberRole getMemberRole(Long agitId, Long memberId) {
+    public AgitRole getMemberRole(Long agitId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -120,7 +119,7 @@ public class AgitService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
-        return membership.getRole();
+        return membership.getAgitRole();
     }
 
     public AllAgitsInfoResponse getAgitsInfo(Long memberId) {
@@ -132,18 +131,18 @@ public class AgitService {
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
     @Transactional
-    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitRegisterRequest agitRegisterRequest) {
+    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest) {
         try {
             Membership membership = Membership.builder()
-                    .agit(Agit.builder().id(agitRegisterRequest.getAgitId()).build())
-                    .member(Member.builder().id(agitRegisterRequest.getMemberId()).build())
-                    .role(MemberRole.TEMP)
+                    .agit(Agit.builder().id(agitInfoRequest.getAgitId()).build())
+                    .member(Member.builder().id(agitInfoRequest.getMemberId()).build())
+                    .agitRole(AgitRole.TEMP)
                     .joinedAt(LocalDateTime.now())
                     .build();
 
             boolean isAlreadyJoined = memberShipRepository.findByMemberAndAgit(
-                    Member.builder().id(agitRegisterRequest.getMemberId()).build(),
-                    Agit.builder().id(agitRegisterRequest.getAgitId()).build()
+                    Member.builder().id(agitInfoRequest.getMemberId()).build(),
+                    Agit.builder().id(agitInfoRequest.getAgitId()).build()
             ).isPresent();
 
             if (isAlreadyJoined) {
@@ -162,4 +161,69 @@ public class AgitService {
         }
     }
 
+    public AgitSliceResponse searchAgit(String keyWord, Long memberId, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByKeywordAndNotJoined(keyWord, memberId, pageable);
+
+
+        return AgitSliceResponse.of(agitSlice);
+    }
+
+    public AgitSliceResponse searchAgitAll(String keyWord, Pageable pageable) {
+        Slice<Agit> agitSlice = agitRepository.findByIntroductionLikeAndIsDeletedFalse(keyWord, pageable);
+
+        return AgitSliceResponse.of(agitSlice);
+    }
+
+    public AgitRole getAgitRole(Long agitId, Long memberId) {
+        Membership membership = memberShipRepository.findByMemberAndAgit(Member.builder().id(memberId).build(), Agit.builder().id(agitId).build()).orElseThrow();
+        return membership.getAgitRole();
+    }
+
+    public AgitManageResponse getAgitMember(Long agitId, AgitRole agitRole) {
+        List<Membership> membershipList = memberShipRepository.findTop3ByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        Long totalMembership = memberShipRepository.countByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+
+        List<Membership> tempMembershipList = memberShipRepository.findTop3ByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        Long totalTempMembership = memberShipRepository.countByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+
+        Iterator<Membership> membershipIterator = membershipList.iterator();
+        Iterator<Membership> tempMembershipIterator = tempMembershipList.iterator();
+        List<AgitManageMemberResponse> memberResponses = new ArrayList<>();
+        List<AgitManageMemberResponse> tempMemberResponses = new ArrayList<>();
+
+        while(membershipIterator.hasNext()) {
+            Membership membership = membershipIterator.next();
+            memberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
+        }
+
+        if(agitRole.equals(AgitRole.LEADER)) {
+            while(tempMembershipIterator.hasNext()) {
+                Membership membership = tempMembershipIterator.next();
+                tempMemberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
+            }
+        }
+
+
+        return AgitManageResponse.builder()
+                .members(memberResponses)
+                .requestedMembers(tempMemberResponses)
+                .currentMember(totalMembership)
+                .requestedMember(totalTempMembership)
+                .message("")
+                .build();
+    }
+
+    public AgitSortResponse getHomeAgits(Optional<Long> memberId){
+        Long memberIdOptional = memberId.orElse(null);
+
+        List<Agit> newAgitList = agitRepository.findNewAgits(memberIdOptional);
+        List<AgitResponse> newAgitResponses = newAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        List<Agit> recruitAgitList = agitRepository.findRecruitAgits(memberIdOptional);
+        List<AgitResponse> recruitAgitResponses = recruitAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        return new AgitSortResponse(recruitAgitResponses, newAgitResponses);
+    }
 }

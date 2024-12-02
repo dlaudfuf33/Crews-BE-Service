@@ -40,6 +40,8 @@ public class MemberRequest {
     @NotBlank(message = "동 주소는 필수 입력 항목입니다.")
     private String addressDong;
 
+    @NotBlank(message = "핀번호는 필수 입력 항목입니다.")
+    private String pinNumber;
 
     private String profileImage;
 
