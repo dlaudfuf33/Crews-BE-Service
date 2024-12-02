@@ -21,10 +21,12 @@ public class DuesController {
 
     @GetMapping
     public ResponseEntity<GetDuesResponse> getDues(@PathVariable("agits-id") Long agitId,
+                                                   @RequestParam Integer year,
+                                                   @RequestParam Integer month,
                                                    HttpServletRequest request){
         String token = request.getHeader("Authorization").substring(7);
         Long memberId = jwtUtil.getMemberId(token);
-        return ResponseEntity.ok().body(duesService.getDues(agitId, memberId));
+        return ResponseEntity.ok().body(duesService.getDues(agitId, memberId, year, month));
     }
 
     @GetMapping("/common")
