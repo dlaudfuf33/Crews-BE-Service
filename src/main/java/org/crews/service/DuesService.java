@@ -2,8 +2,9 @@ package org.crews.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.crews.dto.core.AccountInfoOfDate;
 import org.crews.dto.request.DuesSaveRequest;
-import org.crews.dto.request.TransactionDetailRequest;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -17,13 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,10 @@ public class DuesService {
     private final CoreService coreService;
 
     @Transactional
-    public GetDuesResponse getDues(Long agitId, Long memberId) {
+    public GetDuesResponse getDues(Long agitId, Long memberId, Integer year, Integer month) {
+        LocalDateTime today = LocalDateTime.now();
+        if((today.getMonthValue() < month && today.getYear() == year) || today.getYear() < year)
+            throw new CustomException(ErrorCode.DATE_AFTER_NOW);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -54,51 +57,59 @@ public class DuesService {
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
-        TransactionDetailRequest transactionDetailRequest = TransactionDetailRequest.builder()
-                .ci(member.getCi())
-                .selectPeriod(1)
-                .fintechUseNum(agit.getAgitAndAccount().getAccount().getFintecNumber())
-                .transactionType(TranType.DEPOSIT.toString())
-                .order("DESC")
-                .build();
-        TransactionDetailResponse response = coreService.filteredAccountHistory(transactionDetailRequest);
+        AccountInfoOfDate accountInfoOfDate = AccountInfoOfDate.builder()
+            .ci(ci)
+            .fintechUseNum(agit.getAgitAndAccount().getAccount().getFintecNumber())
+            .tranType(TranType.DEPOSIT)
+            .year(year)
+            .month(month)
+            .build();
+        TransactionDetailResponse response = coreService.DateAccountHistory(accountInfoOfDate);
         List<TransactionHistoryResponse> tranList = response.getTranList();
-        List<TransactionHistoryResponse> filteredList = tranList.stream().filter(list ->
-                list.getTransactionTime().getMonth().equals(LocalDateTime.now().getMonth())
-        ).toList();
         List<Dues> saveDues = new ArrayList<>();
         CommonDues commonDues = agit.getCommonDues();
+        if(commonDues == null)
+            throw new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND);
         List<Dues> duesList = duesRepository.findByCommonDues(commonDues);
-        for (TransactionHistoryResponse dto : filteredList){
+        for (TransactionHistoryResponse dto : tranList){
             Optional<Account> optionalAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(dto.getCounterpartyAccountNum()));
             if(optionalAccount.isEmpty()) {
                 continue;
             }
             Account account = optionalAccount.get();
             Member filterMember = account.getMember();
-            Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(filterMember, agit);
+            Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(filterMember, agit)
+                .filter(ms -> !ms.getCreatedAt()
+					.isAfter(LocalDateTime.of(year, month, getLastDayOfMonth(year, month), 23, 59, 59)));
             if(optionalMembership.isEmpty()) {
                 continue;
             }
-            Optional<Dues> optionalDues = duesList.stream().filter(dues -> dues.getMembership().equals(optionalMembership.get()))
-                    .filter(dues -> dues.getDueDate().equals(dto.getTransactionTime()))
+            Optional<Dues> optionalDues = duesList.stream()
+                .filter(dues -> dues.getMembership().equals(optionalMembership.get()) && dues.getDueDate().equals(dto.getTransactionTime()))
                     .findAny();
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
                         .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
-                        .productName(account.getProductName()).agitName(agit.getAgitName()).build();
+                        .productName(account.getProductName()).agitName(agit.getAgitName()).standardDate(generateStandardDate(year,month,dto.getTransactionTime())).build();
                 saveDues.add(buildDues);
             }
         }
         duesRepository.saveAll(saveDues);
         List<Dues> dues = duesRepository.findByCommonDues(agit.getCommonDues()).stream().filter(content ->
-            content.getDueDate().getMonth().equals(LocalDate.now().getMonth()) && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+            content.getStandardDate().getMonthValue() == month && (content.getStandardDate().getYear() == year))
                 .toList();
 
         List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
-        List<Member> memberList = new ArrayList<>(searchMembershipList.stream().map(Membership::getMember).toList());
+
+        List<Member> memberList = new ArrayList<>(searchMembershipList.stream()
+            .filter(ms -> !ms.getCreatedAt()
+                .isAfter(LocalDateTime.of(year, month, getLastDayOfMonth(year, month), 23, 59, 59)))
+            .map(Membership::getMember).toList());
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
+            if(agit.getCommonDues() == null){
+                throw new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND);
+            }
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
                 DuesCommon.setPayedChange(dues,filterMember,true);
@@ -165,5 +176,17 @@ public class DuesService {
             return DuesSaveResponse.builder().build();
         else
             return DuesSaveResponse.builder().dueDay(commonDues.getDueDay()).dueAmount(commonDues.getDueAmount()).build();
+    }
+
+    private int getLastDayOfMonth(int year, int month) {
+        // YearMonth 객체를 생성하여 해당 월의 마지막 날을 반환
+        YearMonth yearMonth = YearMonth.of(year, month);
+        return yearMonth.lengthOfMonth();
+    }
+    private LocalDateTime generateStandardDate(Integer year, Integer month, LocalDateTime dueDate) {
+        if((dueDate.getMonthValue() >= month && dueDate.getYear() == year) || dueDate.getYear() > year) {
+            return LocalDateTime.of(year,month,dueDate.getDayOfMonth(),dueDate.getHour(),dueDate.getMinute(),dueDate.getSecond());
+        }
+        throw new CustomException(ErrorCode.DATE_AFTER_NOW);
     }
 }
