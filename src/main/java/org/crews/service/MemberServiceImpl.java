@@ -481,7 +481,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
 
-        Member member = memberRepository.findByNameAndPhoneNumber(AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber()))
+        Member member = memberRepository.findByIdPw(null, AESUtil.encrypt(findMemberRequest.getName()), AESUtil.encrypt(findMemberRequest.getPhoneNumber()))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return FindMemberIdResponse.from(member);
@@ -490,7 +490,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void findMemberPw(FindMemberPwRequest findMemberPwRequest) {
-        Member member = memberRepository.findByEmailAndNameAndPhoneNumber(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
+        Member member = memberRepository.findByIdPw(AESUtil.encrypt(findMemberPwRequest.getEmail()), AESUtil.encrypt(findMemberPwRequest.getName()), AESUtil.encrypt(findMemberPwRequest.getPhoneNumber()))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         String temporary = authUtil.generateRandomPassword(10);
         member.setPassword(bCryptPasswordEncoder.encode(temporary));

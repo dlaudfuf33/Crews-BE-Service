@@ -5,21 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.AgitRegisterRequest;
 import org.crews.dto.request.AgitRequest;
-import org.crews.dto.response.AgitInfoResponse;
-import org.crews.dto.response.AllAgitsInfoResponse;
-import org.crews.dto.response.AgitRegisterResponse;
-import org.crews.dto.response.DuesAlarmResponse;
-import org.crews.dto.response.AgitResponse;
+import org.crews.dto.response.*;
 
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.MemberRole;
 import org.crews.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,9 +41,12 @@ public class AgitService {
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
+
     public List<AgitResponse> getAllAgits(){
+        System.out.println(agitRepository.findAllWithFetchJoin());
         return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::from).toList();
     }
+
     @Transactional
     public AgitResponse generateAgit(AgitRequest agitRequest) {
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
@@ -131,6 +134,7 @@ public class AgitService {
         List<AgitInfoResponse> agitInfoResponseList = membershipList.stream().map(AgitInfoResponse::from).toList();
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
+
     @Transactional
     public ResponseEntity<AgitRegisterResponse> agitRestration(AgitRegisterRequest agitRegisterRequest) {
         try {
@@ -162,4 +166,17 @@ public class AgitService {
         }
     }
 
+    public AgitSortResponse getHomeAgits(Optional<Long> memberId){
+        Long memberIdOptional = memberId.orElse(null);
+
+        List<Agit> newAgitList = agitRepository.findNewAgitsForMember(memberIdOptional);
+        List<AgitResponse> newAgitResponses = newAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        List<Agit> recruitAgitList = agitRepository.findRecruitAgitsForMember(memberIdOptional);
+        List<AgitResponse> recruitAgitResponses = recruitAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        return new AgitSortResponse(recruitAgitResponses, newAgitResponses);
+    }
 }
