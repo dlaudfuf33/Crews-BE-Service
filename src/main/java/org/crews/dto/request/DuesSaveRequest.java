@@ -14,8 +14,6 @@ import java.math.BigDecimal;
 @Builder
 public class DuesSaveRequest {
 
-    @NotBlank
-    private Long memberId;
 
     @NotBlank
     private BigDecimal dueAmount;

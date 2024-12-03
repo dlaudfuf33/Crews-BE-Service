@@ -13,13 +13,13 @@ import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.TranType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
+import org.crews.utils.DateUtil;
 import org.crews.utils.DuesCommon;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class DuesService {
             Member filterMember = account.getMember();
             Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(filterMember, agit)
                 .filter(ms -> !ms.getCreatedAt()
-					.isAfter(LocalDateTime.of(year, month, getLastDayOfMonth(year, month), 23, 59, 59)));
+					.isAfter(LocalDateTime.of(year, month, DateUtil.getLastDayOfMonth(year, month), 23, 59, 59)));
             if(optionalMembership.isEmpty()) {
                 continue;
             }
@@ -90,7 +90,7 @@ public class DuesService {
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
                         .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
-                        .productName(account.getProductName()).agitName(agit.getAgitName()).standardDate(generateStandardDate(year,month,dto.getTransactionTime())).build();
+                        .productName(account.getProductName()).agitName(agit.getAgitName()).standardDate(DateUtil.generateStandardDate(year,month,dto.getTransactionTime())).build();
                 saveDues.add(buildDues);
             }
         }
@@ -103,7 +103,7 @@ public class DuesService {
 
         List<Member> memberList = new ArrayList<>(searchMembershipList.stream()
             .filter(ms -> !ms.getCreatedAt()
-                .isAfter(LocalDateTime.of(year, month, getLastDayOfMonth(year, month), 23, 59, 59)))
+                .isAfter(LocalDateTime.of(year, month, DateUtil.getLastDayOfMonth(year, month), 23, 59, 59)))
             .map(Membership::getMember).toList());
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
@@ -126,8 +126,8 @@ public class DuesService {
 
 
     @Transactional
-    public DuesSaveResponse duesSaveCommon(Long agitId, DuesSaveRequest duesSaveRequest) {
-        Member member = memberRepository.findById(duesSaveRequest.getMemberId()).orElseThrow(
+    public DuesSaveResponse duesSaveCommon(Long agitId, Long memberId, DuesSaveRequest duesSaveRequest) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -173,20 +173,12 @@ public class DuesService {
         }
         CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElse(null);
         if(commonDues == null)
-            return DuesSaveResponse.builder().build();
+            return DuesSaveResponse.builder().dueAmount(null).dueAmount(null)
+                    .minYear(membership.getCreatedAt().getYear()).minMonth(membership.getCreatedAt().getMonthValue()).build();
         else
-            return DuesSaveResponse.builder().dueDay(commonDues.getDueDay()).dueAmount(commonDues.getDueAmount()).build();
+            return DuesSaveResponse.builder().dueDay(commonDues.getDueDay()).dueAmount(commonDues.getDueAmount())
+                    .minYear(membership.getCreatedAt().getYear()).minMonth(membership.getCreatedAt().getMonthValue()).build();
     }
 
-    private int getLastDayOfMonth(int year, int month) {
-        // YearMonth 객체를 생성하여 해당 월의 마지막 날을 반환
-        YearMonth yearMonth = YearMonth.of(year, month);
-        return yearMonth.lengthOfMonth();
-    }
-    private LocalDateTime generateStandardDate(Integer year, Integer month, LocalDateTime dueDate) {
-        if((dueDate.getMonthValue() >= month && dueDate.getYear() == year) || dueDate.getYear() > year) {
-            return LocalDateTime.of(year,month,dueDate.getDayOfMonth(),dueDate.getHour(),dueDate.getMinute(),dueDate.getSecond());
-        }
-        throw new CustomException(ErrorCode.DATE_AFTER_NOW);
-    }
+
 }

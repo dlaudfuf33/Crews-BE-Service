@@ -310,7 +310,7 @@ CREATE TABLE dues
     is_payed       BOOLEAN        NOT NULL,
     due_date       DATETIME(6),
     updated_at     DATETIME(6),
-    standard_date  DATETIME(6)    NOT NULL,
+    standard_date  DATETIME(6),
     membership_id  BIGINT,
     common_dues_id BIGINT,
     PRIMARY KEY (id),

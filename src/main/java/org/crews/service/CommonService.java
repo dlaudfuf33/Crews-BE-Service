@@ -77,7 +77,7 @@ public class CommonService {
             List<Dues> duesList = membership.getDuesList();
             if(duesList.isEmpty()) continue;
             List<Dues> filterDues = duesList.stream().filter(content ->
-                            (content.getDueDate().getMonthValue() == month) && (content.getDueDate().getYear() == year))
+                            (content.getStandardDate().getMonthValue() == month) && (content.getStandardDate().getYear() == year))
                     .toList();
             List<AccountHistoryResponse> accountHistoryResponse = filterDues.stream().map(dues -> AccountHistoryResponse.of(dues, membership.getAgit().getId())).toList();
             list.addAll(accountHistoryResponse);

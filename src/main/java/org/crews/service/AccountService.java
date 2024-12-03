@@ -17,6 +17,7 @@ import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.TranType;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
+import org.crews.utils.DateUtil;
 import org.crews.utils.DuesCommon;
 import org.crews.utils.MaskedNumber;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -201,6 +203,14 @@ public class AccountService {
 
     @Transactional
     public ApiResponse<TransferResponse> transferCrewAccount(Long agitId, Long memberId, AccountTransferRequest accountTransferRequest) {
+        Integer year = accountTransferRequest.getYear();
+        Integer month = accountTransferRequest.getMonth();
+        if(year == null) year = LocalDateTime.now().getYear();
+        if(month == null) month = LocalDateTime.now().getMonthValue();
+        final Integer finalMonth = month;
+        final Integer finalYear = year;
+        System.out.println("finalYear = " + finalYear);
+        System.out.println("finalMonth = " + finalMonth);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.PINNUMBER_AND_ID_NOT_MATCH)
         );
@@ -224,6 +234,11 @@ public class AccountService {
                 () -> new CustomException(ErrorCode.ACCOUNT_ID_NOT_FOUND)
         );
         String fintechNum = account.getFintecNumber();
+        Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(member, agit).filter(ms -> !ms.getCreatedAt()
+                .isAfter(LocalDateTime.of(finalYear, finalMonth, DateUtil.getLastDayOfMonth(finalYear, finalMonth), 23, 59, 59)));
+        if (optionalMembership.isEmpty()) {
+            throw new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND);
+        }
         TransferRequest transferRequest = TransferRequest.builder().finUseNum(fintechNum).recvAccountNum(accountTransferRequest.getRecvAccountNumber())
                 .amt(accountTransferRequest.getAmount()).description(AESUtil.decrypt(member.getName())).build();
         ApiResponse<TransferResponse> transfer = coreService.transfer(transferRequest);
@@ -236,21 +251,20 @@ public class AccountService {
         }
         CommonDues commonDues = agit.getCommonDues();
         if (commonDues == null) return transfer;
-        Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(member, agit);
-        if (optionalMembership.isEmpty()) {
-            return transfer;
-        }
+
+
         if (transfer.getData() == null) return transfer;
         TransferResponse transferResponse = transfer.getData();
 
         Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(transferResponse.getTransactionTime()).dueAmount(transferResponse.getAmount())
                 .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
-                .productName(account.getProductName()).agitName(agit.getAgitName()).build();
+                .productName(account.getProductName()).agitName(agit.getAgitName())
+                .standardDate(DateUtil.generateStandardDate(finalYear,finalMonth,transferResponse.getTransactionTime())).build();
         duesRepository.save(buildDues);
 
 
         List<Dues> dues = duesRepository.findByCommonDues(agit.getCommonDues()).stream().filter(content ->
-                        content.getDueDate().getMonth().equals(LocalDate.now().getMonth()) && (content.getDueDate().getYear() == LocalDate.now().getYear()))
+                content.getStandardDate().getMonthValue() == finalMonth && (content.getStandardDate().getYear() == finalYear))
                 .toList();
 
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);

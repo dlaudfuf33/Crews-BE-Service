@@ -91,8 +91,8 @@ public class AgitService {
         CommonDues commonDues = optionalCommonDues.get();
         List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
                 .stream().filter(
-                        content -> content.getDueDate().getMonthValue() == month
-                                && (content.getDueDate().getYear() == year))
+                        content -> content.getStandardDate().getMonthValue() == month
+                                && (content.getStandardDate().getYear() == year))
                 .toList();
         if(duesList.isEmpty()){
             return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount()).dueDay(commonDues.getDueDay()).build();
