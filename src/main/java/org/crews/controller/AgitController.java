@@ -9,7 +9,6 @@ import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.crews.dto.request.AgitInfoRequest;
 import org.crews.model.constants.AgitRole;
@@ -34,8 +33,9 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest){
-        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
+    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest, memberId));
     }
 
     @GetMapping("/{agits-id}/dues")
@@ -93,4 +93,10 @@ public class AgitController {
         Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
         return ResponseEntity.ok().body(agitService.getHomeAgits(memberId));
     }
+
+    @GetMapping("/validate-name")
+    public ResponseEntity<AgitNameValidateResponse> validateName(@RequestParam String agitName, HttpServletRequest request){
+        return ResponseEntity.ok().body(agitService.validateAgitName(agitName));
+    }
+
 }

@@ -52,4 +52,6 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "AND (:memberId IS NULL OR a NOT IN (SELECT m.agit FROM Membership m WHERE m.member.id = :memberId)) " +
             "ORDER BY a.currentPerson DESC")
     List<Agit> findRecruitAgits(@Param("memberId") Long memberId);
+
+    boolean existsByAgitName(String agitName);
 }
