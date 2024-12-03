@@ -17,6 +17,7 @@ public class FeedResponse {
     private String image;
     private String content;
     private Long likeCount;
+    private boolean isDeleted;
     private boolean likeFeed;
 
     public static FeedResponse of(Member member, Feed feed) {
@@ -28,6 +29,7 @@ public class FeedResponse {
                 feed.getImage(),
                 feed.getContent(),
                 feed.getLikeCount(),
+                feed.isDeleted(),
                 likeFeed
         );
     }

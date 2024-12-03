@@ -212,4 +212,18 @@ public class AgitService {
                 .message("")
                 .build();
     }
+
+    public AgitSortResponse getHomeAgits(Optional<Long> memberId){
+        Long memberIdOptional = memberId.orElse(null);
+
+        List<Agit> newAgitList = agitRepository.findNewAgits(memberIdOptional);
+        List<AgitResponse> newAgitResponses = newAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        List<Agit> recruitAgitList = agitRepository.findRecruitAgits(memberIdOptional);
+        List<AgitResponse> recruitAgitResponses = recruitAgitList.stream()
+                .map(AgitResponse::from).limit(3).toList();
+
+        return new AgitSortResponse(recruitAgitResponses, newAgitResponses);
+    }
 }

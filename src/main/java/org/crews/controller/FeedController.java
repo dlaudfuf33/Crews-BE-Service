@@ -1,6 +1,7 @@
 package org.crews.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.FeedRequest;
@@ -42,10 +43,40 @@ public class FeedController {
     @PostMapping
     public ResponseEntity<FeedResponse> createFeed(
             @PathVariable("agits-id") Long agitId,
-            @RequestBody FeedRequest feedRequest,
+            @RequestBody @Valid FeedRequest feedRequest,
             HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
 
         return ResponseEntity.ok().body(feedService.postFeed(memberId, agitId, feedRequest));
     }
+
+    @PutMapping("/{feed-id}")
+    public ResponseEntity<FeedResponse> editFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            @RequestBody FeedRequest feedRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+
+        return ResponseEntity.ok().body(feedService.editFeed(memberId,agitId,feedId,feedRequest ));
+    }
+
+    @DeleteMapping("/{feed-id}")
+    public ResponseEntity<ResponseEntity<String>> deleteFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(feedService.deleteFeed(memberId,agitId,feedId));
+    }
+
+    @PostMapping("/{feed-id}/heart")
+    public ResponseEntity<String> heartFeed(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId, HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+        String responseMessage = feedService.toggleHeartFeed(memberId, agitId, feedId);
+        return ResponseEntity.ok(responseMessage);
+    }
+
 }

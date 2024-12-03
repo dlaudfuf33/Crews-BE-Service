@@ -1,6 +1,7 @@
 package org.crews.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.MeetingRequest;
@@ -55,4 +56,16 @@ public class MeetingController {
 
         return ResponseEntity.ok().body(meetingService.postEvent(memberId, agitId, meetingRequest));
     }
+
+    @PutMapping("/{meeting-id}")
+    public ResponseEntity<MeetingResponse> updateMeeting(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("meeting-id") Long meetingId,
+            @RequestBody @Valid  MeetingRequest meetingRequest,
+            HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(meetingService.editEvent(memberId, agitId, meetingId, meetingRequest));
+    }
+
 }

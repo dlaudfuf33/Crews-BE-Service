@@ -9,6 +9,7 @@ import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.crews.dto.request.AgitInfoRequest;
 import org.crews.model.constants.AgitRole;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,5 +87,11 @@ public class AgitController {
         AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, agitRole);
 
         return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<AgitSortResponse> getHomeAgits(HttpServletRequest request){
+        Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
+        return ResponseEntity.ok().body(agitService.getHomeAgits(memberId));
     }
 }
