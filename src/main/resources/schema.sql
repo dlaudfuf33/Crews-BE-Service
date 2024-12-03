@@ -123,10 +123,22 @@ CREATE TABLE agit
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id),
-    FOREIGN KEY (address_id) REFERENCES address (id),
-    FOREIGN KEY (dues_id) REFERENCES dues (id)
+    FOREIGN KEY (address_id) REFERENCES address (id)
 );
-
+-- Membership 테이블
+CREATE TABLE membership
+(
+    id         BIGINT      NOT NULL AUTO_INCREMENT,
+    agit_id    BIGINT,
+    created_at DATETIME(6),
+    joined_at  DATETIME(6) NOT NULL,
+    member_id  BIGINT,
+    updated_at DATETIME(6),
+    role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
+    PRIMARY KEY (id),
+    FOREIGN KEY (agit_id) REFERENCES agit (id),
+    FOREIGN KEY (member_id) REFERENCES member (id)
+);
 -- Agit and Account 테이블
 CREATE TABLE agit_and_account
 (
@@ -149,8 +161,25 @@ CREATE TABLE common_dues
     agit_id    BIGINT,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
+);
 
-
+-- Dues 테이블
+CREATE TABLE dues
+(
+    id             BIGINT         NOT NULL AUTO_INCREMENT,
+    created_at     DATETIME(6),
+    due_amount     DECIMAL(19, 2) NOT NULL,
+    product_name   VARCHAR(255)   NOT NULL,
+    account_number VARCHAR(255)   NOT NULL,
+    agit_name      VARCHAR(255)   NOT NULL,
+    is_payed       BOOLEAN        NOT NULL,
+    due_date       DATETIME(6),
+    updated_at     DATETIME(6),
+    membership_id  BIGINT,
+    common_dues_id BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
 );
 
 -- 외래 키 제약 조건 나중에 추가
@@ -169,6 +198,11 @@ ALTER TABLE agit
 ALTER TABLE agit
     ADD CONSTRAINT fk_agit_common_dues
         FOREIGN KEY (common_dues_id) REFERENCES common_dues (id);
+
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_dues_id
+        FOREIGN KEY (dues_id) REFERENCES dues (id);
+
 
 ALTER TABLE agit_and_account
     ADD CONSTRAINT fk_agit_and_account_account
@@ -202,16 +236,16 @@ CREATE TABLE card
 -- Feed 테이블
 CREATE TABLE feed
 (
-    id         BIGINT       NOT NULL AUTO_INCREMENT,
-    is_deleted BOOLEAN DEFAULT FALSE,
+    id          BIGINT       NOT NULL AUTO_INCREMENT,
+    is_deleted  BOOLEAN DEFAULT FALSE,
     is_reported BOOLEAN DEFAULT FALSE, #추가
-    agit_id    BIGINT,
-    created_at DATETIME(6),
-    member_id  BIGINT,
-    updated_at DATETIME(6),
-    content    VARCHAR(255) NOT NULL,
-    image      VARCHAR(255),
-    like_count BIGINT  DEFAULT '0',
+    agit_id     BIGINT,
+    created_at  DATETIME(6),
+    member_id   BIGINT,
+    updated_at  DATETIME(6),
+    content     VARCHAR(255) NOT NULL,
+    image       VARCHAR(255),
+    like_count  BIGINT  DEFAULT '0',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -283,40 +317,6 @@ CREATE TABLE member_and_interesting
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
--- Membership 테이블
-CREATE TABLE membership
-(
-    id         BIGINT      NOT NULL AUTO_INCREMENT,
-    agit_id    BIGINT,
-    created_at DATETIME(6),
-    joined_at  DATETIME(6) NOT NULL,
-    member_id  BIGINT,
-    updated_at DATETIME(6),
-    role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
-    PRIMARY KEY (id),
-    FOREIGN KEY (agit_id) REFERENCES agit (id),
-    FOREIGN KEY (member_id) REFERENCES member (id)
-);
-
--- Dues 테이블
-CREATE TABLE dues
-(
-    id             BIGINT         NOT NULL AUTO_INCREMENT,
-    created_at     DATETIME(6),
-    due_amount     DECIMAL(19, 2) NOT NULL,
-    product_name   VARCHAR(255)   NOT NULL,
-    account_number VARCHAR(255)   NOT NULL,
-    agit_name      VARCHAR(255)   NOT NULL,
-    is_payed       BOOLEAN        NOT NULL,
-    due_date       DATETIME(6),
-    updated_at     DATETIME(6),
-    membership_id  BIGINT,
-    common_dues_id BIGINT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
-    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
-
-);
 
 -- Refresh Entity 테이블
 CREATE TABLE refresh_entity
@@ -345,6 +345,7 @@ CREATE TABLE meeting
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
 );
+
 -- Message 테이블
 CREATE TABLE message
 (
@@ -356,15 +357,14 @@ CREATE TABLE message
     PRIMARY KEY (id)
 );
 
-
 CREATE TABLE report
 (
-    id BIGINT NOT NULL AUTO_INCREMENT,
+    id         BIGINT       NOT NULL AUTO_INCREMENT,
     created_at DATETIME(6),
     feed_id    BIGINT,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    content VARCHAR(255) NOT NULL,
+    content    VARCHAR(255) NOT NULL,
     is_checked BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (id),
     FOREIGN KEY (feed_id) REFERENCES feed (id),
