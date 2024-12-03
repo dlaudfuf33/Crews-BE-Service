@@ -20,12 +20,15 @@ public enum ErrorCode {
     INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
+    VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_ACCOUNT_CREATION("통장을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    AUTHORIZED_FEED_UPDATE("기록을 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    AUTHORIZED_FEED_DELETE("기록을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
@@ -52,6 +55,7 @@ public enum ErrorCode {
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
+    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.",HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),

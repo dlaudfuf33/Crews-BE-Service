@@ -47,4 +47,12 @@ public class Meeting extends BaseTimeEntity{
                 .content(meetingRequest.getContent())
                 .build();
     }
+
+    public void update(MeetingRequest meetingRequest){
+        this.regularName = meetingRequest.getName();
+        this.image=meetingRequest.getImage();
+        this.regularTime=meetingRequest.getDate();
+        this.place=meetingRequest.getPlace();
+        this.content=meetingRequest.getContent();
+    }
 }

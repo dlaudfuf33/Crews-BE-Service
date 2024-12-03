@@ -3,7 +3,7 @@ package org.crews.repository;
 import org.crews.model.Agit;
 import org.crews.model.Member;
 import org.crews.model.Membership;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface MemberShipRepository extends JpaRepository<Membership, Long> {
-    Optional<Membership> findByAgitAndRole(Agit agit, MemberRole role);
+    Optional<Membership> findByAgitAndAgitRole(Agit agit, AgitRole role);
 
     Optional<Membership> findByMemberAndAgit(Member member, Agit agit);
 
@@ -35,7 +35,13 @@ public interface MemberShipRepository extends JpaRepository<Membership, Long> {
             "WHERE m.member.id = :memberid")
     List<Membership> findMembershipsWithAgitDetailsByMemberId(@Param("memberid") Long memberId);
 
+    List<Membership> findTop3ByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
 
+    List<Membership> findTop3ByAgitAndAgitRoleNot(Agit build, AgitRole agitRole);
+
+    Long countByAgitAndAgitRoleNot(Agit build, AgitRole agitRole);
+
+    Long countByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
     @Query("""
                 SELECT m
                 FROM Membership m

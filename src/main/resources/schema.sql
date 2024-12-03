@@ -204,6 +204,7 @@ CREATE TABLE feed
 (
     id         BIGINT       NOT NULL AUTO_INCREMENT,
     is_deleted BOOLEAN DEFAULT FALSE,
+    is_reported BOOLEAN DEFAULT FALSE, #추가
     agit_id    BIGINT,
     created_at DATETIME(6),
     member_id  BIGINT,
@@ -356,4 +357,16 @@ CREATE TABLE message
 );
 
 
-
+CREATE TABLE report
+(
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    created_at DATETIME(6),
+    feed_id    BIGINT,
+    member_id  BIGINT,
+    updated_at DATETIME(6),
+    content VARCHAR(255) NOT NULL,
+    is_checked BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (id),
+    FOREIGN KEY (feed_id) REFERENCES feed (id),
+    FOREIGN KEY (member_id) REFERENCES member (id)
+);

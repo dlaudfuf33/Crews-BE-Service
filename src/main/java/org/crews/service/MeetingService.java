@@ -10,7 +10,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.Agit;
 import org.crews.model.Meeting;
-import org.crews.model.constants.MemberRole;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.AgitRepository;
 import org.crews.repository.MeetingRepository;
 import org.crews.utils.CheckExceptionUtil;
@@ -42,7 +42,7 @@ public class MeetingService {
     public MeetingResponse getEvent(Long memberId, Long agitId, Long meetingId) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(
+        Meeting meeting = meetingRepository.findByIdAndAgit(meetingId, checkedResult.getAgit()).orElseThrow(
                 () -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
         if(meeting.isDeleted()) throw new CustomException(ErrorCode.DELETED_MEETING);
 
@@ -62,11 +62,25 @@ public class MeetingService {
     public MeetingResponse postEvent(Long memberId, Long agitId, MeetingRequest meetingRequest) {
         AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
-        if(!checkedResult.getMembership().getRole().equals(MemberRole.LEADER)){
+        if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_MEETING_CREATION);
         }
 
         Meeting meeting = Meeting.of(meetingRequest, checkedResult.getAgit());
         return MeetingResponse.from(meetingRepository.save(meeting));
+    }
+
+    @Transactional
+    public MeetingResponse editEvent(Long memberId, Long agitId, Long meetingId, MeetingRequest meetingRequest) {
+        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        Meeting meeting=meetingRepository.findById(meetingId).orElseThrow(()->new CustomException(ErrorCode.EVENT_NOT_FOUND));
+        if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
+            throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
+        }
+
+        meeting.update(meetingRequest);
+        return MeetingResponse.from(meetingRepository.save(meeting));
+
+
     }
 }
