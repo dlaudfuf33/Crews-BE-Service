@@ -476,6 +476,22 @@ public class MemberServiceImpl implements MemberService {
         return TransferMsgResponse.builder().message(transferResponse.getAmount() + "원 이체 성공하였습니다!").build();
     }
 
+    @Override
+    @Transactional
+    public void updateMyProfile(Long memberId, ProfileImageRequest profileImageRequest) {
+        memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        ).setProfileImage(profileImageRequest.getProfileImagePath());
+    }
+
+    @Override
+    @Transactional
+    public void deletetMyProfile(Long memberId) {
+        memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        ).setProfileImage("");
+    }
+
 
     @Override
     public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {

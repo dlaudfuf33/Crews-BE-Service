@@ -65,7 +65,12 @@ public interface MemberService {
     List<WithdrawResponse> getwithdraws(Long memberId, Long myAccountId, Long crewAccountId);
 
     TransferMsgResponse paymentFee(Long memberId, PaymentRequest paymentRequest);
+
     void verifyPinNumber(Long memberId, PinNumberRequest pinNumberRequest);
 
     void updatePinNumber(Long memberId, PinNumberRequest pinNumberRequest);
+
+    void updateMyProfile(Long memberId, ProfileImageRequest profileImageRequest);
+
+    void deletetMyProfile(Long memberId);
 }

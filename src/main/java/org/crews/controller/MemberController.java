@@ -104,6 +104,21 @@ public class MemberController {
         return ResponseEntity.ok(profile);
     }
 
+    @PutMapping("/me/profile")
+    public ResponseEntity<Void> updateMyProfile(HttpServletRequest request,
+                                                @RequestBody ProfileImageRequest profileImageRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.updateMyProfile(memberId, profileImageRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/me/profile")
+    public ResponseEntity<Void> deleteMyProfile(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.deletetMyProfile(memberId);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping("/me/nickname")
     public ResponseEntity<MyNicknameResponse> getMyNickname(HttpServletRequest request) {
