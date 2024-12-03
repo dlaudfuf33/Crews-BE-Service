@@ -51,7 +51,6 @@ public class MemberServiceImpl implements MemberService {
     private final MessageRepository messageRepository;
     private final DuesRepository duesRepository;
     private final AgitRepository agitRepository;
-    private final AgitAndAccountRepository agitAndAccountRepository;
 
 
     @Override
@@ -62,6 +61,7 @@ public class MemberServiceImpl implements MemberService {
             boolean isExist = memberRepository.existsByEmail(aesUtil.encrypt(memberRequest.getEmail()));
             log.info(String.valueOf(isExist));
             if (isExist) {
+                log.warn("이미 존재하는 이메일으로 회원가입 시도: {}", memberRequest.getEmail());
                 throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
             }
 
@@ -76,6 +76,8 @@ public class MemberServiceImpl implements MemberService {
             member.setCi(ci);
             // 렌덤 닉네임 설정
             member.setNickName(NicknameUtills.generateRandomNickname());
+            log.debug("랜덤 닉네임 설정: {}", member.getNickName());
+
             // 주소 처리
             Address address = addressService.findOrCreateAddress(memberRequest.getAddressDo(), memberRequest.getAddressSi(), memberRequest.getAddressGuGun(), memberRequest.getAddressDong());
             member.setAddress(address);
@@ -94,9 +96,14 @@ public class MemberServiceImpl implements MemberService {
             Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_BANKCODE));
             Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber())).accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
+            log.info("회원가입 성공: 회원ID={}, 이메일={}", savedMember.getId(), memberRequest.getEmail());
             return MemberResponse.from(savedMember);
 
+        } catch (CustomException ce) {
+            log.error("회원가입 중 CustomException 발생: {}", ce.getErrorCode(), ce);
+            throw ce;
         } catch (Exception e) {
+            log.error("회원가입 중 예상치 못한 예외 발생: ", e);
             throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
         }
     }
@@ -275,7 +282,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public List<AgitResponse> getMyAgits(Long memberId) {
         List<Agit> as = memberShipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream().map(Membership::getAgit).toList();
-
         return as.stream().map(AgitResponse::from).toList();
     }
 
@@ -425,16 +431,39 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<WithdrawResponse> getwithdraws(Long memberId, Long myAccountId, Long crewAccountId) {
-        Account myAccount = accountRepository.findByIdAndMemberId(myAccountId, memberId).orElseThrow(() -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
+        try {
+            Account myAccount = accountRepository.findByIdAndMemberId(myAccountId, memberId)
+                    .orElseThrow(() -> {
+                        log.error("내 계좌를 찾을 수 없음: 회원ID={}, 계좌ID={}", memberId, myAccountId);
+                        return new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED);
+                    });
 
-        Account agitAccount = accountRepository.findById(crewAccountId).orElseThrow(() -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND));
+            Account agitAccount = accountRepository.findById(crewAccountId)
+                    .orElseThrow(() -> {
+                        log.error("상대 계좌를 찾을 수 없음: 계좌ID={}", crewAccountId);
+                        return new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+                    });
 
-        String decryptedAgitAccountNumber = AESUtil.decrypt(agitAccount.getAccountNumber());
-        TransactionDetailResponse transactionDetailResponse = coreService.getWithdrawHistory(WithdrawTransactionRequest.from(myAccount));
-        log.info("Transaction :: Response: {}", transactionDetailResponse);
+            String decryptedAgitAccountNumber = AESUtil.decrypt(agitAccount.getAccountNumber());
+            log.debug("상대 계좌 번호 복호화 완료: {}", decryptedAgitAccountNumber);
 
+            TransactionDetailResponse transactionDetailResponse = coreService.getWithdrawHistory(WithdrawTransactionRequest.from(myAccount));
+            log.info("출금 내역 조회 응답: 회원ID={}, 거래내역수={}", memberId, transactionDetailResponse.getTranList().size());
 
-        return transactionDetailResponse.getTranList().stream().filter(tx -> decryptedAgitAccountNumber.equals(tx.getCounterpartyAccountNum())).map(tx -> new WithdrawResponse(tx.getTransactionTime(), agitAccount.getAgitAndAccount().getAgit().getAgitName(), tx.getCounterpartyBankCode(), tx.getCounterpartyAccountNum(), tx.getTranAmount())).toList();
+            List<WithdrawResponse> withdrawResponses = transactionDetailResponse.getTranList().stream()
+                    .filter(tx -> decryptedAgitAccountNumber.equals(tx.getCounterpartyAccountNum()))
+                    .map(tx -> new WithdrawResponse(tx.getTransactionTime(), agitAccount.getAgitAndAccount().getAgit().getAgitName(), tx.getCounterpartyBankCode(), tx.getCounterpartyAccountNum(), tx.getTranAmount()))
+                    .toList();
+
+            log.info("출금 내역 조회 완료: 회원ID={}, 결과수={}", memberId, withdrawResponses.size());
+            return withdrawResponses;
+        } catch (CustomException ce) {
+            log.error("출금 내역 조회 중 오류 발생: 회원ID={}, 오류코드={}", memberId, ce.getErrorCode(), ce);
+            throw ce;
+        } catch (Exception e) {
+            log.error("출금 내역 조회 중 예상치 못한 예외 발생: 회원ID={}, 오류 메시={}", memberId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
+        }
     }
 
     @Override
@@ -445,9 +474,9 @@ public class MemberServiceImpl implements MemberService {
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         validateOldPassword(member.getPinNumber(), paymentRequest.getPinNumber());
         Account myAccount = accountRepository.findByIdAndMemberId(paymentRequest.getMyAccountId(), memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED, "my"));
+                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
         Account agitAccount = accountRepository.findById(paymentRequest.getCrewAccountId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED, "crew"));
+                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
 
         Agit agit = agitRepository.findByIdWithCommonDues(paymentRequest.getAgitId()).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
