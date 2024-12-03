@@ -86,7 +86,6 @@ public class MemberController {
     }
 
 
-
     @PostMapping("/signup/validate-email")
     public ResponseEntity<String> validateEmail(@RequestBody EmailRequest request) {
         boolean isExist = memberService.validateEmail(request);
@@ -152,6 +151,23 @@ public class MemberController {
         Long memberId = authUtil.getMemberId(request);
         MyinfoResponse myInfo = memberService.getMyinfo(memberId);
         return ResponseEntity.ok(myInfo);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> leavCrews(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        log.info("회원탈퇴 요청 시작: 회원ID={}", memberId);
+        try {
+            memberService.leavCrews(memberId);
+            log.info("회원탈퇴 성공: 회원ID={}", memberId);
+            return ResponseEntity.noContent().build();
+        } catch (CustomException ce) {
+            log.error("회원탈퇴 중 커스텀 예외 발생: 회원ID={}, 오류코드={}, 메시={}", memberId, ce.getErrorCode(), ce.getMessage());
+            throw ce;
+        } catch (Exception e) {
+            log.error("회원탈퇴 중 예상치 못한 예외 발생: 회원ID={}, 메시={}", memberId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
+        }
     }
 
     @GetMapping("/me/addresses")

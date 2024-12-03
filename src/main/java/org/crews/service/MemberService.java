@@ -73,4 +73,6 @@ public interface MemberService {
     void updateMyProfile(Long memberId, ProfileImageRequest profileImageRequest);
 
     void deletetMyProfile(Long memberId);
+
+    void leavCrews(Long memberId);
 }

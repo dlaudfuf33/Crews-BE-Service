@@ -521,6 +521,16 @@ public class MemberServiceImpl implements MemberService {
         ).setProfileImage("");
     }
 
+    @Override
+    @Transactional
+    public void leavCrews(Long memberId) {
+        Member foundMember =
+                memberRepository.findById(memberId).orElseThrow(
+                        () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+                );
+        foundMember.setDeleted(true);
+    }
+
 
     @Override
     public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
