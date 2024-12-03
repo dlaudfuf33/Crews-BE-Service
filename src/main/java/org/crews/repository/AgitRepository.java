@@ -20,7 +20,7 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "JOIN FETCH ia.interesting " +
             "WHERE a.isDeleted = false " +
             "AND (:subjectId IS NULL OR a.subject.id = :subjectId)")
-    List<Agit> findAllBySubjectIdWithFetchJoin(@Param("subjectId") Long subjectId);
+    Slice<Agit> findAllBySubjectIdWithFetchJoin(@Param("subjectId") Long subjectId, Pageable pageable);
 
     Slice<Agit> findByIntroductionLikeAndIsDeletedFalse(String keyWord, Pageable pageable);
 

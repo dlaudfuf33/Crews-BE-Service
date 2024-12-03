@@ -12,8 +12,10 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,9 +42,20 @@ public class AgitService {
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
-    public List<AgitResponse> getAllAgits(Long subjectId){
-        List<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(subjectId);
-        return agits.stream().map(AgitResponse::from).toList();
+    public AgitSliceResponse getAllAgits(Long subjectId, int page){
+        if(page<0){
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+        if (subjectId != null && !subjectRepository.existsById(subjectId)) {
+            throw new CustomException(ErrorCode.SUBJECT_NOT_FOUND);
+        }
+
+        Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
+        if (agits.isEmpty()) {
+            throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
+        }
+
+        return AgitSliceResponse.of(agits);
     }
 
     @Transactional

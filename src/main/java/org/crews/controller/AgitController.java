@@ -15,8 +15,6 @@ import org.crews.model.constants.AgitRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +26,9 @@ public class AgitController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<List<AgitResponse>> getAllAgits(@RequestParam(value="subject-id",required = false)Long subjectId){
-        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId));
+    public ResponseEntity<AgitSliceResponse> getAllAgits(@RequestParam(value="subject-id",required = false)Long subjectId,
+                                                               @RequestParam int page){
+        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId,page));
     }
 
     @PostMapping
