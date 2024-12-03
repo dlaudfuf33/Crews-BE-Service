@@ -523,11 +523,12 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void leavCrews(Long memberId) {
+    public void leavCrews(Long memberId, LeavRequest leavRequest) {
         Member foundMember =
                 memberRepository.findById(memberId).orElseThrow(
                         () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
                 );
+        validateOldPassword(foundMember.getPassword(), leavRequest.getPassword());
         foundMember.setDeleted(true);
     }
 

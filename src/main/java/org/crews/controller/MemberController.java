@@ -154,11 +154,12 @@ public class MemberController {
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<Void> leavCrews(HttpServletRequest request) {
+    public ResponseEntity<Void> leavCrews(HttpServletRequest request,
+                                          @RequestBody LeavRequest leavRequest) {
         Long memberId = authUtil.getMemberId(request);
         log.info("회원탈퇴 요청 시작: 회원ID={}", memberId);
         try {
-            memberService.leavCrews(memberId);
+            memberService.leavCrews(memberId,leavRequest);
             log.info("회원탈퇴 성공: 회원ID={}", memberId);
             return ResponseEntity.noContent().build();
         } catch (CustomException ce) {
