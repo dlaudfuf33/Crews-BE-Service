@@ -21,4 +21,7 @@ public interface AgitAndAccountRepository extends JpaRepository<AgitAndAccount, 
         WHERE acc.id = :accountId
     """)
     Optional<AgitAndAccount> findByAccountIdWithAgit(@Param("accountId") Long accountId);
+
+    Optional<AgitAndAccount> findByAgit(Agit agit);
+
 }

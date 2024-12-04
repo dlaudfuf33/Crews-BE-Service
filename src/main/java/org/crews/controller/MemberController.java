@@ -12,12 +12,14 @@ import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.service.MemberService;
+import org.crews.utils.AESUtil;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -149,6 +151,35 @@ public class MemberController {
     @GetMapping("/me")
     public ResponseEntity<MyinfoResponse> getMyInfo(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
+        List<String> stmp = Arrays.asList(
+                "01000000001",
+                "01000000010",
+                "01000000011",
+                "01000000100",
+                "01000000101",
+                "01000000110",
+                "01000000111",
+                "01000001000",
+                "01000001001",
+                "01000001010",
+                "01000001011",
+                "01000001100",
+                "01000001101",
+                "01000001110",
+                "01000001111",
+                "01000010000",
+                "01000010001",
+                "01000010010",
+                "01000010011",
+                "01000010100"
+        );
+
+        // 각 2진수 데이터를 암호화하고 결과를 로그로 출력
+        for (String element : stmp) {
+            String encryptedData = AESUtil.encrypt(element);
+            log.info("Encrypted Data: {}", encryptedData);
+        }
+
         MyinfoResponse myInfo = memberService.getMyinfo(memberId);
         return ResponseEntity.ok(myInfo);
     }

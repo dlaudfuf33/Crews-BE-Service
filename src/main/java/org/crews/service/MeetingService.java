@@ -32,10 +32,9 @@ public class MeetingService {
     private final CheckExceptionUtil checkExceptionUtil;
     private final AgitRepository agitRepository;
 
-    public MeetingSliceResponse getAllEvents(Long memberId, Long agitId, int page) {
+    public MeetingSliceResponse getAllEvents(Long memberId, Long agitId, Integer page, Integer pageSize) {
         AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
-
-        Slice<Meeting> events = meetingRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("regularTime"))));
+        Slice<Meeting> events = meetingRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("regularTime"))));
         return MeetingSliceResponse.of(checkedResult.getMembership(), events);
     }
 

@@ -22,6 +22,8 @@ public enum ErrorCode {
     VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
     VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.",HttpStatus.BAD_REQUEST),
+    PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -33,6 +35,7 @@ public enum ErrorCode {
     CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
+    PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
     AGIT_ACCOUNT_NOT_FOUND("해당하는 아지트의 모임통장이 없습니다.", HttpStatus.NOT_FOUND),

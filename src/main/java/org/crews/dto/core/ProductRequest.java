@@ -1,16 +1,17 @@
-package org.crews.dto.response;
+package org.crews.dto.core;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountHistoryV2Response {
-    private List<AccountHistoryResponse> accountHistory;
+public class ProductRequest {
+
+    @NotNull
+    private Long productId;
 }

@@ -23,11 +23,12 @@ public class AccountHistoryResponse {
     private String productName;
     private Long agitId;
     private String agitName;
+    private Long duesId;
 
     public static AccountHistoryResponse of(Dues dues, Long agitId){
         return AccountHistoryResponse.builder().accountNumber(AESUtil.decrypt(dues.getAccountNumber()))
                 .tranType("출금").dueAmount(dues.getDueAmount()).dueDate(dues.getDueDate())
                 .productName(dues.getProductName())
-                .agitName(dues.getAgitName()).agitId(agitId).build();
+                .agitName(dues.getAgitName()).agitId(agitId).duesId(dues.getId()).build();
     }
 }

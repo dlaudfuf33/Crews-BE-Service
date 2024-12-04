@@ -13,6 +13,9 @@ import org.crews.jwt.JWTUtil;
 import org.crews.model.*;
 import org.crews.model.constants.AccountType;
 import org.crews.repository.*;
+import org.crews.utils.AESUtil;
+import org.crews.utils.CIGenerator;
+import org.crews.utils.MaskedNumber;
 import org.crews.utils.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,9 +95,14 @@ public class MemberServiceImpl implements MemberService {
             CIRequest ciRequest = CIRequest.builder().name(memberRequest.getName()).email(memberRequest.getEmail()).phone(memberRequest.getPhoneNumber()).ci(ci).build();
             Mono<AccountIssuedResponse> stringMono = coreService.sendCICode(ciRequest);
             AccountIssuedResponse response = stringMono.block();
-            if (response == null) throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
-            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_BANKCODE));
-            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(maskedAccountNumber(response.getAccountNumber())).accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
+            if (response == null)
+                throw new CustomException(ErrorCode.CI_CODE_SEND_ERROR);
+            Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
+                    () -> new CustomException(ErrorCode.WRONG_BANKCODE)
+            );
+            Account account = Account.builder().bank(bank).member(member).maskedAccountNumber(MaskedNumber.maskedAccountNumber(response.getAccountNumber()))
+                    .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
+                    accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
             accountRepository.save(account);
             log.info("회원가입 성공: 회원ID={}, 이메일={}", savedMember.getId(), memberRequest.getEmail());
             return MemberResponse.from(savedMember);
@@ -262,7 +270,6 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
         log.info("회원 '{}'의 주소가 '{}'에서 '{}'으로 변경되었습니다.", member.getId(), oldAddress, member.getAddress().getUniqueAddressKey());
     }
-
 
     @Override
     @Transactional

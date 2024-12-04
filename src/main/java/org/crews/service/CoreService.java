@@ -10,6 +10,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.WebServerException;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,7 +20,6 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -289,7 +289,7 @@ public class CoreService {
         }
     }
 
-    public AccountIssuedResponse accountIssued(String ci) {
+    public AccountIssuedResponse accountIssued(ProductInfoRequest productInfoRequest) {
         try {
             AccountIssuedResponse response = webClient.post()
                     .uri("/v1/accounts")
@@ -297,7 +297,7 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(CIRequest.builder().ci(ci).build()) //
+                    .bodyValue(productInfoRequest) //
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
                     .block();
@@ -415,6 +415,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     public TransferApiResponse transferFee(TransferRequest transferRequest) {
         try {
             TransferApiResponse response = webClient.post()
@@ -457,11 +458,68 @@ public class CoreService {
         }
     }
 
+
+    public ApiResponse<TransferResponse> transfer(TransferRequest transferRequest) {
+        try {
+            return webClient.post()
+                    .uri("/v1/transfer")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(transferRequest) //
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<ApiResponse<TransferResponse>>() {
+                    })
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    public BalanceInfoResponse getBalanceInfo(BalanceInfoRequest balanceInfoRequest) {
+        try {
+            return webClient.post()
+                    .uri("/v1//balance/info")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(balanceInfoRequest) //
+                    .retrieve()
+                    .bodyToMono(BalanceInfoResponse.class)
+                    .block();
+        } catch (WebClientResponseException ex) {
+            log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
     private void validateKeys() {
         if (accessKey == null || secretKey == null) {
             throw new CustomException(ErrorCode.REQUIRED_NOT_NULL, "AccessKey 또는 SecretKey가 설정되지 않았습니다.");
         }
     }
 
-
+    public TransactionDetailResponse DateAccountHistory(AccountInfoOfDate accountInfoOfDate) {
+        try {
+            TransactionDetailResponse response = webClient.post()
+                    .uri("/v1/accounts/info/date")
+                    .headers(headers -> {
+                        headers.set(HEADER_ACCESS_KEY, accessKey);
+                        headers.set(HEADER_SECRET_KEY, secretKey);
+                    })
+                    .bodyValue(accountInfoOfDate)
+                    .retrieve()
+                    .bodyToMono(TransactionDetailResponse.class)
+                    .block();
+            if (response == null)
+                throw new IllegalStateException("잘못된 응답값 입니다.");
+            return response;
+        } catch (WebClientResponseException ex) {
+            log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
+            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
 }

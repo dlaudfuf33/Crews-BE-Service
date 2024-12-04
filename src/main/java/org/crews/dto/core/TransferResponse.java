@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -38,5 +39,11 @@ public class TransferResponse {
      * 이체 후 남은 잔액 (출금 계좌)
      */
     private BigDecimal afterAmt;
+
+
+    /**
+     * 이체 날짜 및 시간
+     */
+    private LocalDateTime transactionTime;
 
 }

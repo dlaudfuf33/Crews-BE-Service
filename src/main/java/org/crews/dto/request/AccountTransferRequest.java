@@ -12,13 +12,22 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DuesSaveRequest {
-
-
-    @NotBlank
-    private BigDecimal dueAmount;
+public class AccountTransferRequest {
 
     @NotBlank
-    private Integer dueDay;
+    private String recvAccountNumber;
+
+    @NotBlank
+    private Long accountId;
+
+    @NotBlank
+    private BigDecimal amount;
+
+    @NotBlank
+    private String pinNumber;
+
+    private Integer year;
+
+    private Integer month;
 
 }
