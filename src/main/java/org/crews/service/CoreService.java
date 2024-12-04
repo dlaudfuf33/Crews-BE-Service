@@ -289,7 +289,7 @@ public class CoreService {
         }
     }
 
-    public AccountIssuedResponse accountIssued(String ci) {
+    public AccountIssuedResponse accountIssued(ProductInfoRequest productInfoRequest) {
         try {
             AccountIssuedResponse response = webClient.post()
                     .uri("/v1/accounts")
@@ -297,7 +297,7 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(CIRequest.builder().ci(ci).build()) //
+                    .bodyValue(productInfoRequest) //
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
                     .block();

@@ -11,4 +11,7 @@ import java.util.Optional;
 @Repository
 public interface AgitAndAccountRepository extends JpaRepository<AgitAndAccount, Long> {
     Optional<AgitAndAccount> findByAgitAndAccount(Agit agit, Account account);
+
+    Optional<AgitAndAccount> findByAgit(Agit agit);
+
 }

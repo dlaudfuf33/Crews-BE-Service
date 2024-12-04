@@ -28,7 +28,6 @@ public class CommonService {
     private final BankRepository bankRepository;
     private final CoreService coreService;
     private final AgitService agitService;
-    private final DuesRepository duesRepository;
 
     @Transactional
     public AccountV2Response getAllAccounts(Long memberId, Integer year, Integer month) {

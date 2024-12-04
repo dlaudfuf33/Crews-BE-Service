@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -65,8 +64,8 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountIssuedResponse accountIssued(Long agitId, MemberIdRequest memberIdRequest, AgitRole memberRole) {
-        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
+    public AccountIssuedResponse accountIssued(Long agitId, Long memberId, ProductRequest productRequest, AgitRole memberRole) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -79,7 +78,11 @@ public class AccountService {
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
-        AccountIssuedResponse response = coreService.accountIssued(ci);
+        Optional<AgitAndAccount> crewAccount = agitAndAccountRepository.findByAgit(agit);
+        if(crewAccount.isPresent())
+            throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
+        ProductInfoRequest productInfoRequest = ProductInfoRequest.builder().ci(ci).productId(productRequest.getProductId()).build();
+        AccountIssuedResponse response = coreService.accountIssued(productInfoRequest);
         Bank bank = bankRepository.findByBankCode(response.getBankCode()).orElseThrow(
                 () -> new CustomException(ErrorCode.WRONG_BANKCODE)
         );
@@ -87,6 +90,12 @@ public class AccountService {
                 .accountNumber(AESUtil.encrypt(response.getAccountNumber())).balance(response.getBalance()).
                 accountType(response.getAccountType()).fintecNumber(response.getFintechUseNum()).productName(response.getProductName()).build();
         Account savedAccount = accountRepository.save(account);
+        Optional<AgitAndAccount> optionalAgitAndAccount = agitAndAccountRepository.findByAgitAndAccount(agit, savedAccount);
+        if (optionalAgitAndAccount.isPresent())
+            throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
+        AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
+        log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
+        agitAndAccountRepository.save(agitAndAccount);
         return AccountIssuedResponse.from(savedAccount);
     }
 
@@ -123,8 +132,8 @@ public class AccountService {
                 .build();
     }
 
-    public AccountInfoResponse getAllAccounts(Long agitId, MemberIdRequest memberIdRequest) {
-        Member member = memberRepository.findById(memberIdRequest.getMemberId()).orElseThrow(
+    public AccountInfoResponse getAllAccounts(Long agitId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
@@ -209,8 +218,6 @@ public class AccountService {
         if(month == null) month = LocalDateTime.now().getMonthValue();
         final Integer finalMonth = month;
         final Integer finalYear = year;
-        System.out.println("finalYear = " + finalYear);
-        System.out.println("finalMonth = " + finalMonth);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.PINNUMBER_AND_ID_NOT_MATCH)
         );

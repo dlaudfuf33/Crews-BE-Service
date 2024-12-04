@@ -1,12 +1,11 @@
 package org.crews.trace.logtrace;
 
 import lombok.extern.slf4j.Slf4j;
+
+
 import org.crews.trace.template.TraceId;
 import org.crews.trace.template.TraceStatus;
 import org.slf4j.MDC;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Slf4j
 public class ThreadLocalLogTrace implements LogTrace {
@@ -15,13 +14,14 @@ public class ThreadLocalLogTrace implements LogTrace {
 	private static final String COMPLETE_PREFIX = "<--";
 	private static final String EX_PREFIX = "<X-";
 
+	private static final String TRACEID = "traceId";
 	private String message;
 
 	@Override
 	public TraceStatus begin(String message) {
 		this.message = message;
 		syncTraceId();
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		TraceId traceId1 = new TraceId(traceId.split("\\.")[1], Integer.parseInt(traceId.split("\\.")[0]));
 
 		Long startTimeMs = System.currentTimeMillis();
@@ -46,36 +46,26 @@ public class ThreadLocalLogTrace implements LogTrace {
 		TraceId traceId = status.getTraceId();
 		if (e == null) {
 			log.info(
-				"[{}] {}{} time={}ms",
-				traceId.getId(),
-				addSpace(COMPLETE_PREFIX, traceId.getLevel()),
-				status.getMessage(),
-				resultTimeMs);
+					"[{}] {}{} time={}ms",
+					traceId.getId(),
+					addSpace(COMPLETE_PREFIX, traceId.getLevel()),
+					status.getMessage(),
+					resultTimeMs);
 		} else {
 			log.info(
-				"[{}] {}{} time={}ms ex={}",
-				traceId.getId(),
-				addSpace(EX_PREFIX, traceId.getLevel()),
-				status.getMessage(),
-				resultTimeMs,
-				e.toString());
+					"[{}] {}{} time={}ms ex={}",
+					traceId.getId(),
+					addSpace(EX_PREFIX, traceId.getLevel()),
+					status.getMessage(),
+					resultTimeMs,
+					e.toString());
 		}
 
 		releaseTraceId();
 	}
 
-//	private Object getSession() {
-//		ServletRequestAttributes servletRequestAttribute = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-//		Object attribute = null;
-//		if (servletRequestAttribute != null) {
-//			attribute = servletRequestAttribute.getAttribute(SessionConst.LOGIN_MEMBER,
-//				RequestAttributes.SCOPE_SESSION);
-//		}
-//		return attribute;
-//	}
-
 	private void syncTraceId() {
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		if (traceId == null) {
 			TraceId traceId1 = new TraceId();
 			MDC.put("traceId", traceId1.getMdcStr());
@@ -87,8 +77,7 @@ public class ThreadLocalLogTrace implements LogTrace {
 	}
 
 	private void releaseTraceId() {
-//		Object session = getSession();
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		TraceId traceId1 = new TraceId(traceId.split("\\.")[1], Integer.parseInt(traceId.split("\\.")[0]));
 		if (traceId1.isFirstLevel()) {
 			MDC.clear();

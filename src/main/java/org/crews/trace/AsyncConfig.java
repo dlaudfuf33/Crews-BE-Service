@@ -18,7 +18,6 @@ public class AsyncConfig implements AsyncConfigurer {
 		taskExecutor.setCorePoolSize(processors);
 		taskExecutor.setMaxPoolSize(processors * 2);
 		taskExecutor.setQueueCapacity(100);
-		taskExecutor.setMaxPoolSize(50);
 		// 내가 만든 데코레이터 설정
 		taskExecutor.setTaskDecorator(new ClonedTaskDecorator());
 		taskExecutor.setThreadNamePrefix("async-task-");
