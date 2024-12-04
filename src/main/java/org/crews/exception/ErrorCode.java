@@ -60,6 +60,7 @@ public enum ErrorCode {
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.GONE),
+    DELETED_MEMBER("이미 탈퇴한 회원입니다.", HttpStatus.GONE),
 
     // 422 유효성 검사 실패
     PASSWORD_CONFIRMATION_MISMATCH("변경할 비밀번호와 일치하지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
