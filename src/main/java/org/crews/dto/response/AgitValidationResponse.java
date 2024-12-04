@@ -7,19 +7,19 @@ import org.crews.model.Member;
 import org.crews.model.Membership;
 
 @Getter
-public class AgitVaildationResponse {
+public class AgitValidationResponse {
     private final Agit agit;
     private final Member member;
     private final Membership membership;
     private final Feed feed;
 
-    public AgitVaildationResponse(Agit agit, Member member, Membership membership) {
+    public AgitValidationResponse(Agit agit, Member member, Membership membership) {
         this.agit = agit;
         this.member = member;
         this.membership = membership;
         this.feed = null;
     }
-    public AgitVaildationResponse(Agit agit, Member member, Membership membership, Feed feed) {
+    public AgitValidationResponse(Agit agit, Member member, Membership membership, Feed feed) {
         this.agit = agit;
         this.member = member;
         this.membership = membership;

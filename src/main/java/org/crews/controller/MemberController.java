@@ -163,7 +163,7 @@ public class MemberController {
             log.info("회원탈퇴 성공: 회원ID={}", memberId);
             return ResponseEntity.noContent().build();
         } catch (CustomException ce) {
-            log.error("회원탈퇴 중 커스텀 예외 발생: 회원ID={}, 오류코드={}, 메시={}", memberId, ce.getErrorCode(), ce.getMessage());
+            log.error("회원탈퇴 중 예외 발생: 회원ID={}, 오류코드={}, 메시={}", memberId, ce.getErrorCode(), ce.getMessage());
             throw ce;
         } catch (Exception e) {
             log.error("회원탈퇴 중 예상치 못한 예외 발생: 회원ID={}, 메시={}", memberId, e.getMessage(), e);

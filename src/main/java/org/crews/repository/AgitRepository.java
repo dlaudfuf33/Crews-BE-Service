@@ -54,6 +54,8 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "ORDER BY a.currentPerson DESC")
     List<Agit> findRecruitAgits(@Param("memberId") Long memberId);
 
+    boolean existsByAgitName(String agitName);
+
     @Query("""
                 SELECT a FROM Agit a
                 LEFT JOIN FETCH a.commonDues cd

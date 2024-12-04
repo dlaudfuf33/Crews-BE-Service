@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // 400 BAD_REQUEST
+    NO_ASSOCIATED_GROUP("소속된 모임이 없습니다.", HttpStatus.BAD_REQUEST),
     WRONG_BANKCODE("잘못된 은행코드 입니다.", HttpStatus.BAD_REQUEST),
     NOT_MATCHED_MEMBER("해당하는 아지트의 멤버가 아닙니다.", HttpStatus.BAD_REQUEST),
     REQUIRED_NOT_NULL("필수 값이 누락되었습니다.", HttpStatus.BAD_REQUEST),
@@ -55,7 +56,7 @@ public enum ErrorCode {
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
-    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.",HttpStatus.CONFLICT),
+    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.", HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),

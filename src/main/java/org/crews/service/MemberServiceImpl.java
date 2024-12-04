@@ -411,7 +411,7 @@ public class MemberServiceImpl implements MemberService {
     public AgitAccountInfoListResponse getAgitsAccountsInfo(Long memberId) {
         List<Membership> memberships = memberShipRepository.findMembershipsWithDetailsByMemberId(memberId);
         if (memberships.isEmpty()) {
-            throw new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND);
+            throw new CustomException(ErrorCode.NO_ASSOCIATED_GROUP);
         }
 
         List<AgitAccountInfoResponse> agitAccountInfoResponses = memberships.stream().filter(membership -> {

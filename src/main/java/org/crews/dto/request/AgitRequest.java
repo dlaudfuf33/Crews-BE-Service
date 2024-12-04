@@ -11,8 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class AgitRequest {
     @NotBlank
-    private Long memberId;
-    @NotBlank
     private String introduction;
     @NotBlank
     private Long subject;
@@ -20,4 +18,6 @@ public class AgitRequest {
     private List<Long> interests;
     @NotBlank
     private String name;
+    @NotBlank
+    private AddressRequest addressRequest;
 }

@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.ReportRequest;
-import org.crews.dto.response.AgitVaildationResponse;
+import org.crews.dto.response.AgitValidationResponse;
 import org.crews.dto.response.ReportResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -26,7 +26,7 @@ public class ReportService {
     @Transactional
     public ReportResponse reportFeed(Long memberId, Long feedId, Long agitId, ReportRequest reportRequest){
 
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkFeedException(memberId,agitId, feedId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkFeedException(memberId,agitId, feedId);
 
         Feed feed = checkedResult.getFeed();
         Member member = checkedResult.getMember();
