@@ -106,16 +106,16 @@ CREATE TABLE subject
 -- Agit 테이블
 CREATE TABLE agit
 (
-    id                  BIGINT       NOT NULL AUTO_INCREMENT,
-    current_person      INT                   DEFAULT 1,
-    is_deleted          BOOLEAN               DEFAULT FALSE,
-    is_due              BOOLEAN      NOT NULL DEFAULT FALSE,
-    introduction        VARCHAR(255) NOT NULL DEFAULT '',
-    max_person          INT                   DEFAULT 30,
+    id                  BIGINT              NOT NULL AUTO_INCREMENT,
+    current_person      INT                          DEFAULT 1,
+    is_deleted          BOOLEAN                      DEFAULT FALSE,
+    is_due              BOOLEAN             NOT NULL DEFAULT FALSE,
+    introduction        VARCHAR(255)        NOT NULL DEFAULT '',
+    max_person          INT                          DEFAULT 30,
     created_at          DATETIME(6),
     subject_id          BIGINT,
     updated_at          DATETIME(6),
-    agit_name           VARCHAR(255) NOT NULL,
+    agit_name           VARCHAR(255) UNIQUE NOT NULL,
     agit_and_account_id BIGINT,
     common_dues_id      BIGINT,
     address_id          BIGINT,
