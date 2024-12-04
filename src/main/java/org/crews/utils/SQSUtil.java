@@ -1,0 +1,92 @@
+package org.crews.utils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.crews.dto.sqs.MessagePayload;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.model.*;
+
+import java.util.List;
+
+public class SQSUtil {
+    private SqsClient sqsClient;
+    private String queueUrl;
+
+    public SQSUtil() {
+        sqsClient = SqsClient.builder()
+                .region(Region.AP_NORTHEAST_2) // 적절한 리전을 설정하세요
+                .credentialsProvider(ProfileCredentialsProvider.create())
+                .build();
+
+        CreateQueueRequest createQueueRequest = CreateQueueRequest.builder()
+                .queueName("Crews-Service-Queue") // 대기열 이름 설정
+                .build();
+
+        CreateQueueResponse createQueueResponse = sqsClient.createQueue(createQueueRequest);
+        queueUrl = createQueueResponse.queueUrl();
+    }
+
+    public void sendMessage(Object messageObject) {
+        // 메시지 전송
+        if (queueUrl == null) {
+            throw new IllegalStateException("Queue URL is not initialized. Call createQueue() first.");
+        }
+
+        try {
+            // 객체를 JSON 형식으로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String messageBody = objectMapper.writeValueAsString(messageObject);
+
+            SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
+                    .queueUrl(queueUrl)
+                    .messageBody(messageBody)
+                    .delaySeconds(0)
+                    .build();
+
+            sqsClient.sendMessage(sendMsgRequest);
+            System.out.println("Message sent: " + messageBody);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send message", e);
+        }
+    }
+
+    public void receiveAndDeleteMessages(int targetMemberId) {
+        if (queueUrl == null) {
+            throw new IllegalStateException("Queue URL is not initialized. Call createQueue() first.");
+        }
+
+        ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
+                .queueUrl(queueUrl)
+                .maxNumberOfMessages(10)
+                .build();
+
+        List<Message> messages = sqsClient.receiveMessage(receiveRequest).messages();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        for (Message message : messages) {
+            try {
+                // 메시지 본문을 JSON으로 파싱
+                MessagePayload payload = objectMapper.readValue(message.body(), MessagePayload.class);
+
+                // memberId 조건에 맞는 메시지만 처리
+                if (payload.getMemberId() == targetMemberId) {
+                    System.out.println("Matching message found: " + message.body());
+
+                    // 메시지 삭제
+                    DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
+                            .queueUrl(queueUrl)
+                            .receiptHandle(message.receiptHandle())
+                            .build();
+
+                    sqsClient.deleteMessage(deleteMessageRequest);
+                    System.out.println("Deleted message with receipt handle: " + message.receiptHandle());
+                } else {
+                    System.out.println("Message does not match: " + message.body());
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to process message: " + e.getMessage());
+            }
+        }
+    }
+}

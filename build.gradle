@@ -54,6 +54,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     // RabbitMQ 의존성
 //	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    // AWS SQS 의존성
+    implementation 'software.amazon.awssdk:sqs:2.20.0'
+
 
 }
 
