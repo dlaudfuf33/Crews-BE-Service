@@ -34,8 +34,9 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest){
-        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
+    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest, memberId));
     }
 
     @GetMapping("/{agits-id}/dues")
@@ -61,8 +62,9 @@ public class AgitController {
     }
 
     @PostMapping("/registrations")
-    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest){
-        return agitService.agitRestration(agitRegisterRequest);
+    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return agitService.agitRestration(agitRegisterRequest, memberId);
     }
 
     @GetMapping("/search")
@@ -105,4 +107,9 @@ public class AgitController {
         return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
 
     }
+    @GetMapping("/validate-name")
+    public ResponseEntity<AgitNameValidateResponse> validateName(@RequestParam String agitName, HttpServletRequest request){
+        return ResponseEntity.ok().body(agitService.validateAgitName(agitName));
+    }
+
 }

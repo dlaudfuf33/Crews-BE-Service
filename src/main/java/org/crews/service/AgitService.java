@@ -15,6 +15,7 @@ import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.MessageUtil;
+import org.crews.utils.AddressUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -44,16 +45,34 @@ public class AgitService {
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
+    private final AddressRepository addressRepository;
     public List<AgitResponse> getAllAgits(){
         return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::from).toList();
     }
     @Transactional
-    public AgitResponse generateAgit(AgitRequest agitRequest) {
+    public AgitResponse generateAgit(AgitRequest agitRequest, Long memberId) {
+        String addressDo = agitRequest.getAddressRequest().getDoName();
+        String addressSi = agitRequest.getAddressRequest().getSiName();
+        String addressGuGun = agitRequest.getAddressRequest().getGuName();
+        String addressDong = agitRequest.getAddressRequest().getDongName();
+
+        String uniqueKey = AddressUtils.generateUniqueAddressKey(addressDo, addressSi, addressGuGun, addressDong);
+        Address findOrSaveAddress = addressRepository.findByUniqueAddressKey(uniqueKey)
+                .orElseGet(() -> {
+                    // 주소가 없으면 새로 생성하여 저장
+                    Address address = Address.builder()
+                            .addressDo(addressDo)
+                            .addressSi(addressSi)
+                            .addressGuGun(addressGuGun)
+                            .addressDong(addressDong)
+                            .build();
+                    return addressRepository.save(address);
+                });
         Subject subject = subjectRepository.findById(agitRequest.getSubject()).orElseThrow(
                 () -> new CustomException(ErrorCode.SUBJECT_NOT_FOUND)
         );
         Agit agit = Agit.builder().agitName(agitRequest.getName()).isDue(false)
-                .maxPerson(30).currentPerson(1).isDeleted(false).subject(subject).introduction(agitRequest.getIntroduction())
+                .maxPerson(30).currentPerson(1).isDeleted(false).subject(subject).introduction(agitRequest.getIntroduction()).address(findOrSaveAddress)
                 .build();
 
         Agit savedAgit = agitRepository.save(agit);
@@ -70,7 +89,7 @@ public class AgitService {
         }
         savedAgit.getInterestingAndAgits().addAll(interestingAndAgits);
         interestingAndAgitRepository.saveAllAndFlush(interestingAndAgits);
-        Member member = memberRepository.findById(agitRequest.getMemberId()).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Membership membership = Membership.builder().agit(savedAgit).member(member).agitRole(AgitRole.LEADER).joinedAt(
@@ -135,17 +154,17 @@ public class AgitService {
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
     @Transactional
-    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest) {
+    public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest, Long memberId) {
         try {
             Membership membership = Membership.builder()
                     .agit(Agit.builder().id(agitInfoRequest.getAgitId()).build())
-                    .member(Member.builder().id(agitInfoRequest.getMemberId()).build())
+                    .member(Member.builder().id(memberId).build())
                     .agitRole(AgitRole.TEMP)
                     .joinedAt(LocalDateTime.now())
                     .build();
 
             boolean isAlreadyJoined = memberShipRepository.findByMemberAndAgit(
-                    Member.builder().id(agitInfoRequest.getMemberId()).build(),
+                    Member.builder().id(memberId).build(),
                     Agit.builder().id(agitInfoRequest.getAgitId()).build()
             ).isPresent();
 
@@ -231,7 +250,6 @@ public class AgitService {
         return new AgitSortResponse(recruitAgitResponses, newAgitResponses);
     }
 
-
     public void duesCall(Long agitId, Long memberId, DuesCallRequest duesCallRequest) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
@@ -257,8 +275,18 @@ public class AgitService {
                 duesCallRequest.getMonth(),
                 amountFormat.format(duesCallRequest.getDuesAmount())
         );
-        for(Member findMember : memberList) {
+        for (Member findMember : memberList) {
             MessageUtil.send(AESUtil.decrypt(findMember.getPhoneNumber()), result);
+        }
+    }
+
+
+    public AgitNameValidateResponse validateAgitName(String agitName) {
+
+        if(agitRepository.existsByAgitName(agitName)) {
+            return AgitNameValidateResponse.builder().used(true).message("이미 사용중인 아지트 이름입니다.").build();
+        } else {
+            return AgitNameValidateResponse.builder().used(false).message("사용 가능한 아지트 이름입니다.").build();
         }
     }
 }

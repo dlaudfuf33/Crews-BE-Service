@@ -3,7 +3,7 @@ package org.crews.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.MeetingRequest;
-import org.crews.dto.response.AgitVaildationResponse;
+import org.crews.dto.response.AgitValidationResponse;
 import org.crews.dto.response.MeetingResponse;
 import org.crews.dto.response.MeetingSliceResponse;
 import org.crews.exception.CustomException;
@@ -33,14 +33,13 @@ public class MeetingService {
     private final AgitRepository agitRepository;
 
     public MeetingSliceResponse getAllEvents(Long memberId, Long agitId, Integer page, Integer pageSize) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
-
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Slice<Meeting> events = meetingRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, pageSize, Sort.by(Sort.Order.desc("regularTime"))));
         return MeetingSliceResponse.of(checkedResult.getMembership(), events);
     }
 
     public MeetingResponse getEvent(Long memberId, Long agitId, Long meetingId) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         Meeting meeting = meetingRepository.findByIdAndAgit(meetingId, checkedResult.getAgit()).orElseThrow(
                 () -> new CustomException(ErrorCode.EVENT_NOT_FOUND));
@@ -60,7 +59,7 @@ public class MeetingService {
 
     @Transactional
     public MeetingResponse postEvent(Long memberId, Long agitId, MeetingRequest meetingRequest) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_MEETING_CREATION);
@@ -72,7 +71,7 @@ public class MeetingService {
 
     @Transactional
     public MeetingResponse editEvent(Long memberId, Long agitId, Long meetingId, MeetingRequest meetingRequest) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Meeting meeting=meetingRepository.findById(meetingId).orElseThrow(()->new CustomException(ErrorCode.EVENT_NOT_FOUND));
         if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
