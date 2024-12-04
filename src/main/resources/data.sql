@@ -355,9 +355,9 @@ VALUES ('3', 500.00, NOW(), NOW(), 1),
 
 -- Dues 테이블에 더미 데이터 삽입
 INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id, is_payed, product_name,
-                  account_number, agit_name)
-VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1'),
-       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2');
+                  account_number, agit_name, standard_date)
+VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1', NOW()),
+       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2', NOW());
 
 
 -- Feed 테이블에 더미 데이터 삽입
@@ -402,5 +402,6 @@ VALUES (1, 1, NOW(), NOW()),
 
 -- Regular Crewing 테이블에 더미 데이터 삽입
 INSERT INTO meeting (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place, regular_name)
-VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
-       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '정기 크루잉 2');
+VALUES (FALSE, 5, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
+       (FALSE, 5, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '정기 크루잉 2');
+

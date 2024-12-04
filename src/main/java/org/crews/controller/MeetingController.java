@@ -24,11 +24,11 @@ public class MeetingController {
     @GetMapping
     public ResponseEntity<MeetingSliceResponse> getAllMeetings(
             @PathVariable("agits-id") Long agitId,
-            @RequestParam int page,
+            @RequestParam Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-
-        return ResponseEntity.ok().body(meetingService.getAllEvents(memberId, agitId, page));
+        return ResponseEntity.ok().body(meetingService.getAllEvents(memberId, agitId, page, pageSize));
     }
 
     @GetMapping("/{meeting-id}")

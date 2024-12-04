@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.DuesSaveRequest;
 import org.crews.dto.response.DuesSaveResponse;
 import org.crews.dto.response.GetDuesResponse;
-import org.crews.jwt.JWTUtil;
 import org.crews.service.DuesService;
+import org.crews.utils.AuthUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,28 +17,30 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/agits/{agits-id}/managements/dues")
 public class DuesController {
     private final DuesService duesService;
-    private final JWTUtil jwtUtil;
+    private final AuthUtil authUtil;
 
     @GetMapping
     public ResponseEntity<GetDuesResponse> getDues(@PathVariable("agits-id") Long agitId,
+                                                   @RequestParam Integer year,
+                                                   @RequestParam Integer month,
                                                    HttpServletRequest request){
-        String token = request.getHeader("Authorization").substring(7);
-        Long memberId = jwtUtil.getMemberId(token);
-        return ResponseEntity.ok().body(duesService.getDues(agitId, memberId));
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(duesService.getDues(agitId, memberId, year, month));
     }
 
     @GetMapping("/common")
     public ResponseEntity<DuesSaveResponse> getDuesCommon(@PathVariable("agits-id") Long agitId,
                                                     HttpServletRequest request){
-        String token = request.getHeader("Authorization").substring(7);
-        Long memberId = jwtUtil.getMemberId(token);
+        Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(duesService.getDuesCommon(agitId, memberId));
     }
 
 
     @PostMapping("/common")
     public ResponseEntity<DuesSaveResponse> duesSaveCommon(@PathVariable("agits-id") Long agitId,
-                                                     @RequestBody DuesSaveRequest duesSaveRequest){
-        return ResponseEntity.ok().body(duesService.duesSaveCommon(agitId, duesSaveRequest));
+                                                           @RequestBody DuesSaveRequest duesSaveRequest,
+                                                           HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(duesService.duesSaveCommon(agitId, memberId, duesSaveRequest));
     }
 }

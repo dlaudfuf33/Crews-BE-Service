@@ -1,4 +1,4 @@
-package org.crews.dto.request;
+package org.crews.dto.core;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -6,19 +6,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DuesSaveRequest {
-
-
-    @NotBlank
-    private BigDecimal dueAmount;
+public class BalanceInfoRequest {
 
     @NotBlank
-    private Integer dueDay;
+    private String fintecUseNum;
 
+    @NotBlank
+    private String recvFintecUseNum;
 }

@@ -3,15 +3,13 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.core.AccountInfoResponse;
+import org.crews.dto.core.*;
 import org.crews.dto.request.AccountDetailsRequest;
 import org.crews.dto.request.AccountLinkRequest;
-import org.crews.dto.core.AccountIssuedResponse;
-import org.crews.dto.core.AccountOneResponse;
+import org.crews.dto.request.AccountTransferRequest;
 import org.crews.dto.response.AccountLinkResponse;
 import org.crews.dto.response.TransactionDetailResponse;
 
-import org.crews.dto.request.MemberIdRequest;
 import org.crews.model.constants.AgitRole;
 import org.crews.service.AccountService;
 import org.crews.utils.AuthUtil;
@@ -33,8 +31,10 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@PathVariable("agits-id") Long agitId,
-                                                               @RequestBody MemberIdRequest memberIdRequest){
-        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberIdRequest, AgitRole.LEADER));
+                                                               @RequestBody ProductRequest productRequest,
+                                                               HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.accountIssued(agitId, memberId, productRequest, AgitRole.LEADER));
     }
 
     @PostMapping("/link")
@@ -45,8 +45,9 @@ public class AccountController {
 
     @PostMapping("/all")
     public ResponseEntity<AccountInfoResponse> getAllAccounts(@PathVariable("agits-id") Long agitId,
-                                                              @RequestBody MemberIdRequest memberIdRequest){
-        return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberIdRequest));
+                                                              HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.getAllAccounts(agitId, memberId));
     }
 
     @GetMapping("/details")
@@ -62,9 +63,26 @@ public class AccountController {
 
     @GetMapping("/deposit")
     public ResponseEntity<TransactionDetailResponse> getAccountDeposit(@PathVariable("agits-id") Long agitId,
+                                                             @RequestParam Integer year,
+                                                             @RequestParam Integer month,
                                                              HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(accountService.getAccountDeposit(agitId, memberId));
+        return ResponseEntity.ok().body(accountService.getAccountDeposit(agitId, memberId, year, month));
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<ApiResponse> transferCrewAccount(@PathVariable("agits-id") Long agitId,
+                                                           @RequestBody AccountTransferRequest accountTransferRequest,
+                                                           HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.transferCrewAccount(agitId, memberId, accountTransferRequest));
+    }
+
+    @PostMapping("/permissions")
+    public ResponseEntity<String> accountLink(@PathVariable("agits-id") Long agitId,
+                                                           HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.accountPermission(agitId, memberId));
     }
 
 }
