@@ -36,7 +36,7 @@ public class AccountService {
     private final AgitRepository agitRepository;
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final AgitAndAccountRepository agitAndAccountRepository;
     private final CoreService coreService;
@@ -67,7 +67,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, memberRole).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, memberRole).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -93,7 +93,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -125,7 +125,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_MATCHED_MEMBER)
         );
         String ci = membership.getMember().getCi();
@@ -162,7 +162,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -191,7 +191,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();

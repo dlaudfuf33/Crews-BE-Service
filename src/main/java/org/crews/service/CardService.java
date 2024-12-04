@@ -29,7 +29,7 @@ public class CardService {
 
     private final AgitRepository agitRepository;
     private final AccountRepository accountRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final CoreService coreService;

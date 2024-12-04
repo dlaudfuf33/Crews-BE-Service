@@ -23,7 +23,7 @@ public class IntroducingService {
     private final IntroducingRepository introducingRepository;
     private final AgitRepository agitRepository;
     private final MemberRepository memberRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final CheckExceptionUtil checkExceptionUtil;
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;

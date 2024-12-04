@@ -43,7 +43,7 @@ public class MemberServiceImpl implements MemberService {
     private final CoreService coreService;
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final CardRepository cardRepository;
     private final AuthUtil authUtil;
     private final MessageRepository messageRepository;

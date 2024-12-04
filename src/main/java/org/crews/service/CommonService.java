@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.crews.dto.core.AccountInfoResponse;
 import org.crews.dto.core.AccountIssuedResponse;
 import org.crews.dto.core.CIOnlyRequest;
-import org.crews.dto.core.ProductResponse;
 import org.crews.dto.request.DateRequest;
 import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
@@ -14,9 +13,8 @@ import org.crews.model.constants.AccountType;
 import org.crews.repository.AccountRepository;
 import org.crews.repository.DuesRepository;
 import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.MembershipRepository;
 import org.crews.utils.AESUtil;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +27,7 @@ import java.util.Optional;
 public class CommonService {
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final CoreService coreService;
     private final AgitService agitService;
     private final DuesRepository duesRepository;

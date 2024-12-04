@@ -31,7 +31,7 @@ public class DuesService {
 
     private final MemberRepository memberRepository;
     private final AgitRepository agitRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final CommonDuesRepository commonDuesRepository;
     private final AccountRepository accountRepository;
     private final DuesRepository duesRepository;

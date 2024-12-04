@@ -6,10 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
 import org.crews.service.AgitService;
+import org.crews.service.MembershipService;
 import org.crews.utils.AuthUtil;
+import org.crews.utils.CheckExceptionUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.crews.dto.request.AgitInfoRequest;
 import org.crews.model.constants.AgitRole;
@@ -26,7 +27,9 @@ import java.util.Optional;
 @RequestMapping("/agits")
 public class AgitController {
     private final AgitService agitService;
+    private final MembershipService membershipService;
     private final AuthUtil authUtil;
+    private final CheckExceptionUtil checkExceptionUtil;
 
     @GetMapping
     public ResponseEntity<List<AgitResponse>> getAllAgits(){
@@ -49,7 +52,7 @@ public class AgitController {
     public ResponseEntity<AgitRole> getMemberRole(@PathVariable("agits-id") Long agitId,
                                                   HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(agitService.getMemberRole(agitId, memberId));
+        return ResponseEntity.ok().body(agitService.getAgitRole(agitId, memberId));
     }
 
     @GetMapping("/info")
@@ -86,6 +89,44 @@ public class AgitController {
         AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, agitRole);
 
         return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
+    }
+
+    @PostMapping("/{agits-id}/manage/accounts")
+    public ResponseEntity<String> accountAuthorization(
+            @PathVariable("agits-id") Long agitId,
+            @RequestParam("status") String status,
+            @RequestParam("requestMemberId") Long requestMemberId,
+            HttpServletRequest request
+    ){
+        Long memberId=authUtil.getMemberId(request);
+        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
+
+        String responseMessage;
+        if(status.equals("approve")){
+            responseMessage = membershipService.accountApprove(requestMemberId,agitId);
+        }else{
+            responseMessage = membershipService.accountReject(requestMemberId,agitId);
+        }
+        return ResponseEntity.ok(responseMessage);
+    }
+
+    @PostMapping("/{agits-id}/manage/members")
+    public ResponseEntity<String> memberAuthorization(
+            @PathVariable("agits-id") Long agitId,
+            @RequestParam("status") String status,
+            @RequestParam("requestMemberId") Long requestMemberId,
+            HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+        checkExceptionUtil.validateLeader(memberId, agitId, AgitRole.LEADER);
+
+        String responseMessage;
+        if(status.equals("approve")){
+            responseMessage = membershipService.memberApprove(requestMemberId,agitId);
+        }else {
+            responseMessage = membershipService.memberReject(requestMemberId,agitId);
+        }
+        return ResponseEntity.ok(responseMessage);
     }
 
     @GetMapping("/home")

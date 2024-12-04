@@ -35,7 +35,7 @@ public class AgitService {
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;
     private final IntroducingRepository introducingRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
@@ -109,7 +109,7 @@ public class AgitService {
         }
     }
 
-    public AgitRole getMemberRole(Long agitId, Long memberId) {
+    public AgitRole getAgitRole(Long agitId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -172,11 +172,6 @@ public class AgitService {
         Slice<Agit> agitSlice = agitRepository.findByIntroductionLikeAndIsDeletedFalse(keyWord, pageable);
 
         return AgitSliceResponse.of(agitSlice);
-    }
-
-    public AgitRole getAgitRole(Long agitId, Long memberId) {
-        Membership membership = memberShipRepository.findByMemberAndAgit(Member.builder().id(memberId).build(), Agit.builder().id(agitId).build()).orElseThrow();
-        return membership.getAgitRole();
     }
 
     public AgitManageResponse getAgitMember(Long agitId, AgitRole agitRole) {
