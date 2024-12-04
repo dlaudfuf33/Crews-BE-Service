@@ -38,6 +38,6 @@ public class ReportService {
             throw new CustomException(ErrorCode.ALREADY_REPORTED_FEED);
         }
         Report report = Report.of(reportRequest, feed, member);
-        return ReportResponse.of(reportRepository.save(report));
+        return ReportResponse.from(reportRepository.save(report));
     }
 }

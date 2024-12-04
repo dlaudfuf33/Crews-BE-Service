@@ -26,9 +26,11 @@ public class AgitController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<AgitSliceResponse> getAllAgits(@RequestParam(value="subject-id",required = false)Long subjectId,
-                                                               @RequestParam int page){
-        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId,page));
+    public ResponseEntity<AgitSliceResponse> getAllAgits(
+            @RequestParam(value="subject-id",required = false)Long subjectId,
+            @RequestParam int page, HttpServletRequest request){
+        Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
+        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId,page,memberId));
     }
 
     @PostMapping

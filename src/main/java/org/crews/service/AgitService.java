@@ -42,7 +42,8 @@ public class AgitService {
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
-    public AgitSliceResponse getAllAgits(Long subjectId, int page){
+    public AgitSliceResponse getAllAgits(Long subjectId, int page, Optional<Long> memberId){
+        Long memberIdOptional = memberId.orElse(null);
         if(page<0){
             throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
         }
@@ -50,7 +51,7 @@ public class AgitService {
             throw new CustomException(ErrorCode.SUBJECT_NOT_FOUND);
         }
 
-        Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
+        Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(memberIdOptional,subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
         if (agits.isEmpty()) {
             throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
         }

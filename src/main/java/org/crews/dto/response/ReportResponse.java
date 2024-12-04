@@ -13,7 +13,7 @@ public class ReportResponse {
     private Long id;
     private LocalDateTime createdAt;
     private String content;
-    public static ReportResponse of(Report report) {
+    public static ReportResponse from(Report report) {
         return new ReportResponse(
                 report.getId(),
                 report.getCreatedAt(),
