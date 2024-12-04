@@ -3,13 +3,13 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.DuesCallRequest;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
 import org.crews.service.AgitService;
 import org.crews.utils.AuthUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.crews.dto.request.AgitInfoRequest;
 import org.crews.model.constants.AgitRole;
@@ -94,5 +94,15 @@ public class AgitController {
     public ResponseEntity<AgitSortResponse> getHomeAgits(HttpServletRequest request){
         Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
         return ResponseEntity.ok().body(agitService.getHomeAgits(memberId));
+    }
+
+    @PostMapping("/{agits-id}/member/call")
+    public ResponseEntity<String> duesCall(@PathVariable("agits-id") Long agitId,
+                                           @RequestBody DuesCallRequest duesCallRequest,
+                                         HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        agitService.duesCall(agitId, memberId, duesCallRequest);
+        return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
+
     }
 }

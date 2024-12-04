@@ -78,4 +78,11 @@ public class AccountController {
         return ResponseEntity.ok().body(accountService.transferCrewAccount(agitId, memberId, accountTransferRequest));
     }
 
+    @PostMapping("/permissions")
+    public ResponseEntity<String> accountLink(@PathVariable("agits-id") Long agitId,
+                                                           HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.accountPermission(agitId, memberId));
+    }
+
 }

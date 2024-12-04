@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.AgitInfoRequest;
 import org.crews.dto.request.AgitRequest;
+import org.crews.dto.request.DuesCallRequest;
 import org.crews.dto.response.*;
 
 import org.crews.exception.CustomException;
@@ -12,6 +13,8 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
+import org.crews.utils.AESUtil;
+import org.crews.utils.MessageUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -19,7 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -225,5 +229,36 @@ public class AgitService {
                 .map(AgitResponse::from).limit(3).toList();
 
         return new AgitSortResponse(recruitAgitResponses, newAgitResponses);
+    }
+
+
+    public void duesCall(Long agitId, Long memberId, DuesCallRequest duesCallRequest) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
+        );
+        String ci = membership.getMember().getCi();
+        if (!member.getCi().equals(ci)) {
+            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
+        }
+        List<Member> memberList = memberRepository.findByIdIn(duesCallRequest.getMemberId());
+        DecimalFormat numberFormat = new DecimalFormat("#");
+        DecimalFormat amountFormat = new DecimalFormat("#,###");
+        String message = "안녕하세요 크루즈 입니다.\\n{0} 아지트에서 {1}년 {2}월 회비 {3}원을 아직 납부하지 않았습니다.\\n모임장 님께서 아지트 회비 납부 요청을 하셨습니다.\\n감사합니다.";
+        String result = MessageFormat.format(
+                message,
+                agit.getAgitName(),
+                numberFormat.format(duesCallRequest.getYear()),
+                duesCallRequest.getMonth(),
+                amountFormat.format(duesCallRequest.getDuesAmount())
+        );
+        for(Member findMember : memberList) {
+            MessageUtil.send(AESUtil.decrypt(findMember.getPhoneNumber()), result);
+        }
     }
 }

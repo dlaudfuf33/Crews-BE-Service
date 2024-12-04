@@ -285,4 +285,22 @@ public class AccountService {
 
         return transfer;
     }
+
+    @Transactional
+    public String accountPermission(Long agitId, Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
+        );
+        if(!membership.getAgitRole().equals(AgitRole.MEMBER)){
+            throw new CustomException(ErrorCode.PERMISSION_NOT_ALLOWED);
+        }
+        membership.setAgitRole(AgitRole.ADVANCED);
+        return "모임통장 권한이 요청되었습니다.";
+    }
 }
