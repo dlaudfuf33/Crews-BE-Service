@@ -52,9 +52,6 @@ public class AgitService {
         }
 
         Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(memberIdOptional,subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
-        if (agits.isEmpty()) {
-            throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
-        }
 
         return AgitSliceResponse.of(agits);
     }
