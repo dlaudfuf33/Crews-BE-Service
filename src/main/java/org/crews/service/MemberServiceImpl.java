@@ -1,5 +1,7 @@
 package org.crews.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.crews.utils.AESUtil;
 import org.crews.utils.CIGenerator;
 import org.crews.utils.MaskedNumber;
 import org.crews.utils.*;
+import org.springframework.boot.web.server.WebServerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -386,27 +389,31 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<AccountResponse> getAccountInfoFromCore(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
         try {
-
-            List<AccountResponse> coreAccounts = coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
-
+            List<AccountResponse> coreAccounts
+                    = coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
             if (coreAccounts == null) {
                 log.warn("Core 서비스에서 계좌 정보를 가져오지 못했습니다. memberId: {}", memberId);
                 return List.of();
             }
-
             List<Account> existingAccounts = accountRepository.findAccountsByMemberId(memberId);
-            Set<String> existingAccountNumbers = existingAccounts.stream().map(Account::getAccountNumber).collect(Collectors.toSet());
+            Set<String> existingAccountNumbers
+                    = existingAccounts.stream()
+                    .map(Account::getAccountNumber).collect(Collectors.toSet());
 
-            List<AccountResponse> newAccounts = coreAccounts.stream().filter(accountResponse -> accountResponse.getAccountType() == AccountType.PERSONAL).filter(accountResponse -> {
-                boolean isNew = !existingAccountNumbers.contains(AESUtil.encrypt(accountResponse.getAccountNumber()));
-                if (!isNew) {
-                    log.info("이미 등록된 계좌 제외: '{}'", accountResponse.getAccountNumber());
-                }
-                return isNew;
-            }).toList();
-
+            List<AccountResponse> newAccounts
+                    = coreAccounts.stream()
+                    .filter(accountResponse -> accountResponse.getAccountType() == AccountType.PERSONAL)
+                    .filter(accountResponse -> {
+                        boolean isNew = !existingAccountNumbers.contains(AESUtil.encrypt(accountResponse.getAccountNumber()));
+                        if (!isNew) {
+                            log.info("이미 등록된 계좌 제외: '{}'", accountResponse.getAccountNumber());
+                        }
+                        return isNew;
+                    }).toList();
             log.info("회원 '{}'에 대한 PERSONAL 타입 계좌 중 신규 계좌의 수: '{}'", memberId, newAccounts.size());
             return newAccounts;
         } catch (Exception e) {
@@ -476,40 +483,45 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public TransferMsgResponse paymentFee(Long memberId, PaymentRequest paymentRequest) {
+        try {
+            Member member = memberRepository.findById(memberId).orElseThrow(
+                    () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+            validateOldPassword(member.getPinNumber(), paymentRequest.getPinNumber());
+            Account myAccount = accountRepository.findByIdAndMemberId(paymentRequest.getMyAccountId(), memberId).orElseThrow(
+                    () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
+            Account agitAccount = accountRepository.findById(paymentRequest.getCrewAccountId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
 
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        validateOldPassword(member.getPinNumber(), paymentRequest.getPinNumber());
-        Account myAccount = accountRepository.findByIdAndMemberId(paymentRequest.getMyAccountId(), memberId).orElseThrow(
-                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
-        Account agitAccount = accountRepository.findById(paymentRequest.getCrewAccountId()).orElseThrow(
-                () -> new CustomException(ErrorCode.NO_ACCOUNTS_RETURNED));
+            Agit agit = agitRepository.findByIdWithCommonDues(paymentRequest.getAgitId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
+            Membership membership = memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+            log.warn("{}", paymentRequest.getAmount());
+            TransferResponse transferResponse =
+                    coreService.transferFee(
+                            TransferRequest.builder().
+                                    finUseNum(myAccount.getFintecNumber())
+                                    .recvAccountNum(AESUtil.decrypt(agitAccount.getAccountNumber()))
+                                    .amt(paymentRequest.getAmount())
+                                    .build()).getData();
 
-        Agit agit = agitRepository.findByIdWithCommonDues(paymentRequest.getAgitId()).orElseThrow(
-                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-        Membership membership = memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
-        log.warn("{}", paymentRequest.getAmount());
-        TransferResponse transferResponse =
-                coreService.transferFee(
-                        TransferRequest.builder().
-                                finUseNum(myAccount.getFintecNumber())
-                                .recvAccountNum(AESUtil.decrypt(agitAccount.getAccountNumber()))
-                                .amt(paymentRequest.getAmount())
-                                .build()).getData();
+            duesRepository.save(Dues.builder()
+                    .dueAmount(transferResponse.getAmount())
+                    .productName(myAccount.getProductName())
+                    .accountNumber(myAccount.getAccountNumber())
+                    .agitName(agit.getAgitName())
+                    .membership(membership)
+                    .isPayed(true)
+                    .dueDate(LocalDateTime.now())
+                    .commonDues(agit.getCommonDues())
+                    .build());
 
-        duesRepository.save(Dues.builder()
-                .dueAmount(transferResponse.getAmount())
-                .productName(myAccount.getProductName())
-                .accountNumber(myAccount.getAccountNumber())
-                .agitName(agit.getAgitName())
-                .membership(membership)
-                .isPayed(true)
-                .dueDate(LocalDateTime.now())
-                .commonDues(agit.getCommonDues())
-                .build());
-
-        return TransferMsgResponse.builder().message(transferResponse.getAmount() + "원 이체 성공하였습니다!").build();
+            return TransferMsgResponse.builder().message(transferResponse.getAmount() + "원 이체 성공하였습니다!").build();
+        } catch (WebServerException ex) {
+            log.warn("CoreService 에러 발생: {}", ex.getMessage());
+            String coreErrorMessage = extractMessageFromJson(ex.getMessage());
+            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE, coreErrorMessage);
+        }
     }
 
     @Override
@@ -729,5 +741,17 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         member.setPinNumber(bCryptPasswordEncoder.encode(pinNumberRequest.getPinNumber()));
     }
+
+    private String extractMessageFromJson(String jsonString) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonString);
+            return jsonNode.path("error").path("message").asText("알 수 없는 오류가 발생했습니다.");
+        } catch (Exception e) {
+            log.error("JSON 파싱 오류: {}", e.getMessage());
+            return "알 수 없는 오류가 발생했습니다.";
+        }
+    }
+
 }
 

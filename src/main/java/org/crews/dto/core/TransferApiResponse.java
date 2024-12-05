@@ -11,4 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TransferApiResponse {
     private TransferResponse data;
+    private ErrorResponse error;
+
 }
