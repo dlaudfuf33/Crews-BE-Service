@@ -1,7 +1,5 @@
 package org.crews.repository;
 
-import org.crews.dto.request.FindMemberRequest;
-import org.crews.dto.response.FindMemberIdResponse;
 import org.crews.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

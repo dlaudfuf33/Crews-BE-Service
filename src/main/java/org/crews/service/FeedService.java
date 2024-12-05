@@ -19,7 +19,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
@@ -75,7 +74,7 @@ public class FeedService {
 
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        if(feed.getAgit().getId()!=agitId){
+        if(!feed.getAgit().getId().equals(agitId)){
             throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
         }
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);

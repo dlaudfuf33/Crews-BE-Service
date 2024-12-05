@@ -16,8 +16,10 @@ import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.MessageUtil;
 import org.crews.utils.AddressUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -46,9 +48,20 @@ public class AgitService {
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
     private final AddressRepository addressRepository;
-    public List<AgitResponse> getAllAgits(){
-        return agitRepository.findAllWithFetchJoin().stream().map(AgitResponse::from).toList();
+    public AgitSliceResponse getAllAgits(Long subjectId, int page, Optional<Long> memberId){
+        Long memberIdOptional = memberId.orElse(null);
+        if(page<0){
+            throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
+        }
+        if (subjectId != null && !subjectRepository.existsById(subjectId)) {
+            throw new CustomException(ErrorCode.SUBJECT_NOT_FOUND);
+        }
+
+        Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(memberIdOptional,subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
+
+        return AgitSliceResponse.of(agits);
     }
+
     @Transactional
     public AgitResponse generateAgit(AgitRequest agitRequest, Long memberId) {
         String addressDo = agitRequest.getAddressRequest().getDoName();
