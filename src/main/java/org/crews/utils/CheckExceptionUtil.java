@@ -39,7 +39,7 @@ public class CheckExceptionUtil {
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         Agit agit = feed.getAgit();
-        if(agit.getId()!=agitId){
+        if(!agit.getId().equals(agitId)){
             throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
         }
         Member member = memberRepository.findById(memberId).orElseThrow(

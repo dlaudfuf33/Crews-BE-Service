@@ -16,8 +16,6 @@ import org.crews.model.constants.AgitRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,8 +27,11 @@ public class AgitController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<List<AgitResponse>> getAllAgits(){
-        return ResponseEntity.ok().body(agitService.getAllAgits());
+    public ResponseEntity<AgitSliceResponse> getAllAgits(
+            @RequestParam(value="subject-id",required = false)Long subjectId,
+            @RequestParam int page, HttpServletRequest request){
+        Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
+        return ResponseEntity.ok().body(agitService.getAllAgits(subjectId,page,memberId));
     }
 
     @PostMapping
@@ -68,7 +69,7 @@ public class AgitController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<AgitSliceResponse> searchAgits(@RequestParam String keyWord, @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, HttpServletRequest request){
+    public ResponseEntity<AgitSliceResponse> searchAgits(@RequestParam String keyWord, @PageableDefault( size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable, HttpServletRequest request){
         if(request.getHeader("Authorization") == null) {
             return ResponseEntity.status(HttpStatus.OK).body(agitService.searchAgitAll("%" + keyWord + "%", pageable));
         }

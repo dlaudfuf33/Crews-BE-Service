@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +18,11 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
             "JOIN FETCH a.subject " +
             "JOIN FETCH a.interestingAndAgits ia " +
             "JOIN FETCH ia.interesting " +
-            "WHERE a.isDeleted = false")
-    List<Agit> findAllWithFetchJoin();
+            "WHERE a.isDeleted = false " +
+            "AND (:subjectId IS NULL OR a.subject.id = :subjectId)" +
+            "AND (:memberId IS NULL OR a.address.id = (SELECT m.address.id FROM Member m WHERE m.id = :memberId)) " +
+            "AND (:memberId IS NULL OR a NOT IN (SELECT m.agit FROM Membership m WHERE m.member.id = :memberId)) " )
+    Slice<Agit> findAllBySubjectIdWithFetchJoin(@Param("memberId") Long memberId, @Param("subjectId") Long subjectId, Pageable pageable);
 
     Slice<Agit> findByIntroductionLikeAndIsDeletedFalse(String keyWord, Pageable pageable);
 
