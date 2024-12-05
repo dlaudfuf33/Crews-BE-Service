@@ -264,7 +264,7 @@ public class AccountService {
         TransferResponse transferResponse = transfer.getData();
 
         Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(transferResponse.getTransactionTime()).dueAmount(transferResponse.getAmount())
-                .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
+                .membership(optionalMembership.get()).isPaid(false).accountNumber(account.getAccountNumber())
                 .productName(account.getProductName()).agitName(agit.getAgitName())
                 .standardDate(DateUtil.generateStandardDate(finalYear,finalMonth,transferResponse.getTransactionTime())).build();
         duesRepository.save(buildDues);

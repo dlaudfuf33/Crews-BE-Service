@@ -26,7 +26,7 @@ public class Dues extends BaseTimeEntity{
     private LocalDateTime dueDate;
 
     @Column(nullable = false)
-    private boolean isPayed;
+    private boolean isPaid;
 
     @Column(nullable = false)
     private String productName;

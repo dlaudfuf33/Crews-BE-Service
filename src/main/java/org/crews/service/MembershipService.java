@@ -17,7 +17,8 @@ public class MembershipService {
     private final CheckExceptionUtil checkExceptionUtil;
 
     @Transactional
-    public String accountApprove(Long requestMemberId, Long agitId){
+    public String accountApprove(Long memberId, Long requestMemberId, Long agitId){
+        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
         Membership membership = checkExceptionUtil.validateRole(requestMemberId, agitId, AgitRole.ADVANCED);
         membership.setAgitRole(AgitRole.STAFF);
         membershipRepository.save(membership);
@@ -25,7 +26,8 @@ public class MembershipService {
     }
 
     @Transactional
-    public String accountReject(Long requestMemberId, Long agitId){
+    public String accountReject(Long memberId, Long requestMemberId, Long agitId){
+        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
         Membership membership = checkExceptionUtil.validateRole(requestMemberId, agitId, AgitRole.ADVANCED);
         membership.setAgitRole(AgitRole.MEMBER);
         membershipRepository.save(membership);
@@ -33,7 +35,8 @@ public class MembershipService {
     }
 
     @Transactional
-    public String memberApprove(Long requestMemberId, Long agitId){
+    public String memberApprove(Long memberId, Long requestMemberId, Long agitId){
+        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
         Membership membership = checkExceptionUtil.validateRole(requestMemberId, agitId, AgitRole.TEMP);
         membership.setAgitRole(AgitRole.MEMBER);
         membershipRepository.save(membership);
@@ -41,7 +44,8 @@ public class MembershipService {
     }
 
     @Transactional
-    public String memberReject(Long requestMemberId, Long agitId){
+    public String memberReject(Long memberId, Long requestMemberId, Long agitId){
+        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
         Membership membership = checkExceptionUtil.validateRole(requestMemberId, agitId, AgitRole.TEMP);
         membershipRepository.delete(membership);
         return "가입신청이 거부되었습니다.";

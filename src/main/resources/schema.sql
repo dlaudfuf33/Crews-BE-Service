@@ -107,24 +107,25 @@ CREATE TABLE subject
 CREATE TABLE agit
 (
     id                  BIGINT       NOT NULL AUTO_INCREMENT,
-    current_person      INT                   DEFAULT 1,
-    is_deleted          BOOLEAN               DEFAULT FALSE,
-    is_due              BOOLEAN      NOT NULL DEFAULT FALSE,
+    agit_name           VARCHAR(255) NOT NULL,
     introduction        VARCHAR(255) NOT NULL DEFAULT '',
     max_person          INT                   DEFAULT 30,
-    created_at          DATETIME(6),
-    subject_id          BIGINT,
-    updated_at          DATETIME(6),
-    agit_name           VARCHAR(255) NOT NULL,
-    agit_and_account_id BIGINT,
-    common_dues_id      BIGINT,
+    current_person      INT                   DEFAULT 1,
+    is_due              BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_deleted          BOOLEAN               DEFAULT FALSE,
     address_id          BIGINT,
     dues_id          BIGINT,
+    agit_and_account_id BIGINT,
+    subject_id          BIGINT,
+    common_dues_id      BIGINT,
+    created_at          DATETIME(6),
+    updated_at          DATETIME(6),
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id),
     FOREIGN KEY (address_id) REFERENCES address (id),
-    FOREIGN KEY (dues_id) REFERENCES dues (id)
+    FOREIGN KEY (dues_id) REFERENCES dues (id),
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues(id)
 );
 
 -- Agit and Account 테이블
@@ -307,7 +308,7 @@ CREATE TABLE dues
     product_name   VARCHAR(255)   NOT NULL,
     account_number VARCHAR(255)   NOT NULL,
     agit_name      VARCHAR(255)   NOT NULL,
-    is_payed       BOOLEAN        NOT NULL,
+    is_paid       BOOLEAN        NOT NULL,
     due_date       DATETIME(6),
     updated_at     DATETIME(6),
     standard_date  DATETIME(6),

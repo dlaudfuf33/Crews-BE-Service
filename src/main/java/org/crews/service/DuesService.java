@@ -89,7 +89,7 @@ public class DuesService {
                     .findAny();
             if (optionalDues.isEmpty()){
                 Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(dto.getTransactionTime()).dueAmount(dto.getTranAmount())
-                        .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
+                        .membership(optionalMembership.get()).isPaid(false).accountNumber(account.getAccountNumber())
                         .productName(account.getProductName()).agitName(agit.getAgitName()).standardDate(DateUtil.generateStandardDate(year,month,dto.getTransactionTime())).build();
                 saveDues.add(buildDues);
             }

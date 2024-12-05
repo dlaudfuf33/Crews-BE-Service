@@ -105,13 +105,12 @@ public class AgitController {
             HttpServletRequest request
     ){
         Long memberId=authUtil.getMemberId(request);
-        checkExceptionUtil.validateLeader(memberId,agitId,AgitRole.LEADER);
 
         String responseMessage;
         if(status.equals("approve")){
-            responseMessage = membershipService.accountApprove(requestMemberId,agitId);
+            responseMessage = membershipService.accountApprove(memberId, requestMemberId,agitId);
         }else{
-            responseMessage = membershipService.accountReject(requestMemberId,agitId);
+            responseMessage = membershipService.accountReject(memberId, requestMemberId,agitId);
         }
         return ResponseEntity.ok(responseMessage);
     }
@@ -124,13 +123,12 @@ public class AgitController {
             HttpServletRequest request
     ){
         Long memberId = authUtil.getMemberId(request);
-        checkExceptionUtil.validateLeader(memberId, agitId, AgitRole.LEADER);
 
         String responseMessage;
         if(status.equals("approve")){
-            responseMessage = membershipService.memberApprove(requestMemberId,agitId);
+            responseMessage = membershipService.memberApprove(memberId, requestMemberId,agitId);
         }else {
-            responseMessage = membershipService.memberReject(requestMemberId,agitId);
+            responseMessage = membershipService.memberReject(memberId, requestMemberId,agitId);
         }
         return ResponseEntity.ok(responseMessage);
     }
