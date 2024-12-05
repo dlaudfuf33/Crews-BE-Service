@@ -112,9 +112,9 @@ public class DuesService {
             }
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
-                DuesCommon.setPayedChange(dues,filterMember,true);
+                DuesCommon.setPaidChange(dues,filterMember,true);
             }else {
-                DuesCommon.setPayedChange(dues,filterMember,false);
+                DuesCommon.setPaidChange(dues,filterMember,false);
             }
         });
         List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();
