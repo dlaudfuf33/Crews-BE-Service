@@ -24,10 +24,10 @@ public class DuesCommon {
                 ));
     }
 
-    public static void setPayedChange(List<Dues> dues, Member filterMember, boolean setPayed) {
+    public static void setPaidChange(List<Dues> dues, Member filterMember, boolean setPaid) {
         dues.forEach(content -> {
             if (content.getMembership().getMember().equals(filterMember)) {
-                content.setPayed(setPayed);
+                content.setPaid(setPaid);
             }
         });
     }

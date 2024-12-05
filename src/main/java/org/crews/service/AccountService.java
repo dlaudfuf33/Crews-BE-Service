@@ -277,9 +277,9 @@ public class AccountService {
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
             if (toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0) {
-                DuesCommon.setPayedChange(dues, filterMember, true);
+                DuesCommon.setPaidChange(dues, filterMember, true);
             } else {
-                DuesCommon.setPayedChange(dues, filterMember, false);
+                DuesCommon.setPaidChange(dues, filterMember, false);
             }
         });
 
