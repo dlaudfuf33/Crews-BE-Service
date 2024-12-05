@@ -41,8 +41,8 @@ public class Agit extends BaseTimeEntity {
     @OneToMany(mappedBy = "agit", fetch = FetchType.LAZY)
     private List<Membership> memberships = new ArrayList<>();
 
-    @ManyToOne(optional = true,fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
     private Address address;
 
     @Builder.Default

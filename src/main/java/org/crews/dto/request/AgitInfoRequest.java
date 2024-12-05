@@ -9,8 +9,6 @@ import lombok.*;
 @Builder
 @ToString
 public class AgitInfoRequest {
-    @NotBlank
-    private Long memberId;
 
     @NotBlank
     private Long agitId;

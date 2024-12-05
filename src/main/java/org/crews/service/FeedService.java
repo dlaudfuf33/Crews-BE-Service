@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.FeedRequest;
-import org.crews.dto.response.AgitVaildationResponse;
+import org.crews.dto.response.AgitValidationResponse;
 import org.crews.dto.response.FeedResponse;
 import org.crews.dto.response.FeedSliceResponse;
 import org.crews.exception.CustomException;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
@@ -32,7 +31,7 @@ public class FeedService {
 
     @Transactional
     public FeedSliceResponse getAllFeeds(Long memberId, Long agitId, int page) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         Slice<Feed> feeds = feedRepository.findByAgitIdAndIsDeletedFalse(agitId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdAt"))));
         return FeedSliceResponse.of(checkedResult.getMember(), feeds);
@@ -40,7 +39,7 @@ public class FeedService {
 
     @Transactional
     public FeedResponse getFeed(Long memberId, Long agitId, Long feedId) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         Feed feed = feedRepository.findByIdAndAgit(feedId, checkedResult.getAgit()).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
@@ -51,7 +50,7 @@ public class FeedService {
 
     @Transactional
     public FeedResponse postFeed(Long memberId, Long agitId, FeedRequest feedRequest) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         Feed feed = Feed.of(feedRequest, checkedResult.getAgit(), checkedResult.getMember());
         return FeedResponse.of(checkedResult.getMember(), feedRepository.save(feed));
@@ -59,7 +58,7 @@ public class FeedService {
 
     @Transactional
     public FeedResponse editFeed(Long memberId, Long agitId, Long feedId, FeedRequest feedRequest) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 ()-> new CustomException(ErrorCode.FEED_NOT_FOUND));
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
@@ -75,7 +74,7 @@ public class FeedService {
 
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        if(feed.getAgit().getId()!=agitId){
+        if(!feed.getAgit().getId().equals(agitId)){
             throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
         }
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
@@ -92,7 +91,7 @@ public class FeedService {
 
     @Transactional
     public String toggleHeartFeed(Long memberId, Long agitId, Long feedId){
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
         Feed feed = feedRepository.findById(feedId).orElseThrow(()->new CustomException(ErrorCode.FEED_NOT_FOUND));
         if(feed.isDeleted()) throw new CustomException(ErrorCode.DELETED_FEED);
 

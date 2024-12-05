@@ -1,7 +1,7 @@
 package org.crews.utils;
 
 import lombok.RequiredArgsConstructor;
-import org.crews.dto.response.AgitVaildationResponse;
+import org.crews.dto.response.AgitValidationResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.Agit;
@@ -23,7 +23,7 @@ public class CheckExceptionUtil {
     private final MemberShipRepository memberShipRepository;
     private final FeedRepository feedRepository;
 
-    public AgitVaildationResponse checkAgitException(Long memberId, Long agitId) {
+    public AgitValidationResponse checkAgitException(Long memberId, Long agitId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -31,15 +31,15 @@ public class CheckExceptionUtil {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        return new AgitVaildationResponse(agit, member, membership);
+        return new AgitValidationResponse(agit, member, membership);
     }
 
-    public AgitVaildationResponse checkFeedException(Long memberId,Long agitId, Long feedId) {
+    public AgitValidationResponse checkFeedException(Long memberId, Long agitId, Long feedId) {
 
         Feed feed = feedRepository.findById(feedId).orElseThrow(
                 () -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         Agit agit = feed.getAgit();
-        if(agit.getId()!=agitId){
+        if(!agit.getId().equals(agitId)){
             throw new CustomException(ErrorCode.AGIT_NOT_FOUND);
         }
         Member member = memberRepository.findById(memberId).orElseThrow(
@@ -48,6 +48,6 @@ public class CheckExceptionUtil {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
-        return new AgitVaildationResponse(agit, member, membership, feed);
+        return new AgitValidationResponse(agit, member, membership, feed);
     }
 }
