@@ -3,6 +3,7 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.DuesCallRequest;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
 import org.crews.service.AgitService;
@@ -34,15 +35,18 @@ public class AgitController {
     }
 
     @PostMapping
-    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest){
-        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest));
+    public ResponseEntity<AgitResponse> generateAgit(@RequestBody AgitRequest agitRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.generateAgit(agitRequest, memberId));
     }
 
     @GetMapping("/{agits-id}/dues")
     public ResponseEntity<DuesAlarmResponse> getDuesAlarm(@PathVariable("agits-id") Long agitId,
+                                                          @RequestParam Integer year,
+                                                          @RequestParam Integer month,
                                                           HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId));
+        return ResponseEntity.ok().body(agitService.getDuesAlarm(agitId, memberId, year, month));
     }
 
     @GetMapping("/{agits-id}/role")
@@ -59,8 +63,9 @@ public class AgitController {
     }
 
     @PostMapping("/registrations")
-    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest){
-        return agitService.agitRestration(agitRegisterRequest);
+    public ResponseEntity<AgitRegisterResponse> registerAgit(@RequestBody AgitInfoRequest agitRegisterRequest, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return agitService.agitRestration(agitRegisterRequest, memberId);
     }
 
     @GetMapping("/search")
@@ -93,4 +98,19 @@ public class AgitController {
         Optional<Long> memberId = Optional.ofNullable(authUtil.getMemberId(request));
         return ResponseEntity.ok().body(agitService.getHomeAgits(memberId));
     }
+
+    @PostMapping("/{agits-id}/member/call")
+    public ResponseEntity<String> duesCall(@PathVariable("agits-id") Long agitId,
+                                           @RequestBody DuesCallRequest duesCallRequest,
+                                         HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        agitService.duesCall(agitId, memberId, duesCallRequest);
+        return ResponseEntity.ok().body("인증번호가 발송되었습니다!");
+
+    }
+    @GetMapping("/validate-name")
+    public ResponseEntity<AgitNameValidateResponse> validateName(@RequestParam String agitName, HttpServletRequest request){
+        return ResponseEntity.ok().body(agitService.validateAgitName(agitName));
+    }
+
 }

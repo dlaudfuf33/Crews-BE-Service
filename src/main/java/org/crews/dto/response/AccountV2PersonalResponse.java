@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class AccountV2PersonalResponse {
-
+    private Long accountId;
     private String bankCode;
     private String bankName;
     private String accountNumber;
@@ -25,6 +25,7 @@ public class AccountV2PersonalResponse {
     public static AccountV2PersonalResponse from(Account account){
         return AccountV2PersonalResponse
                 .builder()
+                .accountId(account.getId())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())
                 .accountNumber(AESUtil.decrypt(account.getAccountNumber()))

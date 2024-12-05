@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.IntroducingRequest;
-import org.crews.dto.response.AgitVaildationResponse;
+import org.crews.dto.response.AgitValidationResponse;
 import org.crews.dto.response.IntroducingResponse;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
@@ -35,7 +35,7 @@ public class IntroducingService {
 
     @Transactional
     public IntroducingResponse updateIntroducing(Long memberId, Long agitId, IntroducingRequest introducingRequest) {
-        AgitVaildationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
+        AgitValidationResponse checkedResult = checkExceptionUtil.checkAgitException(memberId, agitId);
 
         if(!checkedResult.getMembership().getAgitRole().equals(AgitRole.LEADER)){
             throw new CustomException(ErrorCode.AUTHORIZED_INTRODUCING_UPDATE);

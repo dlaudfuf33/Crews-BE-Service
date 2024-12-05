@@ -1,24 +1,21 @@
-package org.crews.dto.request;
+package org.crews.dto.core;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DuesSaveRequest {
-
-
-    @NotBlank
-    private BigDecimal dueAmount;
+public class ProductInfoRequest {
 
     @NotBlank
-    private Integer dueDay;
+    private String ci;
 
+    @NotNull
+    private Long productId;
 }
