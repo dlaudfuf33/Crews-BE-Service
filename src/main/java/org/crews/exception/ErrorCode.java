@@ -19,9 +19,12 @@ public enum ErrorCode {
     CARD_NOT_MATCHED_MEMBER("해당 회원에 해당하는 카드를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
+    INVALID_PAGE_NUMBER("유효하지 않은 페이지 범위입니다. 0 이상의 정수로 입력하세요.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
     VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.",HttpStatus.BAD_REQUEST),
+    PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -30,9 +33,9 @@ public enum ErrorCode {
     AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_FEED_UPDATE("기록을 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_FEED_DELETE("기록을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN),
-    CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
+    PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
     AGIT_ACCOUNT_NOT_FOUND("해당하는 아지트의 모임통장이 없습니다.", HttpStatus.NOT_FOUND),

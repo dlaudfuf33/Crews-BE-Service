@@ -14,9 +14,11 @@ import java.math.BigDecimal;
 @Builder
 public class DuesSaveResponse {
 
-    @NotBlank
     private BigDecimal dueAmount;
 
-    @NotBlank
     private Integer dueDay;
+
+    private Integer minYear;
+
+    private Integer minMonth;
 }

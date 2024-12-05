@@ -4,7 +4,6 @@ import lombok.*;
 import org.crews.model.Agit;
 import org.crews.model.Interesting;
 import org.crews.model.InterestingAndAgit;
-
 import java.util.List;
 
 @Getter

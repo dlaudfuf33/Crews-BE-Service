@@ -37,6 +37,9 @@ public class Dues extends BaseTimeEntity{
     @Column(nullable = false)
     private String agitName;
 
+    @Column(nullable = false)
+    private LocalDateTime standardDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Membership membership;
 

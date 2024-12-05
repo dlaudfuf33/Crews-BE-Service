@@ -355,9 +355,9 @@ VALUES ('3', 500.00, NOW(), NOW(), 1),
 
 -- Dues 테이블에 더미 데이터 삽입
 INSERT INTO dues (due_date, created_at, due_amount, updated_at, membership_id, common_dues_id, is_payed, product_name,
-                  account_number, agit_name)
-VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1'),
-       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2');
+                  account_number, agit_name, standard_date)
+VALUES (NOW(), NOW(), 1000.00, NOW(), 1, 1, FALSE, '우리 일반통장 상품', '1234', 'agit1', NOW()),
+       (NOW(), NOW(), 2000.00, NOW(), 1, 2, FALSE, '우리 일반통장 상품', '1234', 'agit2', NOW());
 
 
 -- Feed 테이블에 더미 데이터 삽입
@@ -383,7 +383,70 @@ VALUES (1, 6, NOW(), NOW()),
        (3, 3, NOW(), NOW()),
        (3, 8, NOW(), NOW()),
        (4, 4, NOW(), NOW()),
-       (4, 6, NOW(), NOW());
+       (4, 6, NOW(), NOW()),
+       (5, 7, NOW(), NOW()),
+       (5, 12, NOW(), NOW()),
+       (5, 25, NOW(), NOW()),
+       (6, 8, NOW(), NOW()),
+       (6, 15, NOW(), NOW()),
+       (6, 33, NOW(), NOW()),
+       (7, 6, NOW(), NOW()),
+       (7, 19, NOW(), NOW()),
+       (7, 40, NOW(), NOW()),
+       (8, 3, NOW(), NOW()),
+       (8, 28, NOW(), NOW()),
+       (8, 35, NOW(), NOW()),
+       (9, 11, NOW(), NOW()),
+       (9, 22, NOW(), NOW()),
+       (9, 38, NOW(), NOW()),
+       (10, 5, NOW(), NOW()),
+       (10, 17, NOW(), NOW()),
+       (10, 41, NOW(), NOW()),
+       (11, 4, NOW(), NOW()),
+       (11, 23, NOW(), NOW()),
+       (11, 39, NOW(), NOW()),
+       (12, 9, NOW(), NOW()),
+       (12, 20, NOW(), NOW()),
+       (12, 36, NOW(), NOW()),
+       (13, 13, NOW(), NOW()),
+       (13, 24, NOW(), NOW()),
+       (13, 32, NOW(), NOW()),
+       (14, 2, NOW(), NOW()),
+       (14, 21, NOW(), NOW()),
+       (14, 37, NOW(), NOW()),
+       (15, 10, NOW(), NOW()),
+       (15, 26, NOW(), NOW()),
+       (15, 30, NOW(), NOW()),
+       (16, 1, NOW(), NOW()),
+       (16, 14, NOW(), NOW()),
+       (16, 29, NOW(), NOW()),
+       (17, 16, NOW(), NOW()),
+       (17, 27, NOW(), NOW()),
+       (17, 34, NOW(), NOW()),
+       (18, 18, NOW(), NOW()),
+       (18, 31, NOW(), NOW()),
+       (18, 42, NOW(), NOW()),
+       (19, 12, NOW(), NOW()),
+       (19, 5, NOW(), NOW()),
+       (19, 26, NOW(), NOW()),
+       (20, 7, NOW(), NOW()),
+       (20, 19, NOW(), NOW()),
+       (20, 33, NOW(), NOW()),
+       (21, 8, NOW(), NOW()),
+       (21, 25, NOW(), NOW()),
+       (21, 30, NOW(), NOW()),
+       (22, 4, NOW(), NOW()),
+       (22, 20, NOW(), NOW()),
+       (22, 39, NOW(), NOW()),
+       (23, 2, NOW(), NOW()),
+       (23, 14, NOW(), NOW()),
+       (23, 38, NOW(), NOW()),
+       (24, 11, NOW(), NOW()),
+       (24, 27, NOW(), NOW()),
+       (24, 31, NOW(), NOW()),
+       (25, 3, NOW(), NOW()),
+       (25, 23, NOW(), NOW()),
+       (25, 35, NOW(), NOW());
 
 -- Introducing 테이블에 더미 데이터 삽입
 INSERT INTO introducing (agit_id, created_at, updated_at, content, image, introduce)
@@ -393,7 +456,25 @@ VALUES (1, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250',
        (4, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
        (5, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
        (6, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (7, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개');
+       (7, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
+       (8, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '첫 번째 소개 내용입니다. 여기에 대해 더 알아보세요!'),
+       (9, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리의 새로운 프로젝트가 시작되었습니다. 함께 성장해요!'),
+       (10, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개 내용입니다. 변화는 지금부터 시작됩니다!'),
+       (11, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 팀이 결성되었습니다. 모두의 참여를 기다립니다.'),
+       (12, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 꿈을 이루는 첫걸음을 내디뎠습니다. 함께 해주세요!'),
+       (13, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '여러분과 함께 이루고 싶은 목표가 있습니다. 함께 해주세요!'),
+       (14, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '팀워크와 열정으로 달성할 수 있는 모든 목표를 향해 나아가고 있습니다.'),
+       (15, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '더 나은 미래를 만들기 위한 우리의 노력에 함께해요!'),
+       (16, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 끝없이 발전하고 있으며, 여러분과 함께 할 미래가 기대됩니다.'),
+       (17, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '기회는 스스로 만드는 것입니다. 여러분과 함께 더 나은 세상을 만들어갑니다.'),
+       (18, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 시작이 필요하다면, 우리는 그 시작을 함께 할 준비가 되어 있습니다.'),
+       (19, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '모든 도전은 우리가 함께라면 두렵지 않습니다. 함께 할 준비 되셨나요?'),
+       (20, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 세상을 변화시키기 위해 한 걸음씩 나아가고 있습니다. 여러분도 함께해 주세요.'),
+       (21, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리의 목표는 단순한 성과가 아닌, 가치를 창출하는 것입니다. 그 길에 동참하세요!'),
+       (22, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '지금 이 순간을 함께하는 것이 중요한 이유입니다. 여러분의 참여를 기다립니다.'),
+       (23, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 변화와 혁신의 선두주자가 되고자 합니다. 여러분도 함께 성장할 수 있습니다.'),
+       (24, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 기회가 기다리고 있습니다. 여러분의 아이디어를 기다립니다.'),
+       (25, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리가 함께 만들 세상은 그 어떤 것보다도 더 아름답고 가치 있을 것입니다.');
 
 -- Member And Interesting 테이블에 더미 데이터 삽입
 INSERT INTO member_and_interesting (interesting_id, member_id, created_at, updated_at)
@@ -402,5 +483,6 @@ VALUES (1, 1, NOW(), NOW()),
 
 -- Regular Crewing 테이블에 더미 데이터 삽입
 INSERT INTO meeting (is_deleted, agit_id, created_at, regular_time, updated_at, content, image, place, regular_name)
-VALUES (FALSE, 1, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
-       (FALSE, 2, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '정기 크루잉 2');
+VALUES (FALSE, 5, NOW(), NOW(), NOW(), '첫 번째 정기 크루잉', 'crew1.png', '서울시 중구 명동', '정기 크루잉 1'),
+       (FALSE, 5, NOW(), NOW(), NOW(), '두 번째 정기 크루잉', 'crew2.png', '경기도 수원시 팔달구', '정기 크루잉 2');
+
