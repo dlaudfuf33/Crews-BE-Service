@@ -10,6 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MessagePayload {
-    private int memberId;
+    private Long memberId;
     private String otherData;
 }

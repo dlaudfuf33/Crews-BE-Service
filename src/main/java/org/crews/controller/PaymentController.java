@@ -39,8 +39,15 @@ public class PaymentController {
     }
 
     @GetMapping("/result")
-    public ResponseEntity<String> resultPayment() {
-        sqsUtil.receiveAndDeleteMessages(1);
+    public ResponseEntity<String> resultPayment(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        sqsUtil.receiveAndDeleteMessages(memberId);
+        return null;
+    }
+
+    @GetMapping("/excute")
+    public ResponseEntity<String> excutePayment(HttpServletRequest request) {
+
         return null;
     }
 }

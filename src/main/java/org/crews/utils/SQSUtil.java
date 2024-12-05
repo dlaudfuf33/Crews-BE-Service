@@ -54,7 +54,7 @@ public class SQSUtil {
         }
     }
 
-    public MessagePayload receiveAndDeleteMessages(int targetMemberId) {
+    public MessagePayload receiveAndDeleteMessages(Long targetMemberId) {
         if (queueUrl == null) {
             throw new IllegalStateException("Queue URL is not initialized. Call createQueue() first.");
         }
