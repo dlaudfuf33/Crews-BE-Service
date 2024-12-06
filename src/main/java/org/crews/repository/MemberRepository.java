@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,4 +50,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdAndPinNumber(Long memberId, String pinNumber);
 
     List<Member> findByIdIn(List<Long> memberIds);
+
+    @Query("SELECT DISTINCT m FROM Member m " +
+            "JOIN FETCH m.accounts a " +
+            "WHERE m.id = :id")
+    Optional<Member> findByIdWithAccounts(@Param("id") Long id);
+
+    @Query("SELECT m FROM Member m WHERE m.isDeleted = true AND m.updatedAt <= :thresholdDate")
+    List<Member> findSoftDeletedMembersOlderThan(@Param("thresholdDate") LocalDateTime thresholdDate);
 }
