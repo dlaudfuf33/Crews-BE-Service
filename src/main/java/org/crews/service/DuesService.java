@@ -69,7 +69,7 @@ public class DuesService {
         List<Dues> saveDues = new ArrayList<>();
         CommonDues commonDues = agit.getCommonDues();
         if(commonDues == null)
-            throw new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND);
+            return GetDuesResponse.builder().profileResponses(List.of()).memberCount(0).build();
         List<Dues> duesList = duesRepository.findByCommonDues(commonDues);
         for (TransactionHistoryResponse dto : tranList){
             Optional<Account> optionalAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(dto.getCounterpartyAccountNum()));
@@ -100,16 +100,14 @@ public class DuesService {
                 .toList();
 
         List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
-
+        if(commonDues.getDueAmount().compareTo(BigDecimal.ZERO) == 0)
+            return GetDuesResponse.builder().profileResponses(List.of()).memberCount(0).build();
         List<Member> memberList = new ArrayList<>(searchMembershipList.stream()
             .filter(ms -> !ms.getCreatedAt()
                 .isAfter(LocalDateTime.of(year, month, DateUtil.getLastDayOfMonth(year, month), 23, 59, 59)))
             .map(Membership::getMember).toList());
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
-            if(agit.getCommonDues() == null){
-                throw new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND);
-            }
             if(toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0){
                 memberList.remove(filterMember);
                 DuesCommon.setPayedChange(dues,filterMember,true);
@@ -118,12 +116,8 @@ public class DuesService {
             }
         });
         List<ProfileResponse> profileResponses = memberList.stream().map(ProfileResponse::from).toList();
-
         return GetDuesResponse.builder().profileResponses(profileResponses).memberCount(profileResponses.size()).build();
     }
-
-
-
 
     @Transactional
     public DuesSaveResponse duesSaveCommon(Long agitId, Long memberId, DuesSaveRequest duesSaveRequest) {

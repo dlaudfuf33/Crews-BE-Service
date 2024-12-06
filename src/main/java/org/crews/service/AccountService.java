@@ -93,9 +93,11 @@ public class AccountService {
         Optional<AgitAndAccount> optionalAgitAndAccount = agitAndAccountRepository.findByAgitAndAccount(agit, savedAccount);
         if (optionalAgitAndAccount.isPresent())
             throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
-        AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(account).agit(agit).build();
+        AgitAndAccount agitAndAccount = AgitAndAccount.builder().account(savedAccount).agit(agit).build();
         log.info("{}번의 아지트({})와 모임통장({})이 연결되었습니다.", agitId, agit.getAgitName(), ci);
-        agitAndAccountRepository.save(agitAndAccount);
+        AgitAndAccount savedAgitAndAccount = agitAndAccountRepository.save(agitAndAccount);
+        savedAccount.setAgitAndAccount(savedAgitAndAccount);
+        agit.setAgitAndAccount(savedAgitAndAccount);
         return AccountIssuedResponse.from(savedAccount);
     }
 
