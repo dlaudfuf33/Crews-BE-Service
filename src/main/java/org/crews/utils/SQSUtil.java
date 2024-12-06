@@ -1,6 +1,7 @@
 package org.crews.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.sqs.MessagePayload;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class SQSUtil {
-    private SqsClient sqsClient;
-    private String queueUrl;
+    private final SqsClient sqsClient;
+    private final String queueUrl;
 
     public SQSUtil() {
         sqsClient = SqsClient.builder()
@@ -32,7 +33,6 @@ public class SQSUtil {
     }
 
     public void sendMessage(Object messageObject) {
-        // 메시지 전송
         if (queueUrl == null) {
             throw new IllegalStateException("Queue URL is not initialized. Call createQueue() first.");
         }
@@ -40,6 +40,7 @@ public class SQSUtil {
         try {
             // 객체를 JSON 형식으로 변환
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule()); // JavaTimeModule 등록
             String messageBody = objectMapper.writeValueAsString(messageObject);
 
             SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
@@ -62,34 +63,40 @@ public class SQSUtil {
         ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .maxNumberOfMessages(10)
+                .waitTimeSeconds(2) // 메시지를 기다릴 수 있도록 대기 시간 설정
                 .build();
 
         List<Message> messages = sqsClient.receiveMessage(receiveRequest).messages();
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // JavaTimeModule 등록
 
         MessagePayload payload = null;
         for (Message message : messages) {
             try {
-                // 메시지 본문을 JSON으로 파싱
+                log.info("Received message: " + message.body());
                 payload = objectMapper.readValue(message.body(), MessagePayload.class);
 
-                // memberId 조건에 맞는 메시지만 처리
-                if (payload.getMemberId() == targetMemberId) {
+                // memberId 조건 확인
+                if (payload.getMemberId() != null && payload.getMemberId().equals(targetMemberId)) {
+                    log.info("Matching message found for memberId: " + targetMemberId);
 
                     // 메시지 삭제
                     DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
                             .queueUrl(queueUrl)
                             .receiptHandle(message.receiptHandle())
                             .build();
-
                     sqsClient.deleteMessage(deleteMessageRequest);
 
+                    return payload; // 조건에 맞는 메시지 반환
+                } else {
+                    log.info("Message does not match memberId: " + targetMemberId);
                 }
             } catch (Exception e) {
-                log.error(String.valueOf(e));
+                log.error("Error while processing message: " + message.body(), e);
             }
         }
 
-        return payload;
+        return null; // 조건에 맞는 메시지가 없을 경우 null 반환
     }
+
 }

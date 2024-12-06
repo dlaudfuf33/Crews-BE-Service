@@ -92,6 +92,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/introducing").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/{agits-id}/meetings/recent").permitAll()
                 .requestMatchers(HttpMethod.GET, "/agits/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "/payments/execute").permitAll()
                 .anyRequest().authenticated()
         );
 

@@ -10,4 +10,6 @@ public interface PaymentService {
     List<PaymentInfoResponse> getPaymentInfo(Long memberId);
 
     String generateQRCodeAndUpload(Long memberId, AgitInfoRequest agitInfoRequest) throws WriterException;
+
+    void processPayment(String cardNumber, String expireDate, Long memberId);
 }

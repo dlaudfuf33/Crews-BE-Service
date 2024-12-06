@@ -1,15 +1,15 @@
 package org.crews.dto.sqs;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.crews.dto.core.TransferResponse;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class MessagePayload {
     private Long memberId;
-    private String otherData;
+    private TransferResponse data;
+    private String message;
 }
