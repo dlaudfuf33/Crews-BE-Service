@@ -60,7 +60,8 @@ public enum ErrorCode {
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
-    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.", HttpStatus.CONFLICT),
+    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.",HttpStatus.CONFLICT),
+    AGIT_ALREADY_JOINED("이미 가입한 아지트입니다.",HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),
@@ -78,6 +79,7 @@ public enum ErrorCode {
     EMAIL_ENCRYPTION_FAILED("이메일 암호화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     CORE_RESPONSE_ERROR("CORE_RESPONSE_ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
     SEND_MESSAGE_FAILED("메세지 발송에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AGIT_APPLY_ERROR("아지트 가입신청을 하는 도중 문제가 발생하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 501
     IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.", HttpStatus.NOT_IMPLEMENTED);
