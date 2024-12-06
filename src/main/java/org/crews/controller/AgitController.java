@@ -9,7 +9,6 @@ import org.crews.dto.request.AgitRequest;
 import org.crews.service.AgitService;
 import org.crews.service.MembershipService;
 import org.crews.utils.AuthUtil;
-import org.crews.utils.CheckExceptionUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -28,7 +27,6 @@ public class AgitController {
     private final AgitService agitService;
     private final MembershipService membershipService;
     private final AuthUtil authUtil;
-    private final CheckExceptionUtil checkExceptionUtil;
 
     @GetMapping
     public ResponseEntity<AgitSliceResponse> getAllAgits(
@@ -98,25 +96,24 @@ public class AgitController {
     }
 
     @PostMapping("/{agits-id}/manage/accounts")
-    public ResponseEntity<String> accountAuthorization(
+    public ResponseEntity<MembershipResponse> accountAuthorization(
             @PathVariable("agits-id") Long agitId,
             @RequestParam("status") String status,
             @RequestParam("requestMemberId") Long requestMemberId,
             HttpServletRequest request
     ){
         Long memberId=authUtil.getMemberId(request);
-
-        String responseMessage;
+        MembershipResponse membershipResponse;
         if(status.equals("approve")){
-            responseMessage = membershipService.accountApprove(memberId, requestMemberId,agitId);
+            membershipResponse=membershipService.accountApprove(memberId, requestMemberId,agitId);
         }else{
-            responseMessage = membershipService.accountReject(memberId, requestMemberId,agitId);
+            membershipResponse=membershipService.accountReject(memberId, requestMemberId,agitId);
         }
-        return ResponseEntity.ok(responseMessage);
+        return ResponseEntity.ok().body(membershipResponse);
     }
 
     @PostMapping("/{agits-id}/manage/members")
-    public ResponseEntity<String> memberAuthorization(
+    public ResponseEntity<MembershipResponse> memberAuthorization(
             @PathVariable("agits-id") Long agitId,
             @RequestParam("status") String status,
             @RequestParam("requestMemberId") Long requestMemberId,
@@ -124,13 +121,13 @@ public class AgitController {
     ){
         Long memberId = authUtil.getMemberId(request);
 
-        String responseMessage;
+        MembershipResponse membershipResponse;
         if(status.equals("approve")){
-            responseMessage = membershipService.memberApprove(memberId, requestMemberId,agitId);
+            membershipResponse = membershipService.memberApprove(memberId, requestMemberId,agitId);
         }else {
-            responseMessage = membershipService.memberReject(memberId, requestMemberId,agitId);
+            membershipResponse = membershipService.memberReject(memberId, requestMemberId,agitId);
         }
-        return ResponseEntity.ok(responseMessage);
+        return ResponseEntity.ok().body(membershipResponse);
     }
 
     @GetMapping("/home")
