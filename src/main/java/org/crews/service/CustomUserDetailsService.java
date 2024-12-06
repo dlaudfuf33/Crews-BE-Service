@@ -47,6 +47,11 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new CustomException(ErrorCode.USER_NOT_FOUND,email);
         }
 
+        if(optionalMember.get().isDeleted()){
+            log.info("탈퇴한 회원");
+            throw new CustomException(ErrorCode.DELETED_MEMBER,email);
+        }
+
         Member member = optionalMember.get();
 
        return new MemberDetails(member);

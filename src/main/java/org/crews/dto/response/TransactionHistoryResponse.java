@@ -2,6 +2,7 @@ package org.crews.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.crews.model.constants.TranType;
 
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@ToString
 public class TransactionHistoryResponse {
     private String counterpartyBankCode;
     private String counterpartyAccountNum;

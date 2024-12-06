@@ -1,6 +1,5 @@
 package org.crews.repository;
 
-import jakarta.validation.constraints.NotNull;
 import org.crews.dto.response.AccountsResponse;
 import org.crews.model.Account;
 import org.crews.model.Member;
@@ -42,7 +41,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a FROM Account a WHERE a.member.id = :memberId ORDER BY a.createdAt DESC")
     List<Account> findAccountsByMemberId(@Param("memberId") Long memberId);
 
-    Optional<Account> findByIdAndMember_Id(@NotNull Long accountId, Long memberId);
+    @Query(" SELECT a FROM Account a JOIN a.member m WHERE a.id = :accountId AND a.member.id = :memberId")
+    Optional<Account> findByIdAndMemberId(@Param("accountId") Long accountId, @Param("memberId") Long memberId);
 
     boolean existsByMemberIdAndAccountNumber(Long memberId, String accountNumber);
 }
