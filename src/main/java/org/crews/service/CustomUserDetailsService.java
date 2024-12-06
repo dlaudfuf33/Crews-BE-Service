@@ -21,7 +21,6 @@ import java.util.Optional;
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AESUtil aesUtil;
 
     @Override

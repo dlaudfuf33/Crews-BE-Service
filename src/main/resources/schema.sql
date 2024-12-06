@@ -292,7 +292,7 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
+    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)

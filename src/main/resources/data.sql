@@ -345,7 +345,7 @@ VALUES (FALSE, 1, NOW(), 1, NOW(), NOW(), '1234567812345678', '12345678********'
 
 
 -- Membership 테이블에 더미 데이터 삽입
-INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, role)
+INSERT INTO membership (agit_id, created_at, joined_at, member_id, updated_at, agit_role)
 VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
        (2, NOW(), NOW(), 2, NOW(), 'MEMBER');
 
