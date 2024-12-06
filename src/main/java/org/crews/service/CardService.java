@@ -107,7 +107,7 @@ public class CardService {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
         if(agit.getAgitAndAccount() == null)
-            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+            return CardIssuanceResponse.builder().isCardExist(false).cardNumber(null).build();
 
         Account account = agit.getAgitAndAccount().getAccount();
         memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(

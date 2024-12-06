@@ -3,7 +3,6 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.request.AccountLinkRequest;
 import org.crews.dto.core.CardIssuedResponse;
 import org.crews.dto.request.CardRemoveRequest;
 import org.crews.dto.core.MessageResponse;
