@@ -7,11 +7,5 @@ import lombok.Getter;
 public class CardRemoveRequest {
 
     @NotBlank
-    private Long memberId;
-
-    @NotBlank
-    private String fintechUseNum;
-
-    @NotBlank
     private String cardNumber;
 }

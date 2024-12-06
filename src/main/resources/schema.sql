@@ -134,11 +134,12 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
+    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
+
 -- Agit and Account 테이블
 CREATE TABLE agit_and_account
 (

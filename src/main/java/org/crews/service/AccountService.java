@@ -297,7 +297,8 @@ public class AccountService {
         Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
-        if(!membership.getAgitRole().equals(AgitRole.MEMBER)){
+
+        if(membership.getAgitRole() != AgitRole.MEMBER){
             throw new CustomException(ErrorCode.PERMISSION_NOT_ALLOWED);
         }
         membership.setAgitRole(AgitRole.ADVANCED);
