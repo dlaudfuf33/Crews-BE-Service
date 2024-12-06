@@ -108,7 +108,6 @@ public class CardService {
         );
         if(agit.getAgitAndAccount() == null)
             return CardIssuanceResponse.builder().isCardExist(false).cardNumber(null).build();
-
         Account account = agit.getAgitAndAccount().getAccount();
         memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
