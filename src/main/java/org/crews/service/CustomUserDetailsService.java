@@ -21,7 +21,6 @@ import java.util.Optional;
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AESUtil aesUtil;
 
     @Override
@@ -45,6 +44,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (!optionalMember.isPresent()) {
             log.info("사용자를 찾을 수 없음");
             throw new CustomException(ErrorCode.USER_NOT_FOUND,email);
+        }
+
+        if(optionalMember.get().isDeleted()){
+            log.info("탈퇴한 회원");
+            throw new CustomException(ErrorCode.DELETED_MEMBER,email);
         }
 
         Member member = optionalMember.get();

@@ -1,11 +1,14 @@
 package org.crews.dto.request;
 
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-public class CardRemoveRequest {
-
+@NoArgsConstructor
+public class ProfileImageRequest {
     @NotBlank
-    private String cardNumber;
+    private String profileImagePath;
+
 }

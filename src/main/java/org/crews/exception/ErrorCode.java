@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // 400 BAD_REQUEST
+    NO_ASSOCIATED_GROUP("소속된 모임이 없습니다.", HttpStatus.BAD_REQUEST),
     WRONG_BANKCODE("잘못된 은행코드 입니다.", HttpStatus.BAD_REQUEST),
     NOT_MATCHED_MEMBER("해당하는 아지트의 멤버가 아닙니다.", HttpStatus.BAD_REQUEST),
     REQUIRED_NOT_NULL("필수 값이 누락되었습니다.", HttpStatus.BAD_REQUEST),
@@ -24,6 +25,7 @@ public enum ErrorCode {
     VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.",HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.",HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_BALANCE("잔액이 부족합니다.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -59,10 +61,12 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
     ALREADY_REPORTED_FEED("이미 신고한 피드입니다.",HttpStatus.CONFLICT),
+    AGIT_ALREADY_JOINED("이미 가입한 아지트입니다.",HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.GONE),
+    DELETED_MEMBER("이미 탈퇴한 회원입니다.", HttpStatus.GONE),
 
     // 422 유효성 검사 실패
     PASSWORD_CONFIRMATION_MISMATCH("변경할 비밀번호와 일치하지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
@@ -75,6 +79,7 @@ public enum ErrorCode {
     EMAIL_ENCRYPTION_FAILED("이메일 암호화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     CORE_RESPONSE_ERROR("CORE_RESPONSE_ERROR", HttpStatus.INTERNAL_SERVER_ERROR),
     SEND_MESSAGE_FAILED("메세지 발송에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AGIT_APPLY_ERROR("아지트 가입신청을 하는 도중 문제가 발생하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 501
     IS_UTILITY_CLASS("인스턴화 할 수 없는 유틸클래스 입니다.", HttpStatus.NOT_IMPLEMENTED);

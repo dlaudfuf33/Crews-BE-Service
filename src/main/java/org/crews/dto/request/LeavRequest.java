@@ -4,8 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class CardRemoveRequest {
+public class LeavRequest {
 
     @NotBlank
-    private String cardNumber;
+    private String password;
+
 }

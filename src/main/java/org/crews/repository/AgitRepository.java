@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgitRepository extends JpaRepository<Agit, Long> {
@@ -56,4 +57,13 @@ public interface AgitRepository extends JpaRepository<Agit, Long> {
     List<Agit> findRecruitAgits(@Param("memberId") Long memberId);
 
     boolean existsByAgitName(String agitName);
+
+    @Query("""
+                SELECT a FROM Agit a
+                LEFT JOIN FETCH a.commonDues cd
+                WHERE a.id = :agitId AND a.isDeleted = false
+            """)
+    Optional<Agit> findByIdWithCommonDues(@Param("agitId") Long agitId);
+
+
 }
