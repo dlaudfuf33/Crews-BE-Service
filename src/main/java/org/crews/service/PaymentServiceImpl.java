@@ -104,6 +104,8 @@ public class PaymentServiceImpl implements PaymentService {
                     .agitRole(membership.getAgitRole())
                     .agitId(membership.getAgit().getId())
                     .cardName(CardName.WOORI_CARD.getType())
+                    .cardCode("3475")
+                    .src("https://djogyo1sj025q.cloudfront.net/cards/img_woori_card.png")
                     .build());
         }
 

@@ -17,4 +17,6 @@ public class PaymentInfoResponse {
     private Long agitId;
     private AgitRole agitRole;
     private String cardName;
+    private String cardCode;
+    private String src;
 }
