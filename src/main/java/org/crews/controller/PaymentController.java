@@ -1,9 +1,11 @@
 package org.crews.controller;
 
+import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.crews.dto.request.AgitInfoRequest;
 import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.service.PaymentService;
 import org.crews.utils.AuthUtil;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -32,10 +35,15 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<String> requestPayment(HttpServletRequest request) {
-        authUtil.getMemberId(request);
+    public ResponseEntity<Map<String, String>> createPaymentQRCode(@RequestBody AgitInfoRequest agitInfoRequest, HttpServletRequest request) {
+        try {
+            Long memberId = authUtil.getMemberId(request);
+            String qrCodeUrl = paymentService.generateQRCodeAndUpload(memberId, agitInfoRequest);
 
-        return ResponseEntity.status(HttpStatus.OK).body("ok");
+            return ResponseEntity.ok(Map.of("qrCode", qrCodeUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/result")
