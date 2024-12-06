@@ -39,7 +39,6 @@ public class CardController {
     public ResponseEntity<MessageResponse> cardRemove(@PathVariable("agits-id")Long agitId,
                                                       @RequestBody CardRemoveRequest cardReissuedRequest,
                                                       HttpServletRequest request){
-        System.out.println("cardReissuedRequest.getCardNumber() = " + cardReissuedRequest.getCardNumber());
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(cardService.cardRemove(agitId, memberId, cardReissuedRequest));
     }

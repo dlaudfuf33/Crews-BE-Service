@@ -57,7 +57,7 @@ public class CardService {
                 .ci(member.getCi())
                 .fintechUseNum(fintechUseNum)
                 .build();
-
+        //TODO: cardImage 제대로 넣어서 변경하기
         CardIssuedResponse response = coreService.cardIssued(commonRequest);
         Card card = Card.builder().account(account).member(member)
                 .maskedCardNumber(MaskedNumber.cardMasking(response.getCardNumber()))
@@ -89,7 +89,6 @@ public class CardService {
         CoreCardRemoveRequest coreCardRemoveRequest = CoreCardRemoveRequest.builder().ci(member.getCi())
                 .fintechUseNum(fintechUseNum)
                 .cardNumber(cardReissuedRequest.getCardNumber()).build();
-        System.out.println("coreCardRemoveRequest.getCardNumber() = " + coreCardRemoveRequest.getCardNumber());
         MessageResponse response = coreService.cardRemove(coreCardRemoveRequest);
         Card card = cardRepository.findByCardNumberAndIsDeletedFalse(AESUtil.encrypt(coreCardRemoveRequest.getCardNumber())).orElse(null);
         card.setDeleted(true);
