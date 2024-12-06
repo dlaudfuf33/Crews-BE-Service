@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // 400 BAD_REQUEST
+    NO_ASSOCIATED_GROUP("소속된 모임이 없습니다.", HttpStatus.BAD_REQUEST),
     WRONG_BANKCODE("잘못된 은행코드 입니다.", HttpStatus.BAD_REQUEST),
     NOT_MATCHED_MEMBER("해당하는 아지트의 멤버가 아닙니다.", HttpStatus.BAD_REQUEST),
     REQUIRED_NOT_NULL("필수 값이 누락되었습니다.", HttpStatus.BAD_REQUEST),
@@ -18,11 +19,13 @@ public enum ErrorCode {
     CARD_NOT_MATCHED_MEMBER("해당 회원에 해당하는 카드를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTEREST_ID("유효하지 않은 관심사 입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INTERESTS_COUNT("관심사는 1개 이상, 3개 이하로 설정해주세요.", HttpStatus.BAD_REQUEST),
+    INVALID_PAGE_NUMBER("유효하지 않은 페이지 범위입니다. 0 이상의 정수로 입력하세요.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_MISMATCH("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     VERIFY_NUMBER_EXPIRED("인증번호가 만료되었습니다. 다시 요청해주세요.", HttpStatus.BAD_REQUEST),
     VERIFY_PIN_MISMATCH("PIN번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.",HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.",HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_BALANCE("잔액이 부족합니다.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -31,7 +34,6 @@ public enum ErrorCode {
     AUTHORIZED_INTRODUCING_UPDATE("모임소개를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_FEED_UPDATE("기록을 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_FEED_DELETE("기록을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN),
-    CREW_ROLE_NOT_AUTHORIZED("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
     PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
@@ -58,11 +60,12 @@ public enum ErrorCode {
     PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
-    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.",HttpStatus.CONFLICT),
+    ALREADY_REPORTED_FEED("이미 신고한 피드입니다.", HttpStatus.CONFLICT),
 
     // 410 삭제된 데이터
     DELETED_MEETING("이미 삭제된 정기모임 입니다.", HttpStatus.GONE),
     DELETED_FEED("이미 삭제된 기록 입니다.", HttpStatus.GONE),
+    DELETED_MEMBER("이미 탈퇴한 회원입니다.", HttpStatus.GONE),
 
     // 422 유효성 검사 실패
     PASSWORD_CONFIRMATION_MISMATCH("변경할 비밀번호와 일치하지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY),

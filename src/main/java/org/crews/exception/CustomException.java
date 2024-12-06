@@ -17,8 +17,7 @@ public class CustomException extends RuntimeException {
     }
 
     public CustomException(ErrorCode errorCode, String additionalInfo) {
-        super(errorCode.getMessage() + ": " + additionalInfo);  // 추가 정보 포함
+        super(additionalInfo);  // 추가 정보 포함
         this.errorCode = errorCode;
     }
-
 }
