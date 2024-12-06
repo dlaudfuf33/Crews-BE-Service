@@ -12,11 +12,14 @@ import org.crews.dto.response.*;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.service.MemberService;
+import org.crews.utils.AESUtil;
 import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +31,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthUtil authUtil;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody MemberRequest memberRequest) {
@@ -84,7 +88,6 @@ public class MemberController {
     }
 
 
-
     @PostMapping("/signup/validate-email")
     public ResponseEntity<String> validateEmail(@RequestBody EmailRequest request) {
         boolean isExist = memberService.validateEmail(request);
@@ -100,6 +103,21 @@ public class MemberController {
         Long memberId = authUtil.getMemberId(request);
         MyProfileResponse profile = memberService.getMyProfile(memberId);
         return ResponseEntity.ok(profile);
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<Void> updateMyProfile(HttpServletRequest request,
+                                                @RequestBody ProfileImageRequest profileImageRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.updateMyProfile(memberId, profileImageRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/me/profile")
+    public ResponseEntity<Void> deleteMyProfile(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.deletetMyProfile(memberId);
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -133,8 +151,55 @@ public class MemberController {
     @GetMapping("/me")
     public ResponseEntity<MyinfoResponse> getMyInfo(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
+        List<String> stmp = Arrays.asList(
+                "01000000001",
+                "01000000010",
+                "01000000011",
+                "01000000100",
+                "01000000101",
+                "01000000110",
+                "01000000111",
+                "01000001000",
+                "01000001001",
+                "01000001010",
+                "01000001011",
+                "01000001100",
+                "01000001101",
+                "01000001110",
+                "01000001111",
+                "01000010000",
+                "01000010001",
+                "01000010010",
+                "01000010011",
+                "01000010100"
+        );
+
+        // 각 2진수 데이터를 암호화하고 결과를 로그로 출력
+        for (String element : stmp) {
+            String encryptedData = AESUtil.encrypt(element);
+            log.info("Encrypted Data: {}", encryptedData);
+        }
+
         MyinfoResponse myInfo = memberService.getMyinfo(memberId);
         return ResponseEntity.ok(myInfo);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> leavCrews(HttpServletRequest request,
+                                          @RequestBody LeavRequest leavRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        log.info("회원탈퇴 요청 시작: 회원ID={}", memberId);
+        try {
+            memberService.leavCrews(memberId,leavRequest);
+            log.info("회원탈퇴 성공: 회원ID={}", memberId);
+            return ResponseEntity.noContent().build();
+        } catch (CustomException ce) {
+            log.error("회원탈퇴 중 예외 발생: 회원ID={}, 오류코드={}, 메시={}", memberId, ce.getErrorCode(), ce.getMessage());
+            throw ce;
+        } catch (Exception e) {
+            log.error("회원탈퇴 중 예상치 못한 예외 발생: 회원ID={}, 메시={}", memberId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.DATABASE_ACCESS_FAILED, e);
+        }
     }
 
     @GetMapping("/me/addresses")
@@ -202,21 +267,53 @@ public class MemberController {
         try {
             memberService.deleteMyAccounts(memberId, cardDeleteRequest);
             return ResponseEntity.noContent().build();
-        }  catch (CustomException e) {
+        } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/me/agits-account-info")
-    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request){
+    @GetMapping("/me/core-accounts")
+    public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
     }
 
+    @PostMapping("/me/core-accounts")
+    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest, HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        memberService.attachAccount(memberId, attachAccountRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/agits-accounts")
+    public ResponseEntity<AgitAccountInfoListResponse> getAgitsAccountsInfo(HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.getAgitsAccountsInfo(memberId));
+    }
+
+
+    @GetMapping("/me/account-withdraws")
+    public ResponseEntity<List<WithdrawResponse>> getMyAccountWithdrawHisotry(
+            HttpServletRequest request,
+            @RequestParam Long crewAccountId,
+            @RequestParam Long myAccountId) {
+        Long memberId = authUtil.getMemberId(request);
+        List<WithdrawResponse> withdrawResponse =
+                memberService.getwithdraws(memberId, myAccountId, crewAccountId);
+        return ResponseEntity.ok(withdrawResponse);
+    }
+
+    @PostMapping("/me/fees/payment")
+    public ResponseEntity<TransferMsgResponse> paymentFee(HttpServletRequest request,
+                                                          @RequestBody PaymentRequest paymentRequest) {
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok(memberService.paymentFee(memberId, paymentRequest));
+    }
+
     @PostMapping("/find-id")
-    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest){
+    public ResponseEntity<FindMemberIdResponse> findMemberId(@RequestBody FindMemberRequest findMemberRequest) {
         return ResponseEntity.ok().body(memberService.findMemberId(findMemberRequest));
     }
 
@@ -225,12 +322,7 @@ public class MemberController {
         memberService.findMemberPw(findMemberPwRequest);
         return ResponseEntity.ok().body("임시 비밀번호가 입력하신 이메일로 전송되었습니다!");
     }
-    @PostMapping("/me/agits-account-info")
-    public ResponseEntity<Void> attachAccountInfo(@RequestBody AttachAccountRequest attachAccountRequest,HttpServletRequest request){
-        Long memberId = authUtil.getMemberId(request);
-        memberService.attachAccount(memberId,attachAccountRequest);
-        return ResponseEntity.noContent().build();
-    }
+
 
     @PostMapping("/verify-number")
     public ResponseEntity<String> getVerifyNumber(@RequestBody VerifyPhoneRequest verifyPhoneRequest) {

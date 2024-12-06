@@ -150,7 +150,26 @@ CREATE TABLE common_dues
     agit_id    BIGINT,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
+);
 
+-- Dues 테이블
+CREATE TABLE dues
+(
+    id             BIGINT         NOT NULL AUTO_INCREMENT,
+    created_at     DATETIME(6),
+    due_amount     DECIMAL(38, 2) NOT NULL,
+    product_name   VARCHAR(255)   NOT NULL,
+    account_number VARCHAR(255)   NOT NULL,
+    agit_name      VARCHAR(255)   NOT NULL,
+    is_paid       BOOLEAN        NOT NULL,
+    due_date       DATETIME(6),
+    updated_at     DATETIME(6),
+    standard_date  DATETIME(6),
+    membership_id  BIGINT,
+    common_dues_id BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
 
 );
 
@@ -170,6 +189,11 @@ ALTER TABLE agit
 ALTER TABLE agit
     ADD CONSTRAINT fk_agit_common_dues
         FOREIGN KEY (common_dues_id) REFERENCES common_dues (id);
+
+ALTER TABLE agit
+    ADD CONSTRAINT fk_agit_dues_id
+        FOREIGN KEY (dues_id) REFERENCES dues (id);
+
 
 ALTER TABLE agit_and_account
     ADD CONSTRAINT fk_agit_and_account_account
@@ -293,7 +317,7 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
+    role       ENUM ('LEADER', 'ADVANCED', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -346,6 +370,17 @@ CREATE TABLE meeting
     regular_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id)
+);
+
+-- Message 테이블
+CREATE TABLE message
+(
+    id            BIGINT       NOT NULL AUTO_INCREMENT,
+    phone_number  VARCHAR(255) NOT NULL,
+    verify_number VARCHAR(255) NOT NULL,
+    created_at    DATETIME(6),
+    updated_at    DATETIME(6),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE report

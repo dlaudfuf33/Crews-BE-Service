@@ -79,7 +79,7 @@ public class AccountController {
     }
 
     @PostMapping("/permissions")
-    public ResponseEntity<String> accountLink(@PathVariable("agits-id") Long agitId,
+    public ResponseEntity<String> accountPermission(@PathVariable("agits-id") Long agitId,
                                                            HttpServletRequest request){
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok().body(accountService.accountPermission(agitId, memberId));

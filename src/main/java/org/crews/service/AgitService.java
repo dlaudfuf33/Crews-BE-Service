@@ -182,8 +182,7 @@ public class AgitService {
             ).isPresent();
 
             if (isAlreadyJoined) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new AgitRegisterResponse("이미 가입한 아지트입니다."));
+                throw new CustomException(ErrorCode.AGIT_ALREADY_JOINED);
             }
 
             memberShipRepository.save(membership);
@@ -192,8 +191,7 @@ public class AgitService {
                     .body(new AgitRegisterResponse("가입 신청이 완료되었습니다."));
         } catch (Exception e) {
             log.error("Error during agit registration: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new AgitRegisterResponse("아지트 가입신청을 하는 도중 문제가 발생하였습니다. 나중에 다시 시도해주세요."));
+            throw new CustomException(ErrorCode.AGIT_APPLY_ERROR);
         }
     }
 
