@@ -38,6 +38,7 @@ CREATE TABLE member
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     is_deleted    BOOLEAN               DEFAULT FALSE,
+    is_banned     BOOLEAN               DEFAULT FALSE,
     created_at    DATETIME(6),
     updated_at    DATETIME(6),
     ci            VARCHAR(88)  NOT NULL,
@@ -134,7 +135,7 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
+    agit_role  ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -321,7 +322,6 @@ CREATE TABLE member_and_interesting
 );
 
 
-
 -- Refresh Entity 테이블
 CREATE TABLE refresh_entity
 (
@@ -363,12 +363,12 @@ CREATE TABLE message
 
 CREATE TABLE report
 (
-    id BIGINT NOT NULL AUTO_INCREMENT,
+    id         BIGINT       NOT NULL AUTO_INCREMENT,
     created_at DATETIME(6),
     feed_id    BIGINT,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    content VARCHAR(255) NOT NULL,
+    content    VARCHAR(255) NOT NULL,
     is_checked BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (id),
     FOREIGN KEY (feed_id) REFERENCES feed (id),
