@@ -25,4 +25,6 @@ public class DuesCallRequest {
 
     @NotNull
     private Integer month;
+
+    private Integer dueDay;
 }
