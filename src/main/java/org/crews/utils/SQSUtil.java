@@ -63,7 +63,6 @@ public class SQSUtil {
         ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .maxNumberOfMessages(10)
-                .waitTimeSeconds(2) // 메시지를 기다릴 수 있도록 대기 시간 설정
                 .build();
 
         List<Message> messages = sqsClient.receiveMessage(receiveRequest).messages();

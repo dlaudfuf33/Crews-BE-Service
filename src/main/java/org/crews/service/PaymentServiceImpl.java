@@ -5,28 +5,35 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.TransferApiResponse;
 import org.crews.dto.core.TransferRequest;
-import org.crews.dto.request.AgitInfoRequest;
+import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.dto.sqs.MessagePayload;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.model.Account;
 import org.crews.model.Card;
+import org.crews.model.Member;
 import org.crews.model.Membership;
 import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.CardName;
 import org.crews.model.constants.PaymentTargetAccount;
 import org.crews.repository.AccountRepository;
 import org.crews.repository.CardRepository;
+import org.crews.repository.MemberRepository;
 import org.crews.repository.MemberShipRepository;
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
 import org.crews.utils.SQSUtil;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,26 +41,40 @@ import java.util.List;
 public class PaymentServiceImpl implements PaymentService {
 
     private final MemberShipRepository memberShipRepository;
+    private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
     private final QRCodeUtil qrCodeUtil;
     private final S3Util s3Util;
     private final CoreService coreService;
     private final SQSUtil sqsUtil;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public String generateQRCodeAndUpload(Long memberId, AgitInfoRequest agitInfoRequest) throws WriterException {
+    public String generateQRCodeAndUpload(Long memberId, CardPaymentRequest cardPaymentRequest) throws WriterException {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!bCryptPasswordEncoder.matches(cardPaymentRequest.getPinNumber(), member.getPinNumber())) {
+            throw new CustomException(ErrorCode.VERIFY_PIN_MISMATCH);
+        }
+
+        log.info("유저 확인 완료!");
+
         Card card = cardRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
+//        String qrData = String.format("http://crews-be-service-env.eba-hvrvbmgq.ap-northeast-2.elasticbeanstalk.com/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
         String qrData = String.format("http://localhost:8080/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
                 card.getCardNumber(), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
 
-        String folderPath = String.format("payments/%d/%d", memberId, agitInfoRequest.getAgitId());
+        String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
+        log.info(qrData);
+        log.info(folderPath);
         String s3Key = s3Util.generateUniqueFileName(folderPath, "qrCode.png");
-
+        log.info(s3Key);
         byte[] qrCodeBytes = qrCodeUtil.generateQRCode(qrData, 300, 300);
-
+        log.info(Arrays.toString(qrCodeBytes));
         s3Util.deleteAllFilesInFolder(folderPath); // 폴더 내 기존 파일 삭제
         s3Util.uploadToS3(qrCodeBytes, s3Key);
 

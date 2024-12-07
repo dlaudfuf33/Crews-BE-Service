@@ -5,7 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
+import org.crews.dto.core.TransferResponse;
 import org.crews.dto.request.AgitInfoRequest;
+import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.dto.sqs.MessagePayload;
 import org.crews.service.PaymentService;
@@ -37,25 +39,32 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> createPaymentQRCode(@RequestBody AgitInfoRequest agitInfoRequest, HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> createPaymentQRCode(@RequestBody CardPaymentRequest cardPaymentRequest, HttpServletRequest request) {
         try {
             Long memberId = authUtil.getMemberId(request);
-            String qrCodeUrl = paymentService.generateQRCodeAndUpload(memberId, agitInfoRequest);
+            String qrCodeUrl = paymentService.generateQRCodeAndUpload(memberId, cardPaymentRequest);
+            log.info(qrCodeUrl);
+            if(qrCodeUrl.equals("wrong pin number")) {
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("qrCode", qrCodeUrl));
+
+            }
 
             return ResponseEntity.ok(Map.of("qrCode", qrCodeUrl));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
 
     @GetMapping("/result")
     public ResponseEntity<MessagePayload> resultPayment(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
+        log.info(String.valueOf(memberId));
         MessagePayload payload = sqsUtil.receiveAndDeleteMessages(memberId);
 
         if (payload == null) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body(MessagePayload.builder().message("Payment Result Not Found").build());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(MessagePayload.builder().memberId(memberId).message("Payment Result Not Found").build());
         } else {
             return ResponseEntity.ok(payload);
         }
