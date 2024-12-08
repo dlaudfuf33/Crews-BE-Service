@@ -10,10 +10,7 @@ import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.dto.sqs.MessagePayload;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
-import org.crews.model.Account;
-import org.crews.model.Card;
-import org.crews.model.Member;
-import org.crews.model.Membership;
+import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.CardName;
 import org.crews.model.constants.PaymentTargetAccount;
@@ -120,16 +117,48 @@ public class PaymentServiceImpl implements PaymentService {
         List<PaymentInfoResponse> paymentInfoResponses = new ArrayList<>();
 
         for (Membership membership : memberships) {
-            paymentInfoResponses.add(PaymentInfoResponse.builder()
-                    .name(membership.getAgit().getAgitName())
-                    .agitRole(membership.getAgitRole())
-                    .agitId(membership.getAgit().getId())
-                    .cardName(CardName.WOORI_CARD.getType())
-                    .cardCode("3475")
-                    .src("https://djogyo1sj025q.cloudfront.net/cards/img_woori_card.png")
-                    .build());
+
+            AgitAndAccount agitAndAccount = membership.getAgit().getAgitAndAccount();
+            if (agitAndAccount != null) {
+                Account account = agitAndAccount.getAccount();
+
+                // Account가 존재하는 경우 Card 정보 조회
+                if (account != null && !account.getCards().isEmpty()) {
+                    for (Card card : account.getCards()) {
+                        paymentInfoResponses.add(PaymentInfoResponse.builder()
+                                .name(membership.getAgit().getAgitName())
+                                .agitRole(membership.getAgitRole())
+                                .agitId(membership.getAgit().getId())
+                                .cardName(card.getCardName())
+                                .cardCode("3475")
+                                .src(card.getCardImage())
+                                .build());
+                    }
+                } else {
+                    // 카드가 없는 경우 기본 값 처리 (optional)
+                    paymentInfoResponses.add(PaymentInfoResponse.builder()
+                            .name(membership.getAgit().getAgitName())
+                            .agitRole(membership.getAgitRole())
+                            .agitId(membership.getAgit().getId())
+                            .cardName("")
+                            .cardCode("")
+                            .src("")
+                            .build());
+                }
+            } else {
+                // Account가 없는 경우 기본 값 처리 (optional)
+                paymentInfoResponses.add(PaymentInfoResponse.builder()
+                        .name(membership.getAgit().getAgitName())
+                        .agitRole(membership.getAgitRole())
+                        .agitId(membership.getAgit().getId())
+                        .cardName("")
+                        .cardCode("")
+                        .src("")
+                        .build());
+            }
         }
 
         return paymentInfoResponses;
     }
+
 }
