@@ -39,7 +39,7 @@ public enum ErrorCode {
     PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
-    AGIT_ACCOUNT_NOT_FOUND("해당하는 아지트의 모임통장이 없습니다.", HttpStatus.NOT_FOUND),
+    AGIT_ACCOUNT_NOT_FOUND("해당 모임에 가입하지 않았거나 권한이 없습니다.", HttpStatus.NOT_FOUND),
     MEMBERSHIP_NOT_FOUND("해당 회원이 모임에 참여하고 있지 않습니다.", HttpStatus.NOT_FOUND),
     BANK_NOT_FOUND("해당하는 은행을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
