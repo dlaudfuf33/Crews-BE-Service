@@ -10,7 +10,6 @@ import org.crews.model.Member;
 import org.crews.model.Report;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.ReportRepository;
-import org.crews.utils.AESUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -46,22 +45,16 @@ public class AdminService {
             report.setChecked(true);
             reportRepository.save(report);
         }
-        System.out.println(AESUtil.encrypt("guest10@test.com"));
-        System.out.println(AESUtil.encrypt("guest11@test.com"));
-        System.out.println(AESUtil.encrypt("guest12@test.com"));
-        System.out.println(AESUtil.encrypt("guest13@test.com"));
-        System.out.println(AESUtil.encrypt("guest14@test.com"));
-        System.out.println(AESUtil.encrypt("guest15@test.com"));
-        System.out.println(AESUtil.encrypt("guest16@test.com"));
+
         return ReportedFeedResponse.of(report);
     }
 
     @Transactional
     public BanResponse banMember(Long memberId) {
         Member foundMember = memberRepository.findById(memberId).orElseThrow(
-                ()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        if(foundMember.isBanned()){
+        if (foundMember.isBanned()) {
             throw new CustomException(ErrorCode.ALREADY_BANNED_MEMBER);
         }
         foundMember.setBanned(true);
