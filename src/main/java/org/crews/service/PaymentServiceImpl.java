@@ -12,12 +12,12 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
-import org.crews.model.constants.CardName;
 import org.crews.model.constants.PaymentTargetAccount;
 import org.crews.repository.AccountRepository;
 import org.crews.repository.CardRepository;
 import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.MembershipRepository;
+
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
 import org.crews.utils.SQSUtil;
@@ -37,7 +37,7 @@ import java.util.Optional;
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
@@ -113,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentInfoResponse> getPaymentInfo(Long memberId) {
-        List<Membership> memberships = memberShipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
+        List<Membership> memberships = membershipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
         List<PaymentInfoResponse> paymentInfoResponses = new ArrayList<>();
 
         for (Membership membership : memberships) {
