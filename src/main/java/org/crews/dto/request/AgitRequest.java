@@ -20,4 +20,5 @@ public class AgitRequest {
     private String name;
     @NotBlank
     private AddressRequest addressRequest;
+
 }

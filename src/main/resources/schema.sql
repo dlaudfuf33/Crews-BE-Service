@@ -38,6 +38,7 @@ CREATE TABLE member
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     is_deleted    BOOLEAN               DEFAULT FALSE,
+    is_banned     BOOLEAN               DEFAULT FALSE,
     created_at    DATETIME(6),
     updated_at    DATETIME(6),
     ci            VARCHAR(88)  NOT NULL,
@@ -126,6 +127,20 @@ CREATE TABLE agit
     FOREIGN KEY (address_id) REFERENCES address (id),
     FOREIGN KEY (dues_id) REFERENCES dues (id),
     FOREIGN KEY (common_dues_id) REFERENCES common_dues(id)
+);
+-- Membership 테이블
+CREATE TABLE membership
+(
+    id         BIGINT      NOT NULL AUTO_INCREMENT,
+    agit_id    BIGINT,
+    created_at DATETIME(6),
+    joined_at  DATETIME(6) NOT NULL,
+    member_id  BIGINT,
+    updated_at DATETIME(6),
+    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
+    PRIMARY KEY (id),
+    FOREIGN KEY (agit_id) REFERENCES agit (id),
+    FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
 -- Agit and Account 테이블
@@ -308,21 +323,6 @@ CREATE TABLE member_and_interesting
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
--- Membership 테이블
-CREATE TABLE membership
-(
-    id         BIGINT      NOT NULL AUTO_INCREMENT,
-    agit_id    BIGINT,
-    created_at DATETIME(6),
-    joined_at  DATETIME(6) NOT NULL,
-    member_id  BIGINT,
-    updated_at DATETIME(6),
-    role       ENUM ('LEADER', 'ADVANCED', 'MEMBER', 'STAFF', 'TEMP') DEFAULT 'TEMP',
-    PRIMARY KEY (id),
-    FOREIGN KEY (agit_id) REFERENCES agit (id),
-    FOREIGN KEY (member_id) REFERENCES member (id)
-);
-
 -- Dues 테이블
 CREATE TABLE dues
 (
@@ -385,12 +385,12 @@ CREATE TABLE message
 
 CREATE TABLE report
 (
-    id BIGINT NOT NULL AUTO_INCREMENT,
+    id         BIGINT       NOT NULL AUTO_INCREMENT,
     created_at DATETIME(6),
     feed_id    BIGINT,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    content VARCHAR(255) NOT NULL,
+    content    VARCHAR(255) NOT NULL,
     is_checked BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (id),
     FOREIGN KEY (feed_id) REFERENCES feed (id),

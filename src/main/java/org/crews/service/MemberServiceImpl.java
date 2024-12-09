@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -567,7 +568,12 @@ public class MemberServiceImpl implements MemberService {
         String temporary = authUtil.generateRandomPassword(10);
         member.setPassword(bCryptPasswordEncoder.encode(temporary));
 
-        MessageUtil.send(AESUtil.decrypt(member.getPhoneNumber()), temporary);
+        String messageForm = "[크루즈]\\n임시 비밀번호는 {0} 입니다.";
+        String result = MessageFormat.format(
+                messageForm,
+                temporary
+        );
+        MessageUtil.send(AESUtil.decrypt(member.getPhoneNumber()), result);
     }
 
     @Override
@@ -580,8 +586,12 @@ public class MemberServiceImpl implements MemberService {
         message.setVerifyNumber(verifyNumber);
 
         messageRepository.save(message);
-
-        MessageUtil.send(verifyPhoneRequest.getPhoneNumber(), verifyNumber);
+        String messageForm = "[크루즈]\\n인증번호는 [{0}] 입니다.";
+        String result = MessageFormat.format(
+                messageForm,
+                message.getVerifyNumber()
+        );
+        MessageUtil.send(verifyPhoneRequest.getPhoneNumber(), result);
     }
 
     @Override
