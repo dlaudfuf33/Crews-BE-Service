@@ -4,8 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-
 public class AccountDeleteRequest {
     @NotNull
     private Long accountId;
+
+    public AccountDeleteRequest(Long accountId){
+        this.accountId = accountId;
+    }
 }

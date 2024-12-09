@@ -15,7 +15,7 @@ public class AuthUtil {
     private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
     private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String DIGITS = "0123456789";
-    private static final String SPECIAL_CHARACTERS = "!@#$%^&*()-_=+[]{}|;:,.<>?/";
+    private static final String SPECIAL_CHARACTERS = "!@#$%^&*-+";
     private static final String ALL_CHARACTERS = LOWERCASE + UPPERCASE + DIGITS + SPECIAL_CHARACTERS;
 
     public AuthUtil(JWTUtil jwtUtil) {
@@ -34,14 +34,25 @@ public class AuthUtil {
         }
     }
 
+    public String getMemberRole(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null ) return null;
+
+        try {
+            String token = authorizationHeader.substring(7);
+            return jwtUtil.getRole(token);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     public static String generateRandomPassword(int length) {
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder();
 
         for (int i = 0; i < length; i++) {
-            int index = random.nextInt(ALL_CHARACTERS.length());
-            password.append(ALL_CHARACTERS.charAt(index));
+            password.append(ALL_CHARACTERS.charAt(random.nextInt(ALL_CHARACTERS.length())));
         }
 
         return password.toString();
