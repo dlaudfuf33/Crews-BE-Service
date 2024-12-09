@@ -19,6 +19,7 @@ public class AccountV2CrewResponse {
     private String agitName;
     private String bankCode;
     private String bankName;
+    private String bankImage;
     private String accountNumber;
     private String productName;
     private BigDecimal balance;
@@ -31,6 +32,7 @@ public class AccountV2CrewResponse {
                 .agitName(agit.getAgitName())
                 .bankCode(agit.getAgitAndAccount().getAccount().getBank().getBankCode())
                 .bankName(agit.getAgitAndAccount().getAccount().getBank().getBankName())
+                .bankImage(agit.getAgitAndAccount().getAccount().getBank().getBankImage())
                 .accountNumber(AESUtil.decrypt(agit.getAgitAndAccount().getAccount().getAccountNumber()))
                 .productName(agit.getAgitAndAccount().getAccount().getProductName())
                 .balance(agit.getAgitAndAccount().getAccount().getBalance())

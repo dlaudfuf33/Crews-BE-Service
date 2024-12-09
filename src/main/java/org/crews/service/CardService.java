@@ -57,12 +57,11 @@ public class CardService {
                 .ci(member.getCi())
                 .fintechUseNum(fintechUseNum)
                 .build();
-        //TODO: cardImage 제대로 넣어서 변경하기
         CardIssuedResponse response = coreService.cardIssued(commonRequest);
         Card card = Card.builder().account(account).member(member)
                 .maskedCardNumber(MaskedNumber.cardMasking(response.getCardNumber()))
                 .cardNumber(AESUtil.encrypt(response.getCardNumber())).registeredAt(response.getCreateAt())
-                .isDeleted(false).cardImage("").cardName("우리카드 카드의 정석 EVERY POINT").build();
+                .isDeleted(false).cardImage("cards/img_woori_card.png").cardName("우리카드 카드의 정석 EVERY POINT").build();
 
         cardRepository.save(card);
         return response;
