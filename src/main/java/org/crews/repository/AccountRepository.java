@@ -19,7 +19,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByIdAndFintecNumber(Long id, String fintecNumber);
 
-    @EntityGraph(attributePaths = {"member", "member.membership"})
+    @EntityGraph(attributePaths = {"member", "member.memberships"})
     Optional<Account> findByAccountNumber(String accountNumber);
 
     List<Account> findByMemberAndAccountType(Member member, AccountType accountType);

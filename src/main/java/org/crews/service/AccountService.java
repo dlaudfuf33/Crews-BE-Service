@@ -46,10 +46,19 @@ public class AccountService {
 
 
     @Transactional
-    public AccountOneResponse accountInfo(Long agitId) {
+    public AccountOneResponse accountInfo(Long agitId, Long memberId) {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
+        );
+        if(membership.getAgitRole().equals(AgitRole.TEMP))
+            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+
         AgitAndAccount agitAndAccount = agit.getAgitAndAccount();
         if (agitAndAccount == null) {
             return AccountOneResponse.builder().build();
@@ -173,6 +182,9 @@ public class AccountService {
         String ci = membership.getMember().getCi();
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
+        }
+        if(agit.getAgitAndAccount() == null){
+            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
         }
         String fintecNumber = agit.getAgitAndAccount().getAccount().getFintecNumber();
         accountRepository.findByFintecNumber(fintecNumber).orElseThrow(

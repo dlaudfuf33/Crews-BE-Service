@@ -183,10 +183,10 @@ public class DuesService {
 		Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
 			() -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
 		);
-		String ci = membership.getMember().getCi();
-		if (!member.getCi().equals(ci)) {
-			throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
-		}
+		if(membership.getAgitRole().equals(AgitRole.TEMP))
+			throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
+		if(agit.getAgitAndAccount() == null)
+			throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
 		CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElse(null);
 		if (commonDues == null)
 			return DuesSaveResponse.builder()

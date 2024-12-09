@@ -25,8 +25,10 @@ public class AccountController {
     private final AuthUtil authUtil;
 
     @GetMapping
-    public ResponseEntity<AccountOneResponse> accountInfo(@PathVariable("agits-id") Long agitId){
-        return ResponseEntity.ok().body(accountService.accountInfo(agitId));
+    public ResponseEntity<AccountOneResponse> accountInfo(@PathVariable("agits-id") Long agitId,
+                                                          HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(accountService.accountInfo(agitId, memberId));
     }
 
     @PostMapping
