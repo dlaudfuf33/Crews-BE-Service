@@ -19,6 +19,10 @@ public class MemberRequest {
 
     @NotBlank(message = "비밀번호는 필수 입력 항목입니다.")
     @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
+    @Pattern(
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "비밀번호는 최소 8자 이상이어야 하며, 영어, 숫자, 특수문자를 포함해야 합니다."
+    )
     private String password;
 
     @NotBlank(message = "이름은 필수 입력 항목입니다.")
@@ -44,5 +48,4 @@ public class MemberRequest {
     private String pinNumber;
 
     private String profileImage;
-
 }
