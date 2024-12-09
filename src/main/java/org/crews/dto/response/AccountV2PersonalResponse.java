@@ -18,6 +18,7 @@ public class AccountV2PersonalResponse {
     private Long accountId;
     private String bankCode;
     private String bankName;
+    private String bankImage;
     private String accountNumber;
     private String productName;
     private BigDecimal balance;
@@ -28,6 +29,7 @@ public class AccountV2PersonalResponse {
                 .accountId(account.getId())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())
+                .bankImage(account.getBank().getBankImage())
                 .accountNumber(AESUtil.decrypt(account.getAccountNumber()))
                 .productName(account.getProductName())
                 .balance(account.getBalance())
