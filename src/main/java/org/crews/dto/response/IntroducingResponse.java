@@ -17,6 +17,7 @@ public class IntroducingResponse {
     private AddressResponse address;
     private String subject;
     private List<InterestingResponse> interests;
+    private String agitName;
 
     public static IntroducingResponse of(Introducing introducing){
         List<InterestingResponse> interestingResponse = introducing.getAgit().getInterestingAndAgits().stream()
@@ -30,7 +31,8 @@ public class IntroducingResponse {
                 introducing.getContent(),
                 agitAddress,
                 introducing.getAgit().getSubject().getSubjectName(),
-                interestingResponse
+                interestingResponse,
+                introducing.getAgit().getAgitName()
         );
     }
 }

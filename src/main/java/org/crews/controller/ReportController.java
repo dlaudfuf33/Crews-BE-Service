@@ -24,6 +24,6 @@ public class ReportController {
             @PathVariable("feed-id") Long feedId,
             @RequestBody ReportRequest reportRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(reportService.reportFeed(memberId, agitId, feedId, reportRequest));
+        return ResponseEntity.ok().body(reportService.reportFeed(memberId, feedId, agitId, reportRequest));
     }
 }

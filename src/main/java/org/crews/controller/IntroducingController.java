@@ -23,7 +23,12 @@ public class IntroducingController {
         return ResponseEntity.ok().body(introducingService.getIntroducing(agitsId));
     }
 
-    @PutMapping
+    @GetMapping("/edit")
+    public ResponseEntity<IntroducingResponse> getIntroducingForEdit(@PathVariable("agits-id") Long agitsId) {
+        return ResponseEntity.ok().body(introducingService.getIntroducing(agitsId));
+    }
+
+    @PatchMapping("/edit")
     public ResponseEntity<IntroducingResponse> updateIntroducing(
             @PathVariable("agits-id") Long agitsId,
             @RequestBody IntroducingRequest introducingRequest,

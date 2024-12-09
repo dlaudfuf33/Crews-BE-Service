@@ -40,6 +40,15 @@ public class FeedController {
         return ResponseEntity.ok().body(feedService.getFeed(memberId, agitId, feedId));
     }
 
+    @GetMapping("/{feed-id}/edit")
+    public ResponseEntity<FeedResponse> getFeedForEdit(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("feed-id") Long feedId,
+            HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(feedService.getFeed(memberId, agitId, feedId));
+    }
+
     @PostMapping
     public ResponseEntity<FeedResponse> createFeed(
             @PathVariable("agits-id") Long agitId,
@@ -50,7 +59,7 @@ public class FeedController {
         return ResponseEntity.ok().body(feedService.postFeed(memberId, agitId, feedRequest));
     }
 
-    @PutMapping("/{feed-id}")
+    @PatchMapping("/{feed-id}/edit")
     public ResponseEntity<FeedResponse> editFeed(
             @PathVariable("agits-id") Long agitId,
             @PathVariable("feed-id") Long feedId,

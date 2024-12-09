@@ -26,7 +26,7 @@ public class MeetingRequest {
 
     @NotNull(message = "정기모임 날짜는 필수 입력 항목입니다.")
     @Future(message="현재 시간 이전은 설정이 불가능합니다.")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime date;
 
     @NotBlank(message = "정기모임 안내사항은 필수 입력 항목입니다.")

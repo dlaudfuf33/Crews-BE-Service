@@ -65,9 +65,9 @@ public class IntroducingService {
             throw new CustomException(ErrorCode.INVALID_INTERESTS_COUNT);
         }
 
-        introducing.setImage(introducingRequest.getImage());
-        introducing.setIntroduce(introducingRequest.getIntroduce());
-        introducing.setContent(introducingRequest.getContent());
+        if (introducingRequest.getImage() != null) introducing.setImage(introducingRequest.getImage());
+        if (introducingRequest.getIntroduce() != null) introducing.setIntroduce(introducingRequest.getIntroduce());
+        if (introducingRequest.getContent() != null) introducing.setContent(introducingRequest.getContent());
 
         return IntroducingResponse.of(introducing);
     }
