@@ -190,7 +190,7 @@ public class DuesService {
 		CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElse(null);
 		if (commonDues == null)
 			return DuesSaveResponse.builder()
-				.dueAmount(null)
+				.dueDay(null)
 				.dueAmount(null)
 				.minYear(membership.getCreatedAt().getYear())
 				.minMonth(membership.getCreatedAt().getMonthValue())
