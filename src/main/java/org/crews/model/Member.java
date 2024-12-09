@@ -52,6 +52,9 @@ public class Member extends BaseTimeEntity {
     @Column(columnDefinition = "boolean default false")
     private boolean isDeleted;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean isBanned;
+
     @ManyToOne(optional = true,fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = true)
     @JsonManagedReference

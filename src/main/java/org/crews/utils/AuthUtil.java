@@ -34,6 +34,18 @@ public class AuthUtil {
         }
     }
 
+    public String getMemberRole(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null ) return null;
+
+        try {
+            String token = authorizationHeader.substring(7);
+            return jwtUtil.getRole(token);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     public static String generateRandomPassword(int length) {
         SecureRandom random = new SecureRandom();
