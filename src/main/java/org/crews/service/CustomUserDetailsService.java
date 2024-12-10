@@ -50,6 +50,10 @@ public class CustomUserDetailsService implements UserDetailsService {
             log.info("탈퇴한 회원");
             throw new CustomException(ErrorCode.DELETED_MEMBER,email);
         }
+        if(optionalMember.get().isBanned()){
+            log.info("처단된 회원");
+            throw new CustomException(ErrorCode.ALREADY_BANNED_MEMBER,email);
+        }
 
         Member member = optionalMember.get();
 
