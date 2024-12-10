@@ -10,6 +10,8 @@ import org.crews.dto.request.AgitInfoRequest;
 import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.dto.sqs.MessagePayload;
+import org.crews.exception.CustomException;
+import org.crews.exception.ErrorCode;
 import org.crews.service.MemberService;
 import org.crews.service.PaymentService;
 import org.crews.utils.AESUtil;
@@ -78,8 +80,12 @@ public class PaymentController {
                     payload.getData().getTransactionTime(),
                     payload.getData().getAfterAmt()
             );
-
-            MessageUtil.send(AESUtil.decrypt(phoneNumber), message);
+            try {
+                MessageUtil.send(AESUtil.decrypt(phoneNumber), message);
+            }catch (Exception e){
+                log.info("결제 알림 전송이 실패했습니다.",e);
+                return ResponseEntity.ok(payload);
+            }
             return ResponseEntity.ok(payload);
         }
     }
