@@ -16,8 +16,8 @@ import org.crews.model.constants.PaymentTargetAccount;
 import org.crews.repository.AccountRepository;
 import org.crews.repository.CardRepository;
 import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
-import org.crews.utils.AESUtil;
+import org.crews.repository.MembershipRepository;
+
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
 import org.crews.utils.SQSUtil;
@@ -30,15 +30,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
+    private final AccountRepository accountRepository;
     private final QRCodeUtil qrCodeUtil;
     private final S3Util s3Util;
     private final CoreService coreService;
@@ -56,12 +58,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         log.info("유저 확인 완료!");
 
-        Card card = cardRepository.findByMemberIdAndAgitId(memberId, cardPaymentRequest.getAgitId())
-                .orElseThrow(() -> new IllegalArgumentException("No card found for the given MemberId and AgitId."));
+        Card card = cardRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
 //        String qrData = String.format("http://crews-be-service-env.eba-hvrvbmgq.ap-northeast-2.elasticbeanstalk.com/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
         String qrData = String.format("http://localhost:8080/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
-                AESUtil.decrypt(card.getCardNumber()), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
+                card.getCardNumber(), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
 
         String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
         log.info(qrData);
@@ -111,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentInfoResponse> getPaymentInfo(Long memberId) {
-        List<Membership> memberships = memberShipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
+        List<Membership> memberships = membershipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
         List<PaymentInfoResponse> paymentInfoResponses = new ArrayList<>();
 
         for (Membership membership : memberships) {

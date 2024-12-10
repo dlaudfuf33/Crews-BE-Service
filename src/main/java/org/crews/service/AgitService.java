@@ -42,7 +42,7 @@ public class AgitService {
     private final InterestingRepository interestingRepository;
     private final InterestingAndAgitRepository interestingAndAgitRepository;
     private final IntroducingRepository introducingRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final SubjectRepository subjectRepository;
     private final DuesRepository duesRepository;
@@ -107,7 +107,7 @@ public class AgitService {
         );
         Membership membership = Membership.builder().agit(savedAgit).member(member).agitRole(AgitRole.LEADER).joinedAt(
                 LocalDateTime.now()).build();
-        memberShipRepository.save(membership);
+        membershipRepository.save(membership);
         return AgitResponse.from(savedAgit);
 
     }
@@ -119,7 +119,7 @@ public class AgitService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         Optional<CommonDues> optionalCommonDues = commonDuesRepository.findByAgit(agit);
@@ -145,14 +145,14 @@ public class AgitService {
         }
     }
 
-    public AgitRole getMemberRole(Long agitId, Long memberId) {
+    public AgitRole getAgitRole(Long agitId, Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         return membership.getAgitRole();
@@ -162,7 +162,7 @@ public class AgitService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        List<Membership> membershipList = memberShipRepository.findByMember(member);
+        List<Membership> membershipList = membershipRepository.findByMember(member);
         List<AgitInfoResponse> agitInfoResponseList = membershipList.stream().map(AgitInfoResponse::from).toList();
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
@@ -176,7 +176,7 @@ public class AgitService {
                     .joinedAt(LocalDateTime.now())
                     .build();
 
-            boolean isAlreadyJoined = memberShipRepository.findByMemberAndAgit(
+            boolean isAlreadyJoined = membershipRepository.findByMemberAndAgit(
                     Member.builder().id(memberId).build(),
                     Agit.builder().id(agitInfoRequest.getAgitId()).build()
             ).isPresent();
@@ -185,7 +185,7 @@ public class AgitService {
                 throw new CustomException(ErrorCode.AGIT_ALREADY_JOINED);
             }
 
-            memberShipRepository.save(membership);
+            membershipRepository.save(membership);
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new AgitRegisterResponse("가입 신청이 완료되었습니다."));
@@ -208,22 +208,22 @@ public class AgitService {
         return AgitSliceResponse.of(agitSlice);
     }
 
-    public AgitRole getAgitRole(Long agitId, Long memberId) {
-        Membership membership = memberShipRepository.findByMemberAndAgit(Member.builder().id(memberId).build(), Agit.builder().id(agitId).build()).orElseThrow();
-        return membership.getAgitRole();
-    }
-
     public AgitManageResponse getAgitMember(Long agitId, AgitRole agitRole) {
-        List<Membership> membershipList = memberShipRepository.findTop3ByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
-        Long totalMembership = memberShipRepository.countByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        List<Membership> membershipList = membershipRepository.findTop3ByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        Long totalMembership = membershipRepository.countByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
 
-        List<Membership> tempMembershipList = memberShipRepository.findTop3ByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
-        Long totalTempMembership = memberShipRepository.countByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        List<Membership> tempMembershipList = membershipRepository.findTop3ByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+        Long totalTempMembership = membershipRepository.countByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.TEMP);
+
+        List<Membership> advancedMembershipList = membershipRepository.findTop3ByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.ADVANCED);
+        Long totalAdvancedMembership = membershipRepository.countByAgitAndAgitRoleLike(Agit.builder().id(agitId).build(), AgitRole.ADVANCED);
 
         Iterator<Membership> membershipIterator = membershipList.iterator();
         Iterator<Membership> tempMembershipIterator = tempMembershipList.iterator();
+        Iterator<Membership> advancedMembershipIterator = advancedMembershipList.iterator();
         List<AgitManageMemberResponse> memberResponses = new ArrayList<>();
         List<AgitManageMemberResponse> tempMemberResponses = new ArrayList<>();
+        List<AgitManageMemberResponse> advancedMemberResponses = new ArrayList<>();
 
         while(membershipIterator.hasNext()) {
             Membership membership = membershipIterator.next();
@@ -235,14 +235,20 @@ public class AgitService {
                 Membership membership = tempMembershipIterator.next();
                 tempMemberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
             }
+            while(advancedMembershipIterator.hasNext()) {
+                Membership membership = advancedMembershipIterator.next();
+                advancedMemberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
+            }
         }
 
 
         return AgitManageResponse.builder()
                 .members(memberResponses)
                 .requestedMembers(tempMemberResponses)
+                .advancedMembers(advancedMemberResponses)
                 .currentMember(totalMembership)
                 .requestedMember(totalTempMembership)
+                .advancedMember(totalAdvancedMembership)
                 .message("")
                 .build();
     }
@@ -268,7 +274,7 @@ public class AgitService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -309,14 +315,14 @@ public class AgitService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
-        List<Membership> membershipList = memberShipRepository.findByAgit(agit);
+        List<Membership> membershipList = membershipRepository.findByAgit(agit);
 
         DecimalFormat numberFormat = new DecimalFormat("#");
         DecimalFormat amountFormat = new DecimalFormat("#,###");

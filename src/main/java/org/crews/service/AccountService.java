@@ -37,7 +37,7 @@ public class AccountService {
     private final AgitRepository agitRepository;
     private final BankRepository bankRepository;
     private final AccountRepository accountRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final DuesRepository duesRepository;
     private final AgitAndAccountRepository agitAndAccountRepository;
@@ -53,7 +53,7 @@ public class AccountService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getAgitRole().equals(AgitRole.TEMP))
@@ -80,7 +80,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, memberRole).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, memberRole).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -118,7 +118,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -150,7 +150,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_MATCHED_MEMBER)
         );
         String ci = membership.getMember().getCi();
@@ -176,7 +176,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -208,7 +208,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -241,7 +241,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -255,7 +255,7 @@ public class AccountService {
                 () -> new CustomException(ErrorCode.ACCOUNT_ID_NOT_FOUND)
         );
         String fintechNum = account.getFintecNumber();
-        Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(member, agit).filter(ms -> !ms.getCreatedAt()
+        Optional<Membership> optionalMembership = membershipRepository.findByMemberAndAgit(member, agit).filter(ms -> !ms.getCreatedAt()
                 .isAfter(LocalDateTime.of(finalYear, finalMonth, DateUtil.getLastDayOfMonth(finalYear, finalMonth), 23, 59, 59)));
         if (optionalMembership.isEmpty()) {
             throw new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND);
@@ -278,7 +278,7 @@ public class AccountService {
         TransferResponse transferResponse = transfer.getData();
 
         Dues buildDues = Dues.builder().commonDues(commonDues).dueDate(transferResponse.getTransactionTime()).dueAmount(transferResponse.getAmount())
-                .membership(optionalMembership.get()).isPayed(false).accountNumber(account.getAccountNumber())
+                .membership(optionalMembership.get()).isPaid(false).accountNumber(account.getAccountNumber())
                 .productName(account.getProductName()).agitName(agit.getAgitName())
                 .standardDate(DateUtil.generateStandardDate(finalYear,finalMonth,transferResponse.getTransactionTime())).build();
         duesRepository.save(buildDues);
@@ -291,9 +291,9 @@ public class AccountService {
         Map<Member, BigDecimal> memberMap = DuesCommon.calculateTotalDueAmountByMembership(dues);
         memberMap.forEach((filterMember, toTotalAmount) -> {
             if (toTotalAmount.compareTo(agit.getCommonDues().getDueAmount()) >= 0) {
-                DuesCommon.setPayedChange(dues, filterMember, true);
+                DuesCommon.setPaidChange(dues, filterMember, true);
             } else {
-                DuesCommon.setPayedChange(dues, filterMember, false);
+                DuesCommon.setPaidChange(dues, filterMember, false);
             }
         });
 
@@ -308,7 +308,7 @@ public class AccountService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
 

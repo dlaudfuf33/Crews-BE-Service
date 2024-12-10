@@ -41,13 +41,23 @@ public class MeetingController {
         return ResponseEntity.ok().body(meetingService.getEvent(memberId, agitId,meetingId));
     }
 
+    @GetMapping("/{meeting-id}/edit")
+    public ResponseEntity<MeetingResponse> getMeetingForEdit(
+            @PathVariable("agits-id") Long agitId,
+            @PathVariable("meeting-id") Long meetingId,
+            HttpServletRequest request) {
+        Long memberId = authUtil.getMemberId(request);
+
+        return ResponseEntity.ok().body(meetingService.getEvent(memberId, agitId,meetingId));
+    }
+
     @GetMapping("/recent")
     public ResponseEntity<Integer> getMeetingsForMonth(
             @PathVariable("agits-id") Long agitId){
         return ResponseEntity.ok().body(meetingService.getMeetingsForMonth(agitId));
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<MeetingResponse> createMeeting(
             @PathVariable("agits-id") Long agitId,
             @RequestBody MeetingRequest meetingRequest,
@@ -57,7 +67,7 @@ public class MeetingController {
         return ResponseEntity.ok().body(meetingService.postEvent(memberId, agitId, meetingRequest));
     }
 
-    @PutMapping("/{meeting-id}")
+    @PatchMapping("/{meeting-id}/edit")
     public ResponseEntity<MeetingResponse> updateMeeting(
             @PathVariable("agits-id") Long agitId,
             @PathVariable("meeting-id") Long meetingId,

@@ -3,10 +3,12 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.AgitAuthorRequest;
 import org.crews.dto.request.DuesCallRequest;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
 import org.crews.service.AgitService;
+import org.crews.service.MembershipService;
 import org.crews.utils.AuthUtil;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @RequestMapping("/agits")
 public class AgitController {
     private final AgitService agitService;
+    private final MembershipService membershipService;
     private final AuthUtil authUtil;
 
     @GetMapping
@@ -53,7 +56,7 @@ public class AgitController {
     public ResponseEntity<AgitRole> getMemberRole(@PathVariable("agits-id") Long agitId,
                                                   HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok().body(agitService.getMemberRole(agitId, memberId));
+        return ResponseEntity.ok().body(agitService.getAgitRole(agitId, memberId));
     }
 
     @GetMapping("/info")
@@ -91,6 +94,25 @@ public class AgitController {
         AgitManageResponse agitmanageResponse = agitService.getAgitMember(agitId, agitRole);
 
         return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
+    }
+
+    @PostMapping("/{agits-id}/manage/accounts")
+    public ResponseEntity<MembershipResponse> accountAuthorization(
+            @PathVariable("agits-id") Long agitId, @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request
+    ){
+        Long memberId=authUtil.getMemberId(request);
+        MembershipResponse membershipResponse = membershipService.accountAuthor(memberId, agitId, agitAuthorRequest);
+        return ResponseEntity.ok().body(membershipResponse);
+    }
+
+    @PostMapping("/{agits-id}/manage/members")
+    public ResponseEntity<MembershipResponse> memberAuthorization(
+            @PathVariable("agits-id") Long agitId,
+            @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request
+    ){
+        Long memberId = authUtil.getMemberId(request);
+        MembershipResponse membershipResponse = membershipService.memberAuthor(memberId, agitId, agitAuthorRequest);
+        return ResponseEntity.ok().body(membershipResponse);
     }
 
     @GetMapping("/home")

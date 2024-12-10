@@ -8,10 +8,11 @@ import org.crews.model.Agit;
 import org.crews.model.Feed;
 import org.crews.model.Member;
 import org.crews.model.Membership;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.AgitRepository;
 import org.crews.repository.FeedRepository;
 import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.MembershipRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +21,7 @@ public class CheckExceptionUtil {
 
     private final AgitRepository agitRepository;
     private final MemberRepository memberRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final FeedRepository feedRepository;
 
     public AgitValidationResponse checkAgitException(Long memberId, Long agitId) {
@@ -28,7 +29,7 @@ public class CheckExceptionUtil {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 ()-> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
         return new AgitValidationResponse(agit, member, membership);
@@ -45,9 +46,27 @@ public class CheckExceptionUtil {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
         return new AgitValidationResponse(agit, member, membership, feed);
+    }
+
+    public Membership validateLeader(Long memberId, Long agitId, AgitRole requiredRole) {
+        Membership membership = membershipRepository.findByMemberIdAndAgitId(memberId, agitId).orElseThrow(()->new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+        AgitRole agitRole = membership.getAgitRole();
+        if(!agitRole.equals(requiredRole)){
+            throw new CustomException(ErrorCode.AUTHORIZED_CAPTAIN_ONLY);
+        }
+        return membership;
+    }
+
+    public Membership validateRole(Long memberId, Long agitId, AgitRole requiredRole){
+        Membership membership = membershipRepository.findByMemberIdAndAgitId(memberId, agitId).orElseThrow(()->new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
+        AgitRole agitRole = membership.getAgitRole();
+        if(!agitRole.equals(requiredRole)){
+            throw new CustomException(ErrorCode.NOT_MATCHED_ROLE);
+        }
+        return membership;
     }
 }

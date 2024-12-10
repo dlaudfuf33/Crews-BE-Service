@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.crews.model.Feed;
 import org.crews.model.Member;
+import org.crews.utils.AESUtil;
 
 import java.time.LocalDateTime;
 
@@ -19,10 +20,20 @@ public class FeedResponse {
     private Long likeCount;
     private boolean isDeleted;
     private boolean likeFeed;
+    private String name;
+    private Long memberId;
 
     public static FeedResponse of(Member member, Feed feed) {
+
         boolean likeFeed = feed.getLikes().stream()
                 .anyMatch(heart -> heart.getMember().equals(member));
+        String decryptedName;
+        try {
+            decryptedName = AESUtil.decrypt(feed.getMember().getName()); // 복호화 수행
+        } catch (AESUtil.AESUtilException e) {
+            decryptedName = feed.getMember().getName();
+        }
+
         return new FeedResponse(
                 feed.getId(),
                 feed.getCreatedAt(),
@@ -30,7 +41,9 @@ public class FeedResponse {
                 feed.getContent(),
                 feed.getLikeCount(),
                 feed.isDeleted(),
-                likeFeed
+                likeFeed,
+                decryptedName,
+                feed.getMember().getId()
         );
     }
 }

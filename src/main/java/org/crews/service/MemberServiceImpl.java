@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
     private final CoreService coreService;
     private final InterestingRepository interestingRepository;
     private final AddressService addressService;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final CardRepository cardRepository;
     private final AuthUtil authUtil;
     private final MessageRepository messageRepository;
@@ -292,7 +292,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<AgitResponse> getMyAgits(Long memberId) {
-        List<Agit> as = memberShipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream().map(Membership::getAgit).toList();
+        List<Agit> as = membershipRepository.findMembershipsWithAgitDetailsByMemberId(memberId).stream().map(Membership::getAgit).toList();
         return as.stream().map(AgitResponse::from).toList();
     }
 
@@ -424,7 +424,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public AgitAccountInfoListResponse getAgitsAccountsInfo(Long memberId) {
-        List<Membership> memberships = memberShipRepository.findMembershipsWithDetailsByMemberId(memberId);
+        List<Membership> memberships = membershipRepository.findMembershipsWithDetailsByMemberId(memberId);
         if (memberships.isEmpty()) {
             throw new CustomException(ErrorCode.NO_ASSOCIATED_GROUP);
         }
@@ -495,7 +495,7 @@ public class MemberServiceImpl implements MemberService {
 
             Agit agit = agitRepository.findByIdWithCommonDues(paymentRequest.getAgitId()).orElseThrow(
                     () -> new CustomException(ErrorCode.AGIT_NOT_FOUND));
-            Membership membership = memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId()).orElseThrow(
+            Membership membership = membershipRepository.findByMemberIdAndAgitId(memberId, agit.getId()).orElseThrow(
                     () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND));
             log.warn("{}", paymentRequest.getAmount());
             TransferResponse transferResponse =
@@ -512,7 +512,7 @@ public class MemberServiceImpl implements MemberService {
                     .accountNumber(myAccount.getAccountNumber())
                     .agitName(agit.getAgitName())
                     .membership(membership)
-                    .isPayed(true)
+                    .isPaid(true)
                     .dueDate(LocalDateTime.now())
                     .commonDues(agit.getCommonDues())
                     .build());

@@ -107,24 +107,26 @@ CREATE TABLE subject
 -- Agit 테이블
 CREATE TABLE agit
 (
-    id                  BIGINT              NOT NULL AUTO_INCREMENT,
-    current_person      INT                          DEFAULT 1,
-    is_deleted          BOOLEAN                      DEFAULT FALSE,
-    is_due              BOOLEAN             NOT NULL DEFAULT FALSE,
-    introduction        VARCHAR(255)        NOT NULL DEFAULT '',
-    max_person          INT                          DEFAULT 30,
-    created_at          DATETIME(6),
-    subject_id          BIGINT,
-    updated_at          DATETIME(6),
-    agit_name           VARCHAR(255) UNIQUE NOT NULL,
-    agit_and_account_id BIGINT,
-    common_dues_id      BIGINT,
+    id                  BIGINT       NOT NULL AUTO_INCREMENT,
+    agit_name           VARCHAR(255) NOT NULL,
+    introduction        VARCHAR(255) NOT NULL DEFAULT '',
+    max_person          INT                   DEFAULT 30,
+    current_person      INT                   DEFAULT 1,
+    is_due              BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_deleted          BOOLEAN               DEFAULT FALSE,
     address_id          BIGINT,
-    dues_id             BIGINT,
+    dues_id          BIGINT,
+    agit_and_account_id BIGINT,
+    subject_id          BIGINT,
+    common_dues_id      BIGINT,
+    created_at          DATETIME(6),
+    updated_at          DATETIME(6),
     PRIMARY KEY (id),
     UNIQUE (agit_name),
     FOREIGN KEY (subject_id) REFERENCES subject (id),
-    FOREIGN KEY (address_id) REFERENCES address (id)
+    FOREIGN KEY (address_id) REFERENCES address (id),
+    FOREIGN KEY (dues_id) REFERENCES dues (id),
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues(id)
 );
 -- Membership 테이블
 CREATE TABLE membership
@@ -135,7 +137,7 @@ CREATE TABLE membership
     joined_at  DATETIME(6) NOT NULL,
     member_id  BIGINT,
     updated_at DATETIME(6),
-    agit_role  ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
+    agit_role       ENUM ('LEADER', 'MEMBER', 'STAFF', 'TEMP', 'ADVANCED') DEFAULT 'TEMP',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -174,7 +176,7 @@ CREATE TABLE dues
     product_name   VARCHAR(255)   NOT NULL,
     account_number VARCHAR(255)   NOT NULL,
     agit_name      VARCHAR(255)   NOT NULL,
-    is_payed       BOOLEAN        NOT NULL,
+    is_paid       BOOLEAN        NOT NULL,
     due_date       DATETIME(6),
     updated_at     DATETIME(6),
     standard_date  DATETIME(6),
@@ -240,16 +242,16 @@ CREATE TABLE card
 -- Feed 테이블
 CREATE TABLE feed
 (
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    is_deleted  BOOLEAN DEFAULT FALSE,
+    id         BIGINT       NOT NULL AUTO_INCREMENT,
+    is_deleted BOOLEAN DEFAULT FALSE,
     is_reported BOOLEAN DEFAULT FALSE, #추가
-    agit_id     BIGINT,
-    created_at  DATETIME(6),
-    member_id   BIGINT,
-    updated_at  DATETIME(6),
-    content     VARCHAR(255) NOT NULL,
-    image       VARCHAR(255),
-    like_count  BIGINT  DEFAULT '0',
+    agit_id    BIGINT,
+    created_at DATETIME(6),
+    member_id  BIGINT,
+    updated_at DATETIME(6),
+    content    VARCHAR(255) NOT NULL,
+    image      VARCHAR(255),
+    like_count BIGINT  DEFAULT '0',
     PRIMARY KEY (id),
     FOREIGN KEY (agit_id) REFERENCES agit (id),
     FOREIGN KEY (member_id) REFERENCES member (id)
@@ -321,6 +323,26 @@ CREATE TABLE member_and_interesting
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
+-- Dues 테이블
+CREATE TABLE dues
+(
+    id             BIGINT         NOT NULL AUTO_INCREMENT,
+    created_at     DATETIME(6),
+    due_amount     DECIMAL(19, 2) NOT NULL,
+    product_name   VARCHAR(255)   NOT NULL,
+    account_number VARCHAR(255)   NOT NULL,
+    agit_name      VARCHAR(255)   NOT NULL,
+    is_paid       BOOLEAN        NOT NULL,
+    due_date       DATETIME(6),
+    updated_at     DATETIME(6),
+    standard_date  DATETIME(6),
+    membership_id  BIGINT,
+    common_dues_id BIGINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
+    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
+
+);
 
 -- Refresh Entity 테이블
 CREATE TABLE refresh_entity

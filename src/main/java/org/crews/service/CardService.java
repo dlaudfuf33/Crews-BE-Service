@@ -26,7 +26,8 @@ import java.util.List;
 public class CardService {
 
     private final AgitRepository agitRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final AccountRepository accountRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final CoreService coreService;
@@ -43,7 +44,7 @@ public class CardService {
             throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
 
         Account account = agit.getAgitAndAccount().getAccount();
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getAgitRole().equals(AgitRole.MEMBER) || membership.getAgitRole().equals(AgitRole.ADVANCED) || membership.getAgitRole().equals(AgitRole.TEMP)){
@@ -79,7 +80,7 @@ public class CardService {
             throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
         Account account = agit.getAgitAndAccount().getAccount();
         String fintechUseNum = account.getFintecNumber();
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getAgitRole().equals(AgitRole.MEMBER) || membership.getAgitRole().equals(AgitRole.ADVANCED) || membership.getAgitRole().equals(AgitRole.TEMP)){
@@ -108,7 +109,7 @@ public class CardService {
         if(agit.getAgitAndAccount() == null)
             return CardIssuanceResponse.builder().isCardExist(false).cardNumber(null).build();
         Account account = agit.getAgitAndAccount().getAccount();
-        memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         List<Card> cardList = cardRepository.findByAccountAndMemberAndIsDeletedFalse(account, member);

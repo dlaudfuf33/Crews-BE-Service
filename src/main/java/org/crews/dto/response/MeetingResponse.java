@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import org.crews.model.Meeting;
-
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @ToString
@@ -15,8 +14,9 @@ public class MeetingResponse {
     private String image;
     private String name;
     private String place;
-    private LocalDateTime date;
+    private String date;
     private String content;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     public static MeetingResponse from(Meeting meeting) {
         return new MeetingResponse(
@@ -24,7 +24,7 @@ public class MeetingResponse {
                 meeting.getImage(),
                 meeting.getRegularName(),
                 meeting.getPlace(),
-                meeting.getRegularTime(),
+                meeting.getRegularTime().format(formatter),
                 meeting.getContent()
         );
     }

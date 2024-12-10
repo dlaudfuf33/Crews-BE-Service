@@ -43,7 +43,7 @@ class AccountServiceTest {
     private AgitRepository agitRepository;
 
     @MockBean
-    private MemberShipRepository memberShipRepository;
+    private MembershipRepository membershipRepository;
 
     @MockBean
     private AgitAndAccountRepository agitAndAccountRepository;
@@ -129,7 +129,7 @@ class AccountServiceTest {
             // Mock 동작 정의
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member)); // 회원 조회 Mock
             when(agitRepository.findById(agitId)).thenReturn(Optional.of(agit)); // 모임 조회 Mock
-            when(memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER))
+            when(membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER))
                     .thenReturn(Optional.of(membership)); // 회원과 모임의 관계 조회 Mock
             when(agitAndAccountRepository.findByAgit(agit)).thenReturn(Optional.empty()); // 모임과 계좌 연결 여부 확인 Mock
             when(coreService.accountIssued(any())).thenReturn(mockCoreResponse); // 외부 CoreService 호출 Mock
