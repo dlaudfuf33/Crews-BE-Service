@@ -10,8 +10,11 @@ import org.crews.dto.request.AgitInfoRequest;
 import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
 import org.crews.dto.sqs.MessagePayload;
+import org.crews.service.MemberService;
 import org.crews.service.PaymentService;
+import org.crews.utils.AESUtil;
 import org.crews.utils.AuthUtil;
+import org.crews.utils.MessageUtil;
 import org.crews.utils.SQSUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,7 @@ import java.util.Map;
 public class PaymentController {
     private final AuthUtil authUtil;
     private final PaymentService paymentService;
+    private final MemberService memberService;
     private final SQSUtil sqsUtil;
 
     @GetMapping
@@ -59,13 +63,23 @@ public class PaymentController {
     @GetMapping("/result")
     public ResponseEntity<MessagePayload> resultPayment(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        log.info(String.valueOf(memberId));
+        String phoneNumber = memberService.getPhoneNumber(memberId);
         MessagePayload payload = sqsUtil.receiveAndDeleteMessages(memberId);
 
         if (payload == null) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(MessagePayload.builder().memberId(memberId).message("Payment Result Not Found").build());
         } else {
+            StringBuilder stringBuilder = new StringBuilder();
+            String message = String.format(
+                    "[Crews 결제 알림] \\n 결제처: %s \\n 결제금액: %s \\n 결제일시: %s \\n 잔액: %s \\n",
+                    payload.getData().getRecvName(),
+                    payload.getData().getAmount(),
+                    payload.getData().getTransactionTime(),
+                    payload.getData().getAfterAmt()
+            );
+
+            MessageUtil.send(AESUtil.decrypt(phoneNumber), message);
             return ResponseEntity.ok(payload);
         }
     }
@@ -77,6 +91,7 @@ public class PaymentController {
             @RequestParam String expireDate,
             @RequestParam Long memberId) {
         try {
+            cardNumber = AESUtil.encrypt(cardNumber);
             paymentService.processPayment(cardNumber, expireDate, memberId);
             return ResponseEntity.ok().body("");
         } catch (IllegalArgumentException e) {

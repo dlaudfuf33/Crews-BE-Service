@@ -552,6 +552,13 @@ public class MemberServiceImpl implements MemberService {
         foundMember.setDeleted(true);
     }
 
+    @Override
+    public String getPhoneNumber(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return member.getPhoneNumber();
+    }
+
 
     @Override
     public FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest) {
