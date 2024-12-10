@@ -262,6 +262,8 @@ public class AccountService {
         }
         TransferRequest transferRequest = TransferRequest.builder().finUseNum(fintechNum).recvAccountNum(accountTransferRequest.getRecvAccountNumber())
                 .amt(accountTransferRequest.getAmount()).description(AESUtil.decrypt(member.getName())).build();
+        if(account.getBalance().compareTo(accountTransferRequest.getAmount()) < 0)
+            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE);
         ApiResponse<TransferResponse> transfer = coreService.transfer(transferRequest);
         BalanceInfoRequest balanceInfoRequest = BalanceInfoRequest.builder().fintecUseNum(account.getFintecNumber()).recvFintecUseNum(recvAccount.getFintecNumber()).build();
         BalanceInfoResponse response = coreService.getBalanceInfo(balanceInfoRequest);

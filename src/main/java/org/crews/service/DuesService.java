@@ -57,6 +57,8 @@ public class DuesService {
         if (!member.getCi().equals(ci)) {
             throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
         }
+        if(agit.getAgitAndAccount() == null)
+            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
         AccountInfoOfDate accountInfoOfDate = AccountInfoOfDate.builder()
             .ci(ci)
             .fintechUseNum(agit.getAgitAndAccount().getAccount().getFintecNumber())
@@ -69,7 +71,7 @@ public class DuesService {
         List<Dues> saveDues = new ArrayList<>();
         CommonDues commonDues = agit.getCommonDues();
         if(commonDues == null)
-            throw new CustomException(ErrorCode.COMMON_DUES_NOT_FOUND);
+            return GetDuesResponse.builder().profileResponses(List.of()).memberCount(0).build();
         List<Dues> duesList = duesRepository.findByCommonDues(commonDues);
         for (TransactionHistoryResponse dto : tranList){
             Optional<Account> optionalAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(dto.getCounterpartyAccountNum()));
@@ -164,13 +166,15 @@ public class DuesService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
+
         Membership membership = membershipRepository.findByMemberAndAgit(member,agit).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
-        String ci = membership.getMember().getCi();
-        if (!member.getCi().equals(ci)) {
-            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
+        if (membership.getAgitRole().equals(AgitRole.TEMP)) {
+            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
         }
+        if(agit.getAgitAndAccount() == null)
+            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
         CommonDues commonDues = commonDuesRepository.findByAgit(agit).orElse(null);
         if(commonDues == null)
             return DuesSaveResponse.builder().dueAmount(null).dueAmount(null)
