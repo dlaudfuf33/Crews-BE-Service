@@ -2,6 +2,7 @@ package org.crews.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class AmazonConfig {
      */
     @Primary
     @Bean
-    public AmazonSQSAsync amazonSQSAws() {
+    public AmazonSQS amazonSQS() {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
         return AmazonSQSAsyncClientBuilder.standard()
                 .withRegion(region)
