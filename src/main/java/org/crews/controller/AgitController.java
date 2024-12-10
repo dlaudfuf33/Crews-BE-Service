@@ -3,6 +3,7 @@ package org.crews.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.crews.dto.request.AgitAuthorRequest;
 import org.crews.dto.request.DuesCallRequest;
 import org.crews.dto.response.*;
 import org.crews.dto.request.AgitRequest;
@@ -97,36 +98,20 @@ public class AgitController {
 
     @PostMapping("/{agits-id}/manage/accounts")
     public ResponseEntity<MembershipResponse> accountAuthorization(
-            @PathVariable("agits-id") Long agitId,
-            @RequestParam("status") String status,
-            @RequestParam("requestMemberId") Long requestMemberId,
-            HttpServletRequest request
+            @PathVariable("agits-id") Long agitId, @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request
     ){
         Long memberId=authUtil.getMemberId(request);
-        MembershipResponse membershipResponse;
-        if(status.equals("approve")){
-            membershipResponse=membershipService.accountApprove(memberId, requestMemberId,agitId);
-        }else{
-            membershipResponse=membershipService.accountReject(memberId, requestMemberId,agitId);
-        }
+        MembershipResponse membershipResponse = membershipService.accountAuthor(memberId, agitId, agitAuthorRequest);
         return ResponseEntity.ok().body(membershipResponse);
     }
 
     @PostMapping("/{agits-id}/manage/members")
     public ResponseEntity<MembershipResponse> memberAuthorization(
             @PathVariable("agits-id") Long agitId,
-            @RequestParam("status") String status,
-            @RequestParam("requestMemberId") Long requestMemberId,
-            HttpServletRequest request
+            @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request
     ){
         Long memberId = authUtil.getMemberId(request);
-
-        MembershipResponse membershipResponse;
-        if(status.equals("approve")){
-            membershipResponse = membershipService.memberApprove(memberId, requestMemberId,agitId);
-        }else {
-            membershipResponse = membershipService.memberReject(memberId, requestMemberId,agitId);
-        }
+        MembershipResponse membershipResponse = membershipService.memberAuthor(memberId, agitId, agitAuthorRequest);
         return ResponseEntity.ok().body(membershipResponse);
     }
 
