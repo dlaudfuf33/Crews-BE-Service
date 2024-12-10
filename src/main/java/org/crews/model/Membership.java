@@ -30,7 +30,7 @@ public class Membership extends BaseTimeEntity{
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("'temp'")
+    @ColumnDefault("'TEMP'")
     private AgitRole agitRole;
 
     @Column(nullable = false)
