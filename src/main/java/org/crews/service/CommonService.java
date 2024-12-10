@@ -45,6 +45,8 @@ public class CommonService {
                 accountV2CrewResponses.add(AccountV2CrewResponse.of(agit, duesAlarm.getDueAmount()));
             }
         }
+        if(accountV2CrewResponses.isEmpty())
+            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
         AccountInfoResponse allAccounts = coreService.getAllAccounts(CIOnlyRequest.builder().ci(member.getCi()).build());
         for(AccountIssuedResponse response : allAccounts.getAccountList()){
             Optional<Account> findAccount = accountRepository.findByAccountNumber(AESUtil.encrypt(response.getAccountNumber()));

@@ -135,4 +135,14 @@ public class AgitController {
         return ResponseEntity.ok().body(agitService.validateAgitName(agitName));
     }
 
+
+    @PostMapping("/{agits-id}/dues-call")
+    public ResponseEntity<String> agitDuesCall(@PathVariable("agits-id") Long agitId,
+                                               @RequestBody DuesCallRequest duesCallRequest,
+                                               HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+         agitService.agitDuesCall(agitId, memberId, duesCallRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body("문자가 정상적으로 발송되었습니다.");
+    }
 }

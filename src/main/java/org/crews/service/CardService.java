@@ -58,12 +58,11 @@ public class CardService {
                 .ci(member.getCi())
                 .fintechUseNum(fintechUseNum)
                 .build();
-        //TODO: cardImage 제대로 넣어서 변경하기
         CardIssuedResponse response = coreService.cardIssued(commonRequest);
         Card card = Card.builder().account(account).member(member)
                 .maskedCardNumber(MaskedNumber.cardMasking(response.getCardNumber()))
                 .cardNumber(AESUtil.encrypt(response.getCardNumber())).registeredAt(response.getCreateAt())
-                .isDeleted(false).cardImage("").cardName("우리카드 카드의 정석 EVERY POINT").build();
+                .isDeleted(false).cardImage("cards/img_woori_card.png").cardName("우리카드 카드의 정석 EVERY POINT").build();
 
         cardRepository.save(card);
         return response;
@@ -108,8 +107,7 @@ public class CardService {
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
         if(agit.getAgitAndAccount() == null)
-            throw new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND);
-
+            return CardIssuanceResponse.builder().isCardExist(false).cardNumber(null).build();
         Account account = agit.getAgitAndAccount().getAccount();
         membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)

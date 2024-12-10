@@ -32,12 +32,12 @@ public class DuesService {
 
     private final MemberRepository memberRepository;
     private final AgitRepository agitRepository;
-    private final MembershipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final CommonDuesRepository commonDuesRepository;
     private final AccountRepository accountRepository;
     private final DuesRepository duesRepository;
 
-    private final CoreService coreService;
+	private final CoreService coreService;
 
     @Transactional
     public GetDuesResponse getDues(Long agitId, Long memberId, Integer year, Integer month) {
@@ -50,7 +50,7 @@ public class DuesService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -78,7 +78,7 @@ public class DuesService {
             }
             Account account = optionalAccount.get();
             Member filterMember = account.getMember();
-            Optional<Membership> optionalMembership = memberShipRepository.findByMemberAndAgit(filterMember, agit)
+            Optional<Membership> optionalMembership = membershipRepository.findByMemberAndAgit(filterMember, agit)
                 .filter(ms -> !ms.getCreatedAt()
 					.isAfter(LocalDateTime.of(year, month, DateUtil.getLastDayOfMonth(year, month), 23, 59, 59)));
             if(optionalMembership.isEmpty()) {
@@ -99,7 +99,7 @@ public class DuesService {
             content.getStandardDate().getMonthValue() == month && (content.getStandardDate().getYear() == year))
                 .toList();
 
-        List<Membership> searchMembershipList = memberShipRepository.findByAgit(agit);
+        List<Membership> searchMembershipList = membershipRepository.findByAgit(agit);
 
         List<Member> memberList = new ArrayList<>(searchMembershipList.stream()
             .filter(ms -> !ms.getCreatedAt()
@@ -133,7 +133,7 @@ public class DuesService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();
@@ -164,7 +164,7 @@ public class DuesService {
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member,agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member,agit).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
         );
         String ci = membership.getMember().getCi();

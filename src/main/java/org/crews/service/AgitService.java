@@ -306,4 +306,38 @@ public class AgitService {
             return AgitNameValidateResponse.builder().used(false).message("사용 가능한 아지트 이름입니다.").build();
         }
     }
+
+    public void agitDuesCall(Long agitId, Long memberId, DuesCallRequest duesCallRequest) {
+        System.out.println("duesCallRequest = " + duesCallRequest);
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        Membership membership = membershipRepository.findByAgitAndAgitRole(agit, AgitRole.LEADER).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
+        );
+        String ci = membership.getMember().getCi();
+        if (!member.getCi().equals(ci)) {
+            throw new CustomException(ErrorCode.AUTHORIZED_ACCOUNT_CREATION);
+        }
+        List<Membership> membershipList = membershipRepository.findByAgit(agit);
+
+        DecimalFormat numberFormat = new DecimalFormat("#");
+        DecimalFormat amountFormat = new DecimalFormat("#,###");
+        String message = "안녕하세요 크루즈 입니다.\\n{0} 아지트에서 모임장 님이 {1}년 {2}월 회비를 납부일 : {3}일, 회비 : {4}원으로 변경하셨습니다.\\n감사합니다.";
+        String result = MessageFormat.format(
+                message,
+                agit.getAgitName(),
+                numberFormat.format(LocalDateTime.now().getYear()),
+                LocalDateTime.now().getMonthValue(),
+                duesCallRequest.getDueDay(),
+                amountFormat.format(duesCallRequest.getDuesAmount())
+        );
+        for (Membership memberShip : membershipList) {
+            MessageUtil.send(AESUtil.decrypt(memberShip.getMember().getPhoneNumber()), result);
+        }
+
+    }
 }

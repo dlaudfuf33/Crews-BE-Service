@@ -28,7 +28,6 @@ public enum ErrorCode {
     PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE("잔액이 부족합니다.", HttpStatus.BAD_REQUEST),
 
-
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_MEETING_CREATION("모임을 생성할 권한이 없습니다.", HttpStatus.FORBIDDEN),
@@ -38,10 +37,11 @@ public enum ErrorCode {
     AUTHORIZED_FEED_DELETE("기록을 삭제할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     INVALID_OLD_PASSWORD("비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
-    PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.", HttpStatus.FORBIDDEN),
+    PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
+    CREW_ACCOUNT_NOT_MATCH("모임통장이 존재하지 않습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
-    AGIT_ACCOUNT_NOT_FOUND("해당하는 아지트의 모임통장이 없습니다.", HttpStatus.NOT_FOUND),
+    AGIT_ACCOUNT_NOT_FOUND("해당 모임에 가입하지 않았거나 권한이 없습니다.", HttpStatus.NOT_FOUND),
     MEMBERSHIP_NOT_FOUND("해당 회원이 모임에 참여하고 있지 않습니다.", HttpStatus.NOT_FOUND),
     BANK_NOT_FOUND("해당하는 은행을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
