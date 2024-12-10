@@ -50,6 +50,8 @@ public interface MemberService {
 
     void attachAccount(Long memberId, AttachAccountRequest attachAccountRequest);
 
+    String getPhoneNumber(Long memberId);
+
     FindMemberIdResponse findMemberId(FindMemberRequest findMemberRequest);
 
     void findMemberPw(FindMemberPwRequest findMemberPwRequest) throws Exception;
