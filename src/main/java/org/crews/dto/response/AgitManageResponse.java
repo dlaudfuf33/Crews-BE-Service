@@ -12,7 +12,9 @@ import java.util.List;
 public class AgitManageResponse {
     private final List<AgitManageMemberResponse> members;
     private final List<AgitManageMemberResponse> requestedMembers;
+    private final List<AgitManageMemberResponse> advancedMembers;
     private final Long currentMember;
     private final Long requestedMember;
+    private final Long advancedMember;
     private final String message;
 }

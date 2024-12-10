@@ -21,8 +21,10 @@ public class FeedResponse {
     private boolean isDeleted;
     private boolean likeFeed;
     private String name;
+    private Long memberId;
 
     public static FeedResponse of(Member member, Feed feed) {
+
         boolean likeFeed = feed.getLikes().stream()
                 .anyMatch(heart -> heart.getMember().equals(member));
         String decryptedName;
@@ -40,7 +42,8 @@ public class FeedResponse {
                 feed.getLikeCount(),
                 feed.isDeleted(),
                 likeFeed,
-                decryptedName
+                decryptedName,
+                feed.getMember().getId()
         );
     }
 }
