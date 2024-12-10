@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findByAgitAndAgitRole(Agit agit, AgitRole role);
+    Optional<Membership> findByAgitIdAndAgitRole(Long agitId, AgitRole role);
 
     Optional<Membership> findByMemberAndAgit(Member member, Agit agit);
     @EntityGraph(attributePaths = {"member"})

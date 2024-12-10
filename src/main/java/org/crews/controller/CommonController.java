@@ -36,8 +36,9 @@ public class CommonController {
         return ResponseEntity.ok().body(commonService.getMyAccountsHistory(memberId,year,month));
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<ProductAllResponse> getAllProducts(){
-        return ResponseEntity.ok().body(coreService.getAllProducts());
+    @GetMapping("/agits/{agits-id}/products")
+    public ResponseEntity<ProductAllResponse> getAllProducts(@PathVariable("agits-id") Long agitId, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(commonService.getAllProducts(memberId, agitId));
     }
 }

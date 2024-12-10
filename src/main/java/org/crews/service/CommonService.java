@@ -9,6 +9,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AccountType;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.MaskedNumber;
@@ -87,5 +88,15 @@ public class CommonService {
         return AccountHistoryFinalV2Response.builder().accountHistory(list).build();
 
 
+    }
+
+    public ProductAllResponse getAllProducts(Long memberId, Long agitId ) {
+        memberRepository.findById(memberId).orElseThrow(
+            () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.LEADER).orElseThrow(
+            () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
+        );
+        return coreService.getAllProducts();
     }
 }
