@@ -149,56 +149,58 @@ VALUES (1, NOW(), NOW(), '미설정', 1),
 INSERT INTO agit (current_person, is_deleted, is_due, max_person, created_at, subject_id, updated_at, agit_name,
                   introduction, address_id)
 
-VALUES (1, FALSE, TRUE, 10, NOW(), 2, NOW(), '독서 하는 모임', '함께 책을 읽는 모임입니다.', 1),
-       (1, FALSE, TRUE, 15, NOW(), 3, NOW(), '러닝하는 클럽', '함께 뛰는 러닝 모임입니다.', 2),
-       (1, FALSE, TRUE, 20, NOW(), 4, NOW(), '캠핑하는 모임', '자연 속 캠핑을 즐기는 모임입니다.', 3),
-       (1, FALSE, TRUE, 30, NOW(), 5, NOW(), '강아지하는 산책 모임', '반려견과 함께하는 산책 모임입니다.', 4),
-       (1, FALSE, FALSE, 25, NOW(), 6, NOW(), '보드게임하는 모임', '보드게임을 즐기는 모임입니다.', 5),
-       (1, FALSE, FALSE, 20, NOW(), 7, NOW(), '요가하는 클래스', '심신 안정을 위한 요가 시간.', 6),
-       (1, FALSE, FALSE, 15, NOW(), 2, NOW(), '외국어하는 스터디', '외국어를 배우는 모임입니다.', 7),
-       (1, FALSE, FALSE, 8, NOW(), 3, NOW(), '등산하는 동호회', '등산을 즐기는 자연 모임입니다.', 8),
-       (1, FALSE, FALSE, 12, NOW(), 4, NOW(), '미식하는 탐방', '다양한 음식을 탐방하는 모임입니다.', 9),
-       (1, FALSE, FALSE, 5, NOW(), 5, NOW(), '디저트하는 클럽', '디저트를 함께 나누는 모임입니다.', 10),
+VALUES (1, FALSE, TRUE, 10, NOW(), 2, NOW(), '청년자기경영독서모임', '퇴근하고 30분 함께 독서와 이야기', 4),
+       (1, FALSE, TRUE, 15, NOW(), 3, NOW(), 'Funny Run!', '러닝 동기부여가 필요하신분들 누구나!', 4),
+       (1, FALSE, TRUE, 20, NOW(), 4, NOW(), '유앤캠⛺️', '캠핑, 여행, 맛집 좋아하시는분들 환영입니다.', 4),
+       (1, FALSE, TRUE, 30, NOW(), 5, NOW(), '퇴강산🐶', '반려견과 산책 및 정보 공유 활동.', 4),
+       (1, FALSE, FALSE, 25, NOW(), 6, NOW(), '🎲보드게임 위너🎲', '보드게임을 잘 몰라도 일단 모여봐요!', 4),
+       (1, FALSE, FALSE, 20, NOW(), 3, NOW(), '🍃함께 나마스떼', '[나만의 시간, 나만의 요가]', 4),
+       (1, FALSE, FALSE, 15, NOW(), 2, NOW(), '🙋‍♂️프리토킹 시즌2', '철학, 사회적 이슈를 영어로 프리토킹하는 모임입니다.', 4),
+       (1, FALSE, FALSE, 8, NOW(), 3, NOW(), '[등산모임]Thumb Up 👍', '같이 대한민국 동네 산을 정복하자!', 4),
+       (1, FALSE, FALSE, 8, NOW(), 3, NOW(), '뭉쳐야 산타‍🎄', '등산, 운동 좋아하시는 분 환영~!', 4),
+       (1, FALSE, FALSE, 12, NOW(), 7, NOW(), '매먹사(매운거 먹는 사람들)', '<신입모집> 매운거 먹으면서 친구 만들자!.', 4),
+       (1, FALSE, FALSE, 5, NOW(), 7, NOW(), '논알콤🪇클럽', '카페,수다,문화생활,무알콜,건전하게 잘노는 모임.', 4),
 -- 자기계발/공부
-       (1, FALSE, FALSE, 10, NOW(), 2, NOW(), '독서 모임', '매주 함께 책을 읽고 토론하는 모임입니다.', 1)
+       (1, FALSE, FALSE, 10, NOW(), 2, NOW(), '주린이 탈출 모임', 'ETF&채권&경제 토론하는 모임입니다.', 4)
         ,
-       (1, FALSE, FALSE, 15, NOW(), 2, NOW(), '외국어 스터디', '영어 및 다양한 외국어를 공부하는 모임입니다.', 2)
+       (1, FALSE, FALSE, 15, NOW(), 2, NOW(), '외국물 한잔해', '술마시며 영어 및 다양한 외국어만을 사용하는 모임입니다.', 2)
         ,
-       (1, FALSE, FALSE, 20, NOW(), 2, NOW(), '코딩 스터디', '프로그래밍과 IT 지식을 나누는 모임입니다.', 3)
+       (1, FALSE, FALSE, 20, NOW(), 2, NOW(), '모각코', '모두 모여 각자 코딩하자!.', 4)
         ,
 
 -- 운동
-       (1, FALSE, FALSE, 30, NOW(), 3, NOW(), '러닝 클럽', '함께 뛰면서 건강과 체력을 기르는 모임입니다.', 4)
+       (1, FALSE, FALSE, 30, NOW(), 3, NOW(), '쥐락펴락', '더 클라임을 주로 다니며 가고싶은 암장,벙 오픈 후 같이 가요!', 4)
         ,
-       (1, FALSE, FALSE, 25, NOW(), 3, NOW(), '등산 동호회', '산을 오르며 자연을 느끼는 활동을 함께합니다.', 5)
+       (1, FALSE, FALSE, 25, NOW(), 3, NOW(), '헬스메이트♟️', '적은 인원을 자세히 차근하근 알려줘요 4년차이상 현직자들 많음!', 4)
         ,
-       (1, FALSE, FALSE, 20, NOW(), 3, NOW(), '요가 클래스', '심신의 안정을 위한 요가 수업입니다.', 6)
+       (1, FALSE, FALSE, 20, NOW(), 3, NOW(), '클립보드', '소중한 인연들을 연결하는 나만의 클립보드', 4)
         ,
 
 -- 여행
-       (1, FALSE, FALSE, 10, NOW(), 4, NOW(), '캠핑 모임', '자연 속에서 캠핑을 즐기는 모임입니다.', 7)
+       (1, FALSE, FALSE, 10, NOW(), 4, NOW(), '토끼굴🐰', '다양한 취미를 가진 사람들이 모여 여행하는 모임!', 4)
         ,
-       (1, FALSE, FALSE, 5, NOW(), 4, NOW(), '역사 탐방', '역사적인 명소를 함께 여행합니다.', 8)
+       (1, FALSE, FALSE, 5, NOW(), 4, NOW(), '무말랭이', '🤪2030 일단 드루왕😀.', 4)
         ,
-       (1, FALSE, FALSE, 15, NOW(), 4, NOW(), '로드트립', '자동차로 떠나는 여행을 즐기는 모임입니다.', 9)
+       (1, FALSE, FALSE, 15, NOW(), 4, NOW(), '로드트립🚓', '자동차로 떠나는 와인딩을 즐기는 모임입니다.', 3)
         ,
 
 -- 반려동물
-       (1, FALSE, FALSE, 10, NOW(), 5, NOW(), '강아지 산책 모임', '반려견과 함께 산책하는 모임입니다.', 10)
+       (1, FALSE, FALSE, 10, NOW(), 5, NOW(), '멍글냥글', '반려견과 함께 행복을 나눠요.', 10)
         ,
-       (1, FALSE, FALSE, 8, NOW(), 5, NOW(), '캣 카페 탐방', '고양이 카페를 함께 방문하는 모임입니다.', 11)
+       (1, FALSE, FALSE, 8, NOW(), 5, NOW(), '캣 카페 집사', '고양이 카페를 함께 방문하는 모임입니다.', 5)
         ,
 
 -- 게임/오락
-       (1, FALSE, FALSE, 20, NOW(), 6, NOW(), '보드게임 모임', '다양한 보드게임을 즐기는 모임입니다.', 12)
+       (1, FALSE, FALSE, 20, NOW(), 6, NOW(), '레디언트', '발로란트 소모임🔫.', 2)
         ,
-       (1, FALSE, FALSE, 30, NOW(), 6, NOW(), '온라인 게임 팀', '온라인 게임을 함께 즐기는 모임입니다.', 13)
+       (1, FALSE, FALSE, 30, NOW(), 6, NOW(), '우아즈', '[배그]우아즈: UAZ🔥.', 3)
         ,
 
 -- 식도락
-       (1, FALSE, FALSE, 15, NOW(), 7, NOW(), '미식 탐방', '다양한 음식을 함께 즐기는 모임입니다.', 14)
+       (1, FALSE, FALSE, 15, NOW(), 7, NOW(), '사리곰탕', '다양한 음식을 함께 즐기는 모임입니다.', 14)
         ,
-       (1, FALSE, FALSE, 20, NOW(), 7, NOW(), '디저트 클럽', '디저트 카페를 함께 탐방합니다.', 15);
+       (1, FALSE, FALSE, 20, NOW(), 7, NOW(), '면사랑', '면요리 맛집을 탐방합니다.', 15)
+;
 
 
 -- Account 테이블에 더미 데이터 삽입
@@ -376,9 +378,9 @@ VALUES (1, NOW(), NOW(), 1, NOW(), 'LEADER'),
 
 INSERT INTO common_dues (due_day, due_amount, created_at, updated_at, agit_id)
 VALUES ('1', 5000.00, NOW(), NOW(), 1),
-       ('1', 7500.50, NOW(), NOW(), 2),
-       ('14', 75000.50, NOW(), NOW(), 3),
-       ('14', 15000.50, NOW(), NOW(), 4);
+       ('1', 7500.00, NOW(), NOW(), 2),
+       ('14', 75000.00, NOW(), NOW(), 3),
+       ('14', 15000.00, NOW(), NOW(), 4);
 
 
 -- Dues 테이블에 더미 데이터 삽입
@@ -405,33 +407,109 @@ VALUES (NOW(), 1, 1, NOW()),
 
 -- Interesting And Agit 테이블에 더미 데이터 삽입
 INSERT INTO introducing (agit_id, created_at, updated_at, content, image, introduce)
-VALUES (1, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '첫 번째 소개'),
-       (2, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (3, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (4, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (5, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (6, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (7, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개'),
-       (8, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '첫 번째 소개 내용입니다. 여기에 대해 더 알아보세요!'),
-       (9, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리의 새로운 프로젝트가 시작되었습니다. 함께 성장해요!'),
-       (10, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '두 번째 소개 내용입니다. 변화는 지금부터 시작됩니다!'),
-       (11, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 팀이 결성되었습니다. 모두의 참여를 기다립니다.'),
-       (12, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 꿈을 이루는 첫걸음을 내디뎠습니다. 함께 해주세요!'),
-       (13, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '여러분과 함께 이루고 싶은 목표가 있습니다. 함께 해주세요!'),
-       (14, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '팀워크와 열정으로 달성할 수 있는 모든 목표를 향해 나아가고 있습니다.'),
-       (15, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '더 나은 미래를 만들기 위한 우리의 노력에 함께해요!'),
-       (16, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 끝없이 발전하고 있으며, 여러분과 함께 할 미래가 기대됩니다.'),
-       (17, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '기회는 스스로 만드는 것입니다. 여러분과 함께 더 나은 세상을 만들어갑니다.'),
-       (18, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 시작이 필요하다면, 우리는 그 시작을 함께 할 준비가 되어 있습니다.'),
-       (19, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '모든 도전은 우리가 함께라면 두렵지 않습니다. 함께 할 준비 되셨나요?'),
-       (20, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250',
-        '우리는 세상을 변화시키기 위해 한 걸음씩 나아가고 있습니다. 여러분도 함께해 주세요.'),
-       (21, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리의 목표는 단순한 성과가 아닌, 가치를 창출하는 것입니다. 그 길에 동참하세요!'),
-       (22, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '지금 이 순간을 함께하는 것이 중요한 이유입니다. 여러분의 참여를 기다립니다.'),
-       (23, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리는 변화와 혁신의 선두주자가 되고자 합니다. 여러분도 함께 성장할 수 있습니다.'),
-       (24, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '새로운 기회가 기다리고 있습니다. 여러분의 아이디어를 기다립니다.'),
-       (25, NOW(), NOW(), '소개글입니다.', 'https://picsum.photos/250/250', '우리가 함께 만들 세상은 그 어떤 것보다도 더 아름답고 가치 있을 것입니다.');
+VALUES
+    -- agit_id = 1: 청년자기경영독서모임
+    (1, NOW(), NOW(), '책을 함께 읽고 토론하는 청년 자기경영 독서모임입니다.', 'https://djogyo1sj025q.cloudfront.net/imsi/1.png',
+     '퇴근 후 30분, 자기계발 도서로 성장하는 청년들의 아지트!'),
 
+    -- agit_id = 2: Funny Run!
+    (2, NOW(), NOW(), '함께 달리며 건강과 웃음을 나누는 러닝 모임입니다.', 'https://djogyo1sj025q.cloudfront.net/imsi/2.jpeg',
+     '초보도 환영! 달리기를 통해 긍정 에너지와 건강을 충전해보세요.'),
+
+    -- agit_id = 3: 유앤캠⛺️
+    (3, NOW(), NOW(), '자연을 만끽하는 캠핑과 다양한 여행을 즐기는 사람들의 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/3.jpeg',
+     '힐링 캠핑부터 맛집 탐방까지! 여유와 즐거움을 한데 모았습니다.'),
+
+    -- agit_id = 4: 퇴강산🐶
+    (4, NOW(), NOW(), '반려견과 산책하며 정보와 즐거움을 공유하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/4.jpeg',
+     '강아지와 함께 자연 속을 거닐며 소통하고 친목을 다지는 시간!'),
+
+    -- agit_id = 5: 🎲보드게임 위너🎲
+    (5, NOW(), NOW(), '보드게임을 통해 즐거운 시간을 보내는 친목 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/5.jpeg',
+     '룰 몰라도 OK! 가벼운 마음으로 모여 다양한 보드게임을 즐겨보아요.'),
+
+    -- agit_id = 6: 🍃함께 나마스떼
+    (6, NOW(), NOW(), '요가로 몸과 마음의 균형을 찾는 힐링 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/6.jpeg',
+     '나만의 호흡과 자세로 하루를 정리하고 재충전할 수 있는 시간!'),
+
+    -- agit_id = 7: 🙋‍♂️프리토킹 시즌2
+    (7, NOW(), NOW(), '영어로 철학, 사회 이슈 등 다양한 주제를 자유롭게 토론하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/7.jpeg',
+     '언어와 사고의 경계를 허물며 지적 성장과 친목을 함께 누리세요.'),
+
+    -- agit_id = 8: [등산모임]Thumb Up 👍
+    (8, NOW(), NOW(), '가까운 산을 함께 오르며 건강과 추억을 만드는 등산 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/8.jpeg',
+     '땀 흘리며 정상을 향해! 자연 속에서 힐링과 소통을 즐기세요.'),
+
+    -- agit_id = 9: 뭉쳐야 산타‍🎄
+    (9, NOW(), NOW(), '등산과 운동을 좋아하는 이들이 모여 함께 성장하는 커뮤니티.', 'https://djogyo1sj025q.cloudfront.net/imsi/9.jpeg',
+     '산 오르고 땀 흘리며 새로운 친구도 사귀고 건강도 챙기는 1석2조!'),
+
+    -- agit_id = 10: 매먹사(매운거 먹는 사람들)
+    (10, NOW(), NOW(), '매운 음식을 좋아하는 사람들이 모여 입맛과 우정을 나누는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/10.jpeg',
+     '불타는 매운맛으로 스트레스 해소! 함께 매운 음식 탐방 출발~'),
+
+    -- agit_id = 11: 논알콤🪇클럽
+    (11, NOW(), NOW(), '무알콜로도 충분히 즐겁게 대화하고 문화생활을 하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/11.jpeg',
+     '건전한 수다, 카페 라이프, 전시 관람으로 알찬 하루를 만드세요!'),
+
+    -- agit_id = 12: 주린이 탈출 모임
+    (12, NOW(), NOW(), 'ETF, 채권 등 경제 전반을 토론하며 투자 지식을 쌓는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/12.png',
+     '금융 초보 졸업! 함께 공부하며 든든한 경제적 발판을 만들어봐요.'),
+
+    -- agit_id = 13: 외국물 한잔해
+    (13, NOW(), NOW(), '술 한잔 기울이며 영어 등 다양한 외국어로 소통하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/13.jpeg',
+     '언어와 문화를 맛보는 즐거움! 해외여행 기분을 여기서 느껴보세요.'),
+
+    -- agit_id = 14: 모각코
+    (14, NOW(), NOW(), '함께하지만 각자 집중해 코딩 실력을 향상시키는 개발자 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/14.jpeg',
+     '조용히 코드에 집중하지만, 끝나면 정보 공유로 성장하는 공간!'),
+
+    -- agit_id = 15: 쥐락펴락
+    (15, NOW(), NOW(), '암벽등반을 통해 도전정신을 키우고 서로 도움을 주는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/15.jpeg',
+     '암장 정복! 새로운 난이도에 함께 도전하며 한계를 뛰어넘는 즐거움.'),
+
+    -- agit_id = 16: 헬스메이트♟️
+    (16, NOW(), NOW(), '전문 트레이너와 함께 개인 맞춤형 운동을 배우는 피트니스 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/16.jpeg',
+     '차근차근 성장하는 운동 습관, 건강한 라이프스타일을 함께 만듭니다.'),
+
+    -- agit_id = 17: 클립보드
+    (17, NOW(), NOW(), '다양한 사람들과의 만남을 통해 인맥을 넓히는 네트워킹 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/17.jpeg',
+     '경험과 이야기를 연결하는 클립보드, 새로운 인연이 기다립니다.'),
+
+    -- agit_id = 18: 토끼굴🐰
+    (18, NOW(), NOW(), '다양한 취미를 가진 이들이 여행을 통해 추억을 쌓는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/18.jpeg',
+     '여러 분야의 사람들이 어우러져 함께 떠나는 다채로운 여행 모험!'),
+
+    -- agit_id = 19: 무말랭이
+    (19, NOW(), NOW(), '2030 젊은 층이 모여 가벼운 만남과 즐거움을 추구하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/19.jpeg',
+     '딱히 이유 없어도 좋아요! 일단 모이면 즐겁게 노는 자유로운 공간.'),
+
+    -- agit_id = 20: 로드트립🚓
+    (20, NOW(), NOW(), '자동차로 와인딩 코스를 달리며 풍경과 자유를 만끽하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/20.jpeg',
+     '엔진 소리와 바람을 벗 삼아, 도로 위의 힐링과 낭만을 찾으세요!'),
+
+    -- agit_id = 21: 멍글냥글
+    (21, NOW(), NOW(), '반려동물과 함께 교감하며 정보와 추억을 나누는 반려생활 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/21.jpeg',
+     '멍멍, 냥냥! 함께 행복을 나누고 반려동물 케어 노하우를 공유해요.'),
+
+    -- agit_id = 22: 캣 카페 집사
+    (22, NOW(), NOW(), '고양이 카페를 순회하며 고양이 친구들과 교감하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/22.jpeg',
+     '냥이들의 매력 속으로! 커피와 고양이의 조합으로 힐링해보세요.'),
+
+    -- agit_id = 23: 레디언트
+    (23, NOW(), NOW(), '발로란트 게임을 즐기며 팀워크와 실력을 키우는 게이머 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/23.jpeg',
+     '전략적 플레이와 유쾌한 소통! 발로란트에서 빛나는 순간을 함께.'),
+
+    -- agit_id = 24: 우아즈
+    (24, NOW(), NOW(), '배틀그라운드를 함께 즐기며 실력 향상과 친목을 도모하는 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/24.png',
+     '우아즈(UAZ) 타고 치킨을 향해! 게임 속에서 웃음과 스릴을 공유하세요.'),
+
+    -- agit_id = 25: 사리곰탕
+    (25, NOW(), NOW(), '다양한 음식을 함께 시도하고 맛을 공유하는 미식가들의 모임.', 'https://djogyo1sj025q.cloudfront.net/imsi/25.jpeg',
+     '입맛의 스펙트럼을 넓히며 미식 경험을 쌓는 맛있는 시간!'),
+    (26, NOW(), NOW(), '면사랑모임~.', 'https://djogyo1sj025q.cloudfront.net/imsi/26.jpeg',
+     '입맛의 스펙트럼을 넓히며 미식 경험을 쌓는 맛있는 시간!');
+;
 
 -- Introducing 테이블에 더미 데이터 삽입
 INSERT INTO interesting_and_agit (agit_id, interesting_id, created_at, updated_at)
