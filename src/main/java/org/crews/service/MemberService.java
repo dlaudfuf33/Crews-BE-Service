@@ -75,4 +75,6 @@ public interface MemberService {
     void deletetMyProfile(Long memberId);
 
     void leavCrews(Long memberId,LeavRequest leavRequest);
+
+    String getPhoneNumber(Long memberId);
 }

@@ -63,14 +63,12 @@ public class PaymentServiceImpl implements PaymentService {
         );
         if(agit.getAgitAndAccount() == null)
             throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
-
         Account account = agit.getAgitAndAccount().getAccount();
         Card card = cardRepository.findByMemberIdAndAccountAndIsDeletedFalse(memberId,account)
                 .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
         String qrData = String.format(baseUrl + "payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
                 AESUtil.decrypt(card.getCardNumber()), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
-
         String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
         log.info(qrData);
         log.info(folderPath);
@@ -92,7 +90,10 @@ public class PaymentServiceImpl implements PaymentService {
 //        }
 
         // 2. Card 정보 확인
-        Card card = cardRepository.findByCardNumberAndMemberId(AESUtil.encrypt(cardNumber), memberId)
+        System.out.println("cardNumber = " + cardNumber);
+        System.out.println("AESUtil.decrypt(cardNumber = " + AESUtil.decrypt(cardNumber));
+        System.out.println("memberId = " + memberId);
+        Card card = cardRepository.findByCardNumberAndMemberId(cardNumber, memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found or not associated with the member"));
 
         if (card.isDeleted()) {

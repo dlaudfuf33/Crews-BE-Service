@@ -37,4 +37,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findByMemberIdAndAccountAndIsDeletedFalse(Long memberId, Account account);
 
     Optional<Card> findByCardNumberAndMemberId(String cardNumber, Long memberId);
+
+    @Query("SELECT c FROM Card c WHERE c.member.id = :memberId AND c.account.id = (SELECT a.id FROM AgitAndAccount aa JOIN aa.account a WHERE aa.agit.id = :agitId)")
+    Optional<Card> findByMemberIdAndAgitId(Long memberId, Long agitId);
 }
