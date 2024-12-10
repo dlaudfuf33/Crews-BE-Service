@@ -66,7 +66,7 @@ public class PaymentServiceImpl implements PaymentService {
         Card card = cardRepository.findByMemberIdAndAccountAndIsDeletedFalse(memberId,account)
                 .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
-        String qrData = String.format(baseUrl + "payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
+        String qrData = String.format(baseUrl + "/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
                 AESUtil.decrypt(card.getCardNumber()), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
         String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
         log.info(qrData);
