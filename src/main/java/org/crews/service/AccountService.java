@@ -53,7 +53,7 @@ public class AccountService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        Membership membership = memberShipRepository.findByMemberAndAgit(member, agit).orElseThrow(
+        Membership membership = membershipRepository.findByMemberAndAgit(member, agit).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         if(membership.getAgitRole().equals(AgitRole.TEMP))
