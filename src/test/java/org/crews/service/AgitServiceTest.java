@@ -38,7 +38,7 @@ class AgitServiceTest {
     private InterestingAndAgitRepository interestingAndAgitRepository;
 
     @MockBean
-    private MemberShipRepository memberShipRepository;
+    private MembershipRepository membershipRepository;
 
     @MockBean
     private MemberRepository memberRepository;

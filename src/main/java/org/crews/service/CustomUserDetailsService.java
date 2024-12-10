@@ -11,6 +11,7 @@ import org.crews.utils.AESUtil;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -48,10 +49,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(optionalMember.get().isDeleted()){
             log.info("탈퇴한 회원");
             throw new CustomException(ErrorCode.DELETED_MEMBER,email);
-        }
-        if(optionalMember.get().isBanned()){
-            log.info("처단된 회원");
-            throw new CustomException(ErrorCode.ALREADY_BANNED_MEMBER,email);
         }
 
         Member member = optionalMember.get();

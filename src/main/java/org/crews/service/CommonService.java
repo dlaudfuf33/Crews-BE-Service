@@ -24,7 +24,7 @@ import java.util.Optional;
 public class CommonService {
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final BankRepository bankRepository;
     private final CoreService coreService;
     private final AgitService agitService;
@@ -35,7 +35,7 @@ public class CommonService {
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
 
-        List<Agit> agitList = memberShipRepository.findByMember(member).stream().map(Membership::getAgit).toList();
+        List<Agit> agitList = membershipRepository.findByMember(member).stream().map(Membership::getAgit).toList();
         List<AccountV2CrewResponse> accountV2CrewResponses = new ArrayList<>();
         if (!agitList.isEmpty()) {
             for (Agit agit : agitList) {
@@ -72,7 +72,7 @@ public class CommonService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        List<Membership> membershipList = memberShipRepository.findByMember(member);
+        List<Membership> membershipList = membershipRepository.findByMember(member);
         List<AccountHistoryResponse> list = new ArrayList<>();
         for(Membership membership : membershipList){
             List<Dues> duesList = membership.getDuesList();

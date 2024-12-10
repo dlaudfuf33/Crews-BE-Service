@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.boot.autoconfigure.info.ProjectInfoProperties;
 
 @Getter
 @Builder

@@ -11,6 +11,7 @@ public enum ErrorCode {
     NO_ASSOCIATED_GROUP("소속된 모임이 없습니다.", HttpStatus.BAD_REQUEST),
     WRONG_BANKCODE("잘못된 은행코드 입니다.", HttpStatus.BAD_REQUEST),
     NOT_MATCHED_MEMBER("해당하는 아지트의 멤버가 아닙니다.", HttpStatus.BAD_REQUEST),
+    NOT_MATCHED_ROLE("해당하는 역할이 아닙니다.", HttpStatus.BAD_REQUEST),
     REQUIRED_NOT_NULL("필수 값이 누락되었습니다.", HttpStatus.BAD_REQUEST),
     WRONG_RESPONSE("잘못된 응답을 수신했습니다.", HttpStatus.BAD_REQUEST),
     AGIT_NOT_MATCHED("해당하는 번호의 아지트를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),

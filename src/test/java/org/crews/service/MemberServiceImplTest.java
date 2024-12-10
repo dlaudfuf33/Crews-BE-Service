@@ -54,7 +54,7 @@ class MemberServiceImplTest {
     private AgitRepository agitRepository;
 
     @MockBean
-    private MemberShipRepository memberShipRepository;
+    private MembershipRepository membershipRepository;
 
     @MockBean
     private DuesRepository duesRepository;
@@ -257,7 +257,7 @@ class MemberServiceImplTest {
             when(accountRepository.findByIdAndMemberId(myAccountId, memberId)).thenReturn(Optional.of(myAccount));
             when(accountRepository.findById(crewAccountId)).thenReturn(Optional.of(crewAccount));
             when(agitRepository.findByIdWithCommonDues(agitId)).thenReturn(Optional.of(agit));
-            when(memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId())).thenReturn(Optional.of(membership));
+            when(membershipRepository.findByMemberIdAndAgitId(memberId, agit.getId())).thenReturn(Optional.of(membership));
             when(coreService.transferFee(any())).thenReturn(TransferApiResponse.builder().data(transferResponse).build());
 
             // when
@@ -347,7 +347,7 @@ class MemberServiceImplTest {
             when(accountRepository.findByIdAndMemberId(3L, memberId)).thenReturn(Optional.of(myAccount));
             when(accountRepository.findById(4L)).thenReturn(Optional.of(crewAccount));
             when(agitRepository.findByIdWithCommonDues(2L)).thenReturn(Optional.of(agit));
-            when(memberShipRepository.findByMemberIdAndAgitId(memberId, agit.getId())).thenReturn(Optional.of(membership));
+            when(membershipRepository.findByMemberIdAndAgitId(memberId, agit.getId())).thenReturn(Optional.of(membership));
             when(coreService.transferFee(any()))
                     .thenThrow(new WebServerException(
                             "{\"error\":{\"message\":\"잔액이 부족합니다.\"}}",

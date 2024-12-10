@@ -25,7 +25,6 @@ public class ReportService {
 
     @Transactional
     public ReportResponse reportFeed(Long memberId, Long feedId, Long agitId, ReportRequest reportRequest){
-
         AgitValidationResponse checkedResult = checkExceptionUtil.checkFeedException(memberId,agitId, feedId);
 
         Feed feed = checkedResult.getFeed();

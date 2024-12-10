@@ -13,10 +13,8 @@ import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
 import org.crews.model.constants.PaymentTargetAccount;
-import org.crews.repository.AgitRepository;
-import org.crews.repository.CardRepository;
-import org.crews.repository.MemberRepository;
-import org.crews.repository.MemberShipRepository;
+import org.crews.repository.*;
+
 import org.crews.utils.AESUtil;
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
@@ -38,10 +36,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${qr.base-url}")
     private String baseUrl;
 
-    private final MemberShipRepository memberShipRepository;
+    private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final AgitRepository agitRepository;
+    private final AccountRepository accountRepository;
     private final QRCodeUtil qrCodeUtil;
     private final S3Util s3Util;
     private final CoreService coreService;
@@ -120,7 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<PaymentInfoResponse> getPaymentInfo(Long memberId) {
-        List<Membership> memberships = memberShipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
+        List<Membership> memberships = membershipRepository.findByMemberIdAndAgitRoleNot(memberId, AgitRole.TEMP);
         List<PaymentInfoResponse> paymentInfoResponses = new ArrayList<>();
 
         for (Membership membership : memberships) {
