@@ -302,7 +302,6 @@ public class AgitService {
     }
 
     public void agitDuesCall(Long agitId, Long memberId, DuesCallRequest duesCallRequest) {
-        System.out.println("duesCallRequest = " + duesCallRequest);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );

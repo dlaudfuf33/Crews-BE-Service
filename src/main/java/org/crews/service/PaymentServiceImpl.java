@@ -12,35 +12,36 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
-import org.crews.model.constants.CardName;
 import org.crews.model.constants.PaymentTargetAccount;
-import org.crews.repository.AccountRepository;
+import org.crews.repository.AgitRepository;
 import org.crews.repository.CardRepository;
 import org.crews.repository.MemberRepository;
 import org.crews.repository.MemberShipRepository;
+import org.crews.utils.AESUtil;
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
 import org.crews.utils.SQSUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
+    @Value("${qr.base-url}")
+    private String baseUrl;
 
     private final MemberShipRepository memberShipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
-    private final AccountRepository accountRepository;
+    private final AgitRepository agitRepository;
     private final QRCodeUtil qrCodeUtil;
     private final S3Util s3Util;
     private final CoreService coreService;
@@ -57,13 +58,18 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         log.info("유저 확인 완료!");
+        Agit agit = agitRepository.findById(cardPaymentRequest.getAgitId()).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        if(agit.getAgitAndAccount() == null)
+            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
 
-        Card card = cardRepository.findByMemberId(memberId)
+        Account account = agit.getAgitAndAccount().getAccount();
+        Card card = cardRepository.findByMemberIdAndAccountAndIsDeletedFalse(memberId,account)
                 .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
-//        String qrData = String.format("http://crews-be-service-env.eba-hvrvbmgq.ap-northeast-2.elasticbeanstalk.com/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
-        String qrData = String.format("http://localhost:8080/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
-                card.getCardNumber(), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
+        String qrData = String.format(baseUrl + "payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
+                AESUtil.decrypt(card.getCardNumber()), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
 
         String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
         log.info(qrData);
@@ -80,13 +86,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     public void processPayment(String cardNumber, String expireDate, Long memberId) {
         // 1. ExpireDate 검증
-        LocalDateTime expirationTime = LocalDateTime.parse(expireDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        if (expirationTime.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("QR Code is expired");
-        }
+//        LocalDateTime expirationTime = LocalDateTime.parse(expireDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//        if (expirationTime.isBefore(LocalDateTime.now())) {
+//            throw new IllegalArgumentException("QR Code is expired");
+//        }
 
         // 2. Card 정보 확인
-        Card card = cardRepository.findByCardNumberAndMemberId(cardNumber, memberId)
+        Card card = cardRepository.findByCardNumberAndMemberId(AESUtil.encrypt(cardNumber), memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found or not associated with the member"));
 
         if (card.isDeleted()) {

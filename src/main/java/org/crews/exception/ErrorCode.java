@@ -38,6 +38,7 @@ public enum ErrorCode {
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
     PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
     CREW_ACCOUNT_NOT_MATCH("모임통장이 존재하지 않습니다.",HttpStatus.FORBIDDEN),
+    EMPTY_FILE_EXCEPTION("파일을 업로드 할 수 없습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
     AGIT_ACCOUNT_NOT_FOUND("해당 모임에 가입하지 않았거나 권한이 없습니다.", HttpStatus.NOT_FOUND),

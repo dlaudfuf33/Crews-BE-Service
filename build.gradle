@@ -56,7 +56,10 @@ dependencies {
     // RabbitMQ 의존성
 //	implementation 'org.springframework.boot:spring-boot-starter-amqp'
     // AWS SQS 의존성
-    implementation 'software.amazon.awssdk:sqs:2.20.0'
+//    implementation 'software.amazon.awssdk:sqs:2.20.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-messaging', version: '2.2.3.RELEASE'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.5.6'
     //QR Code 생성 의존성
     implementation 'com.google.zxing:core:3.5.2'
     implementation 'com.google.zxing:javase:3.5.2'
