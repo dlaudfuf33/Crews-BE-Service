@@ -33,7 +33,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
             "LEFT JOIN FETCH a.interestingAndAgits ia " +
             "LEFT JOIN FETCH ia.interesting " +
             "WHERE m.member.id = :memberid " +
-            "AND (m.agitRole = 'MEMBER' OR m.agitRole = 'LEADER')")
+            "AND (m.agitRole <> 'TEMP')")
     List<Membership> findMembershipsWithAgitDetailsByMemberId(@Param("memberid") Long memberId);
 
     List<Membership> findTop3ByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
