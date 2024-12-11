@@ -26,6 +26,7 @@ public class CommonService {
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
     private final MembershipRepository membershipRepository;
+    private final AgitRepository agitRepository;
     private final BankRepository bankRepository;
     private final CoreService coreService;
     private final AgitService agitService;
@@ -88,15 +89,5 @@ public class CommonService {
         return AccountHistoryFinalV2Response.builder().accountHistory(list).build();
 
 
-    }
-
-    public ProductAllResponse getAllProducts(Long memberId, Long agitId ) {
-        memberRepository.findById(memberId).orElseThrow(
-            () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
-        );
-        membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.LEADER).orElseThrow(
-            () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
-        );
-        return coreService.getAllProducts();
     }
 }

@@ -145,4 +145,10 @@ public class AgitController {
 
         return ResponseEntity.status(HttpStatus.OK).body("문자가 정상적으로 발송되었습니다.");
     }
+
+    @GetMapping("/{agits-id}/products")
+    public ResponseEntity<ProductAllResponse> getAllProducts(@PathVariable("agits-id") Long agitId, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        return ResponseEntity.ok().body(agitService.getAllProducts(memberId, agitId));
+    }
 }
