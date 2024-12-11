@@ -62,7 +62,7 @@ public enum ErrorCode {
 
     // 409 CONFLICT
     CARD_ALREADY_EXISTS("카드가 이미 존재하여 추가 발급할 수 없습니다.", HttpStatus.CONFLICT),
-    PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
+    PRESENT_AGIT_AND_ACCOUNT("모임통장이 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
     ALREADY_REPORTED_FEED("이미 신고한 피드입니다.", HttpStatus.CONFLICT),

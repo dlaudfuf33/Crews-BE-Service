@@ -30,7 +30,7 @@ public class MemberController {
     private final AuthUtil authUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody MemberRequest memberRequest) {
+    public ResponseEntity<String> signUp(@RequestBody @Valid MemberRequest memberRequest) {
         try {
             MemberResponse memberResponse = memberService.signUp(memberRequest);
             if (memberResponse != null) {
