@@ -474,7 +474,7 @@ public class CoreService {
                     .block();
         } catch (WebClientResponseException ex) {
             log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
-            throw new WebServerException(ex.getResponseBodyAsString(), ex);
+            throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
         }
     }
 

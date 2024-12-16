@@ -27,6 +27,7 @@ public enum ErrorCode {
     DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.", HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE("잔액이 부족합니다.", HttpStatus.BAD_REQUEST),
+    CORE_SERVER_EXCEPTION("뱅킹 서버와 통신 중 에러가 발생했습니다. 잠시후 다시 요창해 주세요.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),
@@ -39,6 +40,7 @@ public enum ErrorCode {
     AUTHORIZED_CARD_DELETE("카드 삭제권한이 없습니다.", HttpStatus.FORBIDDEN),
     PINNUMBER_AND_ID_NOT_MATCH("핀번호와 멤버id가 맞지 않습니다.",HttpStatus.FORBIDDEN),
     CREW_ACCOUNT_NOT_MATCH("모임통장이 존재하지 않습니다.",HttpStatus.FORBIDDEN),
+    EMPTY_FILE_EXCEPTION("파일을 업로드 할 수 없습니다.",HttpStatus.FORBIDDEN),
 
     // 404 NOT FOUND
     AGIT_ACCOUNT_NOT_FOUND("해당 모임에 가입하지 않았거나 권한이 없습니다.", HttpStatus.NOT_FOUND),
@@ -60,7 +62,7 @@ public enum ErrorCode {
 
     // 409 CONFLICT
     CARD_ALREADY_EXISTS("카드가 이미 존재하여 추가 발급할 수 없습니다.", HttpStatus.CONFLICT),
-    PRESENT_AGIT_AND_ACCOUNT("AgitAndAccount가 이미 존재합니다.", HttpStatus.CONFLICT),
+    PRESENT_AGIT_AND_ACCOUNT("모임통장이 이미 존재합니다.", HttpStatus.CONFLICT),
     EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     ACCOUNT_ALREADY_EXISTS("이미 존재하는 계좌입니다.", HttpStatus.CONFLICT),
     ALREADY_REPORTED_FEED("이미 신고한 피드입니다.", HttpStatus.CONFLICT),

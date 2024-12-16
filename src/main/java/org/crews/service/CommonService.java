@@ -9,6 +9,7 @@ import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AccountType;
+import org.crews.model.constants.AgitRole;
 import org.crews.repository.*;
 import org.crews.utils.AESUtil;
 import org.crews.utils.MaskedNumber;
@@ -25,6 +26,7 @@ public class CommonService {
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
     private final MembershipRepository membershipRepository;
+    private final AgitRepository agitRepository;
     private final BankRepository bankRepository;
     private final CoreService coreService;
     private final AgitService agitService;

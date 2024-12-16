@@ -1,7 +1,10 @@
 package org.crews.utils;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -12,15 +15,23 @@ import java.util.UUID;
 
 @Component
 public class S3Util {
+    @Value("${cloud.aws.credentials.access-key}")
+    private String accessKey;
+    @Value("${cloud.aws.credentials.secret-key}")
+    private String secretKey;
+    @Value("${cloud.aws.s3.bucketName}")
+    private String bucketName;
+    @Value("${cloud.aws.cloud-front}")
+    private String cloudFrontDomain;
+    private S3Client s3Client;
 
-    private final S3Client s3Client;
-    private final String bucketName = "crews-bucket";
-    private final String cloudFrontDomain = "https://djogyo1sj025q.cloudfront.net"; // CloudFront 도메인
+    @PostConstruct
+    private void init() {
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-    public S3Util() {
         this.s3Client = S3Client.builder()
-                .region(Region.AP_NORTHEAST_2) // 리전 설정
-                .credentialsProvider(ProfileCredentialsProvider.create())
+                .region(Region.AP_NORTHEAST_2)
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                 .build();
     }
 
@@ -62,6 +73,6 @@ public class S3Util {
 
     public String generateCloudFrontUrl(String s3Key) {
         // CloudFront URL 생성
-        return String.format("%s/%s", cloudFrontDomain, s3Key);
+        return String.format("%s%s", cloudFrontDomain, s3Key);
     }
 }

@@ -16,7 +16,8 @@ import java.util.Optional;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findByAgitAndAgitRole(Agit agit, AgitRole role);
-    Optional<Membership> findByAgitAndAgitRoleNot(Agit agit, AgitRole role);
+    Optional<Membership> findByAgitIdAndAgitRole(Long agitId, AgitRole role);
+
     Optional<Membership> findByMemberAndAgit(Member member, Agit agit);
     @EntityGraph(attributePaths = {"member"})
     List<Membership> findByAgit(Agit agit);
@@ -31,7 +32,8 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
             "LEFT JOIN FETCH a.introducing " +
             "LEFT JOIN FETCH a.interestingAndAgits ia " +
             "LEFT JOIN FETCH ia.interesting " +
-            "WHERE m.member.id = :memberid")
+            "WHERE m.member.id = :memberid " +
+            "AND (m.agitRole <> 'TEMP')")
     List<Membership> findMembershipsWithAgitDetailsByMemberId(@Param("memberid") Long memberId);
 
     List<Membership> findTop3ByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
@@ -53,7 +55,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     @Query("SELECT m FROM Membership m " +
             "JOIN FETCH m.agit a " +
             "WHERE a.id = :agitId AND m.agitRole = :agitRole")
-    List<Membership> findByAgitIdAndAgitRole(
+    List<Membership> findByAgitIdAndAgitRoleTemp(
             @Param("agitId") Long agitId,
             @Param("agitRole") AgitRole agitRole
     );

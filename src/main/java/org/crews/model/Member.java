@@ -86,7 +86,6 @@ public class Member extends BaseTimeEntity {
 
     public static Member from(MemberRequest memberRequest) {
         return Member.builder()
-                .nickName(memberRequest.getNickName())
                 .email(memberRequest.getEmail())
                 .password(memberRequest.getPassword())
                 .name(memberRequest.getName())

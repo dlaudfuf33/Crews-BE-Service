@@ -49,6 +49,7 @@ public class AgitService {
     private final DuesRepository duesRepository;
     private final CommonDuesRepository commonDuesRepository;
     private final AddressRepository addressRepository;
+    private final CoreService coreService;
     public AgitSliceResponse getAllAgits(Long subjectId, int page, Optional<Long> memberId){
         Long memberIdOptional = memberId.orElse(null);
         if(page<0){
@@ -226,7 +227,7 @@ public class AgitService {
 
     public AgitManageResponse getTemps(Long agitId){
         // TEMP 역할의 멤버 가져오기
-        List<Membership> tempMemberships = membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.TEMP);
+        List<Membership> tempMemberships = membershipRepository.findByAgitIdAndAgitRoleTemp(agitId, AgitRole.TEMP);
 
         // DTO로 변환
         List<AgitManageMemberResponse> memberResponses = tempMemberships.stream()
@@ -339,7 +340,6 @@ public class AgitService {
     }
 
     public void agitDuesCall(Long agitId, Long memberId, DuesCallRequest duesCallRequest) {
-        System.out.println("duesCallRequest = " + duesCallRequest);
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
@@ -370,5 +370,20 @@ public class AgitService {
             MessageUtil.send(AESUtil.decrypt(memberShip.getMember().getPhoneNumber()), result);
         }
 
+    }
+
+    public ProductAllResponse getAllProducts(Long memberId, Long agitId ) {
+        memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.LEADER).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
+        );
+        Agit agit = agitRepository.findById(agitId).orElseThrow(
+                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
+        );
+        if(agit.getAgitAndAccount() != null)
+            throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
+        return coreService.getAllProducts();
     }
 }
