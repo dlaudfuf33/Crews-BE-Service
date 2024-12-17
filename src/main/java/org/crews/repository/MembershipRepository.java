@@ -44,6 +44,21 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     Long countByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
 
+    @Query("""
+    SELECT m
+    FROM Membership m
+    LEFT JOIN FETCH m.member
+    WHERE m.agit.id = :agitId AND m.agitRole <> :agitRole
+""")
+    List<Membership> findByAgitIdAndAgitRoleNot(@Param("agitId") Long agitId, @Param("agitRole") AgitRole agitRole);
+
+    @Query("SELECT m FROM Membership m " +
+            "JOIN FETCH m.agit a " +
+            "WHERE a.id = :agitId AND m.agitRole = :agitRole")
+    List<Membership> findByAgitIdAndAgitRoleTemp(
+            @Param("agitId") Long agitId,
+            @Param("agitRole") AgitRole agitRole
+    );
 
     @Query("SELECT m FROM Membership m " +
             "JOIN FETCH m.agit a " +
