@@ -397,7 +397,7 @@ public class MemberServiceImpl implements MemberService {
             List<AccountResponse> coreAccounts
                     = coreService.findCoreSideAccounts(MemberToCoreRequest.from(member));
             if (coreAccounts == null) {
-                log.warn("Core 서비스에서 계좌 정보를 가져오지 못했습니다. memberId: {}", memberId);
+                log.warn("계좌 정보가 없습니다. memberId: {}", memberId);
                 return List.of();
             }
             List<Account> existingAccounts = accountRepository.findAccountsByMemberId(memberId);
@@ -417,9 +417,11 @@ public class MemberServiceImpl implements MemberService {
                     }).toList();
             log.info("회원 '{}'에 대한 PERSONAL 타입 계좌 중 신규 계좌의 수: '{}'", memberId, newAccounts.size());
             return newAccounts;
+        } catch (CustomException e) {
+            throw e;
         } catch (Exception e) {
             log.warn("Core 서비스에서 계좌정보 조회를 실패했습니다. {}", e.getMessage());
-            return List.of();
+            throw e;
         }
     }
 

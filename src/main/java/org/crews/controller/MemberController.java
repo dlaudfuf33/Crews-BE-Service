@@ -56,14 +56,12 @@ public class MemberController {
                 }
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ReissueResponse("유효하지 않은 요청입니다."));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ReissueResponse("유효하지 않은 요청입니다."));
         }
 
         ResponseEntity<String> responseEntity = memberService.refreshCheck(refresh);
         if (responseEntity != null) {
-            return ResponseEntity.status(responseEntity.getStatusCode())
-                    .body(new ReissueResponse("유효하지 않은 토큰입니다."));
+            return ResponseEntity.status(responseEntity.getStatusCode()).body(new ReissueResponse("유효하지 않은 토큰입니다."));
         }
 
         Map<String, String> tokens = memberService.reissueTokens(refresh);
@@ -102,8 +100,7 @@ public class MemberController {
     }
 
     @PutMapping("/me/profile")
-    public ResponseEntity<Void> updateMyProfile(HttpServletRequest request,
-                                                @RequestBody ProfileImageRequest profileImageRequest) {
+    public ResponseEntity<Void> updateMyProfile(HttpServletRequest request, @RequestBody ProfileImageRequest profileImageRequest) {
         Long memberId = authUtil.getMemberId(request);
         memberService.updateMyProfile(memberId, profileImageRequest);
         return ResponseEntity.noContent().build();
@@ -137,8 +134,7 @@ public class MemberController {
     }
 
     @PutMapping("/me/interests")
-    public ResponseEntity<Void> updateMyInterests(@RequestBody InterestsUpdateRequest interestsUpdateRequest,
-                                                  HttpServletRequest request) {
+    public ResponseEntity<Void> updateMyInterests(@RequestBody InterestsUpdateRequest interestsUpdateRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         memberService.updateMyInterestings(memberId, interestsUpdateRequest);
         return ResponseEntity.noContent().build();
@@ -152,12 +148,11 @@ public class MemberController {
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<Void> leavCrews(HttpServletRequest request,
-                                          @RequestBody LeavRequest leavRequest) {
+    public ResponseEntity<Void> leavCrews(HttpServletRequest request, @RequestBody LeavRequest leavRequest) {
         Long memberId = authUtil.getMemberId(request);
         log.info("회원탈퇴 요청 시작: 회원ID={}", memberId);
         try {
-            memberService.leavCrews(memberId,leavRequest);
+            memberService.leavCrews(memberId, leavRequest);
             log.info("회원탈퇴 성공: 회원ID={}", memberId);
             return ResponseEntity.noContent().build();
         } catch (CustomException ce) {
@@ -213,8 +208,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/me/agits-cards")
-    public ResponseEntity<AgitCardsResponse> deleteAgitsCards(
-            HttpServletRequest request, @RequestBody CardDeleteRequest cardDeleteRequest) {
+    public ResponseEntity<AgitCardsResponse> deleteAgitsCards(HttpServletRequest request, @RequestBody CardDeleteRequest cardDeleteRequest) {
         Long memberId = authUtil.getMemberId(request);
         memberService.deleteMyAgitsCards(memberId, cardDeleteRequest);
         return ResponseEntity.noContent().build();
@@ -244,7 +238,12 @@ public class MemberController {
     @GetMapping("/me/core-accounts")
     public ResponseEntity<List<AccountResponse>> getAccountInfo(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        return ResponseEntity.ok(memberService.getAccountInfoFromCore(memberId));
+        try {
+            List<AccountResponse> accounts = memberService.getAccountInfoFromCore(memberId);
+            return ResponseEntity.ok(accounts); // 성공 시 200 OK
+        } catch (CustomException e) {
+           throw e;
+        }
     }
 
     @PostMapping("/me/core-accounts")
@@ -262,19 +261,14 @@ public class MemberController {
 
 
     @GetMapping("/me/account-withdraws")
-    public ResponseEntity<List<WithdrawResponse>> getMyAccountWithdrawHisotry(
-            HttpServletRequest request,
-            @RequestParam Long crewAccountId,
-            @RequestParam Long myAccountId) {
+    public ResponseEntity<List<WithdrawResponse>> getMyAccountWithdrawHisotry(HttpServletRequest request, @RequestParam Long crewAccountId, @RequestParam Long myAccountId) {
         Long memberId = authUtil.getMemberId(request);
-        List<WithdrawResponse> withdrawResponse =
-                memberService.getwithdraws(memberId, myAccountId, crewAccountId);
+        List<WithdrawResponse> withdrawResponse = memberService.getwithdraws(memberId, myAccountId, crewAccountId);
         return ResponseEntity.ok(withdrawResponse);
     }
 
     @PostMapping("/me/fees/payment")
-    public ResponseEntity<TransferMsgResponse> paymentFee(HttpServletRequest request,
-                                                          @RequestBody PaymentRequest paymentRequest) {
+    public ResponseEntity<TransferMsgResponse> paymentFee(HttpServletRequest request, @RequestBody PaymentRequest paymentRequest) {
         Long memberId = authUtil.getMemberId(request);
         return ResponseEntity.ok(memberService.paymentFee(memberId, paymentRequest));
     }
@@ -304,20 +298,14 @@ public class MemberController {
     }
 
     @PostMapping("/me/pin-number")
-    public ResponseEntity<String> verifyPinNumber(
-            @RequestBody @Valid PinNumberRequest pinNumberRequest,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<String> verifyPinNumber(@RequestBody @Valid PinNumberRequest pinNumberRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         memberService.verifyPinNumber(memberId, pinNumberRequest);
         return ResponseEntity.ok().body("인증이 완료되었습니다!");
     }
 
     @PutMapping("/me/pin-number")
-    public ResponseEntity<String> updatePinNumber(
-            @RequestBody @Valid PinNumberRequest pinNumberRequest,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<String> updatePinNumber(@RequestBody @Valid PinNumberRequest pinNumberRequest, HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
         memberService.updatePinNumber(memberId, pinNumberRequest);
         return ResponseEntity.ok().body("변경이 완료되었습니다!");

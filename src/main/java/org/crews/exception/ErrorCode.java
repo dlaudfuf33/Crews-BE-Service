@@ -27,7 +27,7 @@ public enum ErrorCode {
     DATE_AFTER_NOW("지정한 날짜가 현재 날짜보다 더 이후의 날짜입니다.", HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_ALLOWED("멤버 권한 설정을 할 수 없습니다.", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE("잔액이 부족합니다.", HttpStatus.BAD_REQUEST),
-    CORE_SERVER_EXCEPTION("뱅킹 서버와 통신 중 에러가 발생했습니다. 잠시후 다시 요창해 주세요.",HttpStatus.BAD_REQUEST),
+    CORE_SERVER_EXCEPTION("뱅킹 서버 시스템이 일시적으로 불안정합니다. 나중에 다시 시도해주세요.",HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN
     AUTHORIZED_CAPTAIN_ONLY("모임장이나 공동 모임장만 권한이 있습니다.", HttpStatus.FORBIDDEN),

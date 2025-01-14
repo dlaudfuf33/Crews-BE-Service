@@ -3,27 +3,20 @@ package org.crews.service;
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.crews.dto.core.TransferApiResponse;
-import org.crews.dto.core.TransferRequest;
 import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
-import org.crews.dto.sqs.MessagePayload;
 import org.crews.exception.CustomException;
 import org.crews.exception.ErrorCode;
 import org.crews.model.*;
 import org.crews.model.constants.AgitRole;
-import org.crews.model.constants.PaymentTargetAccount;
 import org.crews.repository.*;
-
 import org.crews.utils.AESUtil;
 import org.crews.utils.QRCodeUtil;
 import org.crews.utils.S3Util;
-import org.crews.utils.SQSUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,18 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
-    @Value("${qr.base-url}")
-    private String baseUrl;
 
     private final MembershipRepository membershipRepository;
     private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
-    private final AgitRepository agitRepository;
-    private final AccountRepository accountRepository;
     private final QRCodeUtil qrCodeUtil;
     private final S3Util s3Util;
     private final CoreService coreService;
-    private final SQSUtil sqsUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
@@ -57,17 +45,14 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         log.info("유저 확인 완료!");
-        Agit agit = agitRepository.findById(cardPaymentRequest.getAgitId()).orElseThrow(
-                () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
-        );
-        if(agit.getAgitAndAccount() == null)
-            throw new CustomException(ErrorCode.CREW_ACCOUNT_NOT_MATCH);
-        Account account = agit.getAgitAndAccount().getAccount();
-        Card card = cardRepository.findByMemberIdAndAccountAndIsDeletedFalse(memberId,account)
-                .orElseThrow(() -> new IllegalArgumentException("No card found for the given member"));
 
-        String qrData = String.format(baseUrl + "/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
+        Card card = cardRepository.findByMemberIdAndAgitId(memberId, cardPaymentRequest.getAgitId())
+                .orElseThrow(() -> new IllegalArgumentException("No card found for the given MemberId and AgitId."));
+
+//        String qrData = String.format("http://crews-be-service-env.eba-hvrvbmgq.ap-northeast-2.elasticbeanstalk.com/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
+        String qrData = String.format("http://localhost:8080/payments/execute?cardNumber=%s&expireDate=%s&memberId=%s",
                 AESUtil.decrypt(card.getCardNumber()), LocalDateTime.now().plusMinutes(1).plusSeconds(30), memberId);
+
         String folderPath = String.format("payments/%d/%d", memberId, cardPaymentRequest.getAgitId());
         log.info(qrData);
         log.info(folderPath);
@@ -81,41 +66,11 @@ public class PaymentServiceImpl implements PaymentService {
         return s3Util.generateCloudFrontUrl(s3Key);
     }
 
+    @Override
     public void processPayment(String cardNumber, String expireDate, Long memberId) {
-        // 1. ExpireDate 검증
-//        LocalDateTime expirationTime = LocalDateTime.parse(expireDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        if (expirationTime.isBefore(LocalDateTime.now())) {
-//            throw new IllegalArgumentException("QR Code is expired");
-//        }
-
-        // 2. Card 정보 확인
-        System.out.println("cardNumber = " + cardNumber);
-        System.out.println("AESUtil.decrypt(cardNumber = " + AESUtil.decrypt(cardNumber));
-        System.out.println("memberId = " + memberId);
-        Card card = cardRepository.findByCardNumberAndMemberId(cardNumber, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found or not associated with the member"));
-
-        if (card.isDeleted()) {
-            throw new IllegalArgumentException("The card is no longer valid");
-        }
-
-        // 3. Account 정보 확인
-        Account account = card.getAccount();
-        if (account == null) {
-            throw new IllegalArgumentException("No associated account found for the card");
-        }
-
-        TransferRequest transferRequest = TransferRequest.builder()
-                .recvAccountNum(PaymentTargetAccount.TARGET_ACCOUNT.getTarget())
-                .finUseNum(account.getFintecNumber())
-                .description("카드 결제")
-                .amt(BigDecimal.valueOf(10000))
-                .build();
-        TransferApiResponse transferApiResponse = coreService.transferFee(transferRequest);
-        MessagePayload messagePayload = new MessagePayload(memberId, transferApiResponse.getData(), "Payment Request Success");
-        sqsUtil.sendMessage(messagePayload);
 
     }
+
 
     @Override
     public List<PaymentInfoResponse> getPaymentInfo(Long memberId) {

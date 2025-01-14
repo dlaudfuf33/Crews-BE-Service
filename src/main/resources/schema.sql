@@ -1,11 +1,11 @@
--- 1. 기존 CREWS 데이터베이스 삭제 (존재할 경우)
-DROP DATABASE IF EXISTS CREWS;
+-- 1. 기존 crews 데이터베이스 삭제 (존재할 경우)
+DROP DATABASE IF EXISTS crews;
 
--- 2. CREWS 데이터베이스 생성
-CREATE DATABASE CREWS;
+-- 2. crews 데이터베이스 생성
+CREATE DATABASE crews;
 
--- 3. CREWS 데이터베이스 사용
-USE CREWS;
+-- 3. crews 데이터베이스 사용
+USE crews;
 
 -- Bank 테이블
 CREATE TABLE bank
@@ -104,6 +104,17 @@ CREATE TABLE subject
     subject_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
+-- Agit and Account 테이블
+CREATE TABLE agit_and_account
+(
+    id         BIGINT NOT NULL AUTO_INCREMENT,
+    account_id BIGINT,
+    agit_id    BIGINT,
+    created_at DATETIME(6),
+    updated_at DATETIME(6),
+    PRIMARY KEY (id)
+);
+
 -- Agit 테이블
 CREATE TABLE agit
 (
@@ -122,11 +133,7 @@ CREATE TABLE agit
     created_at          DATETIME(6),
     updated_at          DATETIME(6),
     PRIMARY KEY (id),
-    UNIQUE (agit_name),
-    FOREIGN KEY (subject_id) REFERENCES subject (id),
-    FOREIGN KEY (address_id) REFERENCES address (id),
-    FOREIGN KEY (dues_id) REFERENCES dues (id),
-    FOREIGN KEY (common_dues_id) REFERENCES common_dues(id)
+    UNIQUE (agit_name)
 );
 -- Membership 테이블
 CREATE TABLE membership
@@ -143,16 +150,6 @@ CREATE TABLE membership
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
--- Agit and Account 테이블
-CREATE TABLE agit_and_account
-(
-    id         BIGINT NOT NULL AUTO_INCREMENT,
-    account_id BIGINT,
-    agit_id    BIGINT,
-    created_at DATETIME(6),
-    updated_at DATETIME(6),
-    PRIMARY KEY (id)
-);
 
 -- CommonDues 테이블
 CREATE TABLE common_dues
@@ -323,26 +320,6 @@ CREATE TABLE member_and_interesting
     FOREIGN KEY (member_id) REFERENCES member (id)
 );
 
--- Dues 테이블
-CREATE TABLE dues
-(
-    id             BIGINT         NOT NULL AUTO_INCREMENT,
-    created_at     DATETIME(6),
-    due_amount     DECIMAL(19, 2) NOT NULL,
-    product_name   VARCHAR(255)   NOT NULL,
-    account_number VARCHAR(255)   NOT NULL,
-    agit_name      VARCHAR(255)   NOT NULL,
-    is_paid       BOOLEAN        NOT NULL,
-    due_date       DATETIME(6),
-    updated_at     DATETIME(6),
-    standard_date  DATETIME(6),
-    membership_id  BIGINT,
-    common_dues_id BIGINT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE CASCADE,
-    FOREIGN KEY (common_dues_id) REFERENCES common_dues (id)
-
-);
 
 -- Refresh Entity 테이블
 CREATE TABLE refresh_entity

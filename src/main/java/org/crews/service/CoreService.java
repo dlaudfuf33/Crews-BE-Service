@@ -1,5 +1,6 @@
 package org.crews.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.core.*;
 import org.crews.dto.request.TransactionDetailRequest;
@@ -26,7 +27,6 @@ import java.util.List;
 public class CoreService {
     private static final String HEADER_ACCESS_KEY = "X-ACCESS-KEY";
     private static final String HEADER_SECRET_KEY = "X-SECRET-KEY";
-    private static final String CALL_FAILURE_MESSAGE = "호출 실패: ";
     private static final String WEBCLIENT_COMMUNICATION_ERROR = "WebClient 통신중 오류 발생: ";
 
     private static final String INITAL_ACCOUNT = "/v1/accounts/info/init";
@@ -39,7 +39,7 @@ public class CoreService {
 
     private final String secretKey;
 
-    // 생성자를 통해 의존성을 주입받음
+    // 생성자를 통해 의존성 주입
     public CoreService(
             @Value("${core.api.core-url}") String coreUrl,
             @Value("${bank.core.access-key}") String accessKey,
@@ -51,50 +51,8 @@ public class CoreService {
         this.secretKey = secretKey; // secretKey 주입
     }
 
-    // POST 요청 - 블로킹 방식
-    public String postTestBlocking(MemberToCoreRequest customer) {
-        try {
-            log.info("블로킹 방식 API 호출 시작 - Access Key: {}", accessKey);
-            return webClient.post()
-                    .uri("/test-api/block")
-                    .headers(headers -> {
-                        headers.set(HEADER_ACCESS_KEY, accessKey);
-                        headers.set(HEADER_SECRET_KEY, secretKey);
-                    })
-                    .bodyValue(customer)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();  // 블로킹 방식으로 Mono 값을 얻음
-        } catch (WebClientResponseException e) {
-            log.error(CALL_FAILURE_MESSAGE, e);
-            return CALL_FAILURE_MESSAGE + e.getMessage();
-        }
-    }
-
-    // POST 요청 - 논블로킹 방식
-    public Mono<String> postTestNonBlocking(MemberToCoreRequest customer) {
-        log.info("논블로킹 방식 API 호출 시작 - Access Key: {}, ScretKey : {}", accessKey, secretKey);
-
-        return webClient.post()
-                .uri("/test-api/nonblock")
-                .headers(headers -> {
-                    headers.set(HEADER_ACCESS_KEY, accessKey);
-                    headers.set(HEADER_SECRET_KEY, secretKey);
-                })
-                .bodyValue(customer)
-                .retrieve()
-                .bodyToMono(String.class)
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
-                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                            log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
-                            return retrySignal.failure();
-                        })
-                )
-                .doOnError(e -> log.error(WEBCLIENT_COMMUNICATION_ERROR, e));
-    }
-
-
     // 사용자의 등록 계좌 잔액 갱신 - 블로킹 방식
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackBalanceLoad")
     public List<FintechBalancePairResponse> balanceLoad(BalanceRequest balanceRequest) {
         try {
             log.info("등록 계좌 잔액 갱신 - AccessKey: {}, SecretKey: {}", accessKey, secretKey);
@@ -137,6 +95,7 @@ public class CoreService {
     }
 
     // 사용자의 모든 계좌 조회 - 블로킹 방식
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackFindCoreSideAccounts")
     public List<AccountResponse> findCoreSideAccounts(MemberToCoreRequest memberDto) {
         try {
             // Null 체크
@@ -187,6 +146,7 @@ public class CoreService {
 
 
     // 사용자의 계좌 등록 - 블로킹 방식
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackAttachAccount")
     public List<AttachResponse> attachAccount(FintechNumRequest fintechNumRequest) {
         try {
             if (fintechNumRequest == null || fintechNumRequest.getCi() == null || fintechNumRequest.getAccountNumbers() == null) {
@@ -247,6 +207,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackAccountInfo")
     public AccountOneResponse accountInfo(CommonRequest commonRequest) {
         try {
             return webClient.post()
@@ -265,6 +226,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackSendCICode")
     public Mono<AccountIssuedResponse> sendCICode(CIRequest ciRequest) {
         try {
             return webClient.post()
@@ -288,7 +250,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackAccountIssued")
     public AccountIssuedResponse accountIssued(ProductInfoRequest productInfoRequest) {
         try {
             AccountIssuedResponse response = webClient.post()
@@ -309,7 +271,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackCardIssued")
     public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
         try {
             CardIssuedResponse response = webClient.post()
@@ -330,7 +292,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackCardRemove")
     public MessageResponse cardRemove(CoreCardRemoveRequest coreCardRemoveRequest) {
         try {
             MessageResponse response = webClient.method(HttpMethod.DELETE)
@@ -352,6 +314,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetAllAccounts")
     public AccountInfoResponse getAllAccounts(CIOnlyRequest ci) {
         try {
             AccountInfoResponse response = webClient.post()
@@ -373,6 +336,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackFilteredAccountHistory")
     public TransactionDetailResponse filteredAccountHistory(TransactionDetailRequest transactionDetailRequest) {
         try {
             TransactionDetailResponse response = webClient.post()
@@ -393,7 +357,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetWithdrawHistory")
     public TransactionDetailResponse getWithdrawHistory(WithdrawTransactionRequest withdrawTransactionRequest) {
         try {
             TransactionDetailResponse response = webClient.post()
@@ -415,7 +379,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackTransferFee")
     public TransferApiResponse transferFee(TransferRequest transferRequest) {
         try {
             TransferApiResponse response = webClient.post()
@@ -437,7 +401,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetAllProducts")
     public ProductAllResponse getAllProducts() {
         try {
             ProductAllResponse response = webClient.get()
@@ -458,7 +422,7 @@ public class CoreService {
         }
     }
 
-
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackTransfer")
     public ApiResponse<TransferResponse> transfer(TransferRequest transferRequest) {
         try {
             return webClient.post()
@@ -478,6 +442,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetBalanceInfo")
     public BalanceInfoResponse getBalanceInfo(BalanceInfoRequest balanceInfoRequest) {
         try {
             return webClient.post()
@@ -502,6 +467,7 @@ public class CoreService {
         }
     }
 
+    @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackDateAccountHistory")
     public TransactionDetailResponse DateAccountHistory(AccountInfoOfDate accountInfoOfDate) {
         try {
             TransactionDetailResponse response = webClient.post()
@@ -522,4 +488,81 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
+
+    public List<AccountResponse> fallbackFindCoreSideAccounts(MemberToCoreRequest request, Throwable throwable) {
+        log.error("Fallback triggered for findCoreSideAccounts. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public List<AttachResponse> fallbackAttachAccount(FintechNumRequest request, Throwable throwable) {
+        log.error("Fallback triggered for attachAccount. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public List<FintechBalancePairResponse> fallbackBalanceLoad(BalanceRequest request, Throwable throwable) {
+        log.error("Fallback triggered for balanceLoad. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public ProductAllResponse fallbackGetAllProducts(Throwable throwable) {
+        log.error("Fallback triggered for getAllProducts. Reason: {}", throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public TransactionDetailResponse fallbackFilteredAccountHistory(TransactionDetailRequest request, Throwable throwable) {
+        log.error("Fallback triggered for filteredAccountHistory. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public AccountOneResponse fallbackAccountInfo(CommonRequest request, Throwable throwable) {
+        log.error("Fallback triggered for accountInfo. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public AccountIssuedResponse fallbackAccountIssued(ProductInfoRequest request, Throwable throwable) {
+        log.error("Fallback triggered for accountIssued. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public CardIssuedResponse fallbackCardIssued(CommonRequest request, Throwable throwable) {
+        log.error("Fallback triggered for cardIssued. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public MessageResponse fallbackCardRemove(CoreCardRemoveRequest request, Throwable throwable) {
+        log.error("Fallback triggered for cardRemove. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public AccountInfoResponse fallbackGetAllAccounts(CIOnlyRequest request, Throwable throwable) {
+        log.error("Fallback triggered for getAllAccounts. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public TransactionDetailResponse fallbackDateAccountHistory(AccountInfoOfDate request, Throwable throwable) {
+        log.error("Fallback triggered for dateAccountHistory. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public TransactionDetailResponse fallbackGetWithdrawHistory(WithdrawTransactionRequest request, Throwable throwable) {
+        log.error("Fallback triggered for getWithdrawHistory. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public TransferApiResponse fallbackTransferFee(TransferRequest request, Throwable throwable) {
+        log.error("Fallback triggered for transferFee. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public ApiResponse<TransferResponse> fallbackTransfer(TransferRequest request, Throwable throwable) {
+        log.error("Fallback triggered for transfer. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
+    public BalanceInfoResponse fallbackGetBalanceInfo(BalanceInfoRequest request, Throwable throwable) {
+        log.error("Fallback triggered for getBalanceInfo. Request: {}, Reason: {}", request, throwable.getMessage());
+        throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+    }
+
 }

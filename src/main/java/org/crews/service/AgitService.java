@@ -50,16 +50,17 @@ public class AgitService {
     private final CommonDuesRepository commonDuesRepository;
     private final AddressRepository addressRepository;
     private final CoreService coreService;
-    public AgitSliceResponse getAllAgits(Long subjectId, int page, Optional<Long> memberId){
+
+    public AgitSliceResponse getAllAgits(Long subjectId, int page, Optional<Long> memberId) {
         Long memberIdOptional = memberId.orElse(null);
-        if(page<0){
+        if (page < 0) {
             throw new CustomException(ErrorCode.INVALID_PAGE_NUMBER);
         }
         if (subjectId != null && !subjectRepository.existsById(subjectId)) {
             throw new CustomException(ErrorCode.SUBJECT_NOT_FOUND);
         }
 
-        Slice<Agit> agits=agitRepository.findAllBySubjectIdWithFetchJoin(memberIdOptional,subjectId, PageRequest.of(page,10, Sort.by(Sort.Order.desc("createdAt"))));
+        Slice<Agit> agits = agitRepository.findAllBySubjectIdWithFetchJoin(memberIdOptional, subjectId, PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdAt"))));
 
         return AgitSliceResponse.of(agits);
     }
@@ -125,24 +126,23 @@ public class AgitService {
                 () -> new CustomException(ErrorCode.MEMBERSHIP_NOT_FOUND)
         );
         Optional<CommonDues> optionalCommonDues = commonDuesRepository.findByAgit(agit);
-        if(optionalCommonDues.isEmpty()) return DuesAlarmResponse.builder().build();
+        if (optionalCommonDues.isEmpty()) return DuesAlarmResponse.builder().build();
         CommonDues commonDues = optionalCommonDues.get();
         List<Dues> duesList = duesRepository.findByMembershipAndCommonDues(membership, commonDues)
                 .stream().filter(
                         content -> content.getStandardDate().getMonthValue() == month
                                 && (content.getStandardDate().getYear() == year))
                 .toList();
-        if(duesList.isEmpty()){
+        if (duesList.isEmpty()) {
             return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount()).dueDay(commonDues.getDueDay()).build();
-        }else {
+        } else {
             BigDecimal amount = BigDecimal.ZERO;
-            for(Dues dues : duesList){
+            for (Dues dues : duesList) {
                 amount = amount.add(dues.getDueAmount());
             }
-            if(amount.compareTo(commonDues.getDueAmount()) < 0){
+            if (amount.compareTo(commonDues.getDueAmount()) < 0) {
                 return DuesAlarmResponse.builder().dueAmount(commonDues.getDueAmount().subtract(amount)).dueDay(commonDues.getDueDay()).build();
-            }
-            else
+            } else
                 return DuesAlarmResponse.builder().dueAmount(BigDecimal.ZERO).dueDay(commonDues.getDueDay()).build();
         }
     }
@@ -168,6 +168,7 @@ public class AgitService {
         List<AgitInfoResponse> agitInfoResponseList = membershipList.stream().map(AgitInfoResponse::from).toList();
         return AllAgitsInfoResponse.builder().agitInfoList(agitInfoResponseList).build();
     }
+
     @Transactional
     public ResponseEntity<AgitRegisterResponse> agitRestration(AgitInfoRequest agitInfoRequest, Long memberId) {
         try {
@@ -209,7 +210,8 @@ public class AgitService {
 
         return AgitSliceResponse.of(agitSlice);
     }
-    public AgitManageResponse getMembers(Long agitId){
+
+    public AgitManageResponse getMembers(Long agitId) {
         // TEMP가 아닌 모든 멤버 가져오기
         List<Membership> membershipList = membershipRepository.findByAgitIdAndAgitRoleNot(agitId, AgitRole.TEMP);
 
@@ -225,9 +227,9 @@ public class AgitService {
                 .build();
     }
 
-    public AgitManageResponse getTemps(Long agitId){
+    public AgitManageResponse getTemps(Long agitId) {
         // TEMP 역할의 멤버 가져오기
-        List<Membership> tempMemberships = membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.TEMP);
+        List<Membership> tempMemberships = membershipRepository.findByAgitIdAndAgitRoleTemp(agitId, AgitRole.TEMP);
 
         // DTO로 변환
         List<AgitManageMemberResponse> memberResponses = tempMemberships.stream()
@@ -240,6 +242,7 @@ public class AgitService {
                 .message("TEMP 역할 멤버 리스트입니다.")
                 .build();
     }
+
     public AgitManageResponse getAgitMember(Long agitId, AgitRole agitRole) {
         List<Membership> membershipList = membershipRepository.findTop3ByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
         Long totalMembership = membershipRepository.countByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
@@ -257,17 +260,17 @@ public class AgitService {
         List<AgitManageMemberResponse> tempMemberResponses = new ArrayList<>();
         List<AgitManageMemberResponse> advancedMemberResponses = new ArrayList<>();
 
-        while(membershipIterator.hasNext()) {
+        while (membershipIterator.hasNext()) {
             Membership membership = membershipIterator.next();
             memberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
         }
 
-        if(agitRole.equals(AgitRole.LEADER)) {
-            while(tempMembershipIterator.hasNext()) {
+        if (agitRole.equals(AgitRole.LEADER)) {
+            while (tempMembershipIterator.hasNext()) {
                 Membership membership = tempMembershipIterator.next();
                 tempMemberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
             }
-            while(advancedMembershipIterator.hasNext()) {
+            while (advancedMembershipIterator.hasNext()) {
                 Membership membership = advancedMembershipIterator.next();
                 advancedMemberResponses.add(AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()));
             }
@@ -285,7 +288,7 @@ public class AgitService {
                 .build();
     }
 
-    public AgitSortResponse getHomeAgits(Optional<Long> memberId){
+    public AgitSortResponse getHomeAgits(Optional<Long> memberId) {
         Long memberIdOptional = memberId.orElse(null);
 
         List<Agit> newAgitList = agitRepository.findNewAgits(memberIdOptional);
@@ -332,7 +335,7 @@ public class AgitService {
 
     public AgitNameValidateResponse validateAgitName(String agitName) {
 
-        if(agitRepository.existsByAgitName(agitName)) {
+        if (agitRepository.existsByAgitName(agitName)) {
             return AgitNameValidateResponse.builder().used(true).message("이미 사용중인 아지트 이름입니다.").build();
         } else {
             return AgitNameValidateResponse.builder().used(false).message("사용 가능한 아지트 이름입니다.").build();
@@ -372,17 +375,15 @@ public class AgitService {
 
     }
 
-    public ProductAllResponse getAllProducts(Long memberId, Long agitId ) {
+    public ProductAllResponse getAllProducts(Long memberId, Long agitId) {
         memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.LEADER).orElseThrow(
-                () -> new CustomException(ErrorCode.AGIT_ACCOUNT_NOT_FOUND)
-        );
+        membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.LEADER);
         Agit agit = agitRepository.findById(agitId).orElseThrow(
                 () -> new CustomException(ErrorCode.AGIT_NOT_FOUND)
         );
-        if(agit.getAgitAndAccount() != null)
+        if (agit.getAgitAndAccount() != null)
             throw new CustomException(ErrorCode.PRESENT_AGIT_AND_ACCOUNT);
         return coreService.getAllProducts();
     }

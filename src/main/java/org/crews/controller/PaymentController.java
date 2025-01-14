@@ -5,20 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.crews.dto.request.CardPaymentRequest;
 import org.crews.dto.response.PaymentInfoResponse;
-import org.crews.dto.sqs.MessagePayload;
 import org.crews.service.MemberService;
 import org.crews.service.PaymentService;
 import org.crews.utils.AESUtil;
 import org.crews.utils.AuthUtil;
-import org.crews.utils.MessageUtil;
-import org.crews.utils.NumberFormatter;
-import org.crews.utils.SQSUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +24,6 @@ public class PaymentController {
 	private final AuthUtil authUtil;
 	private final PaymentService paymentService;
 	private final MemberService memberService;
-	private final SQSUtil sqsUtil;
 
 	@GetMapping
 	public ResponseEntity<List<PaymentInfoResponse>> paymentInfo(HttpServletRequest request) {
@@ -58,34 +51,34 @@ public class PaymentController {
 		}
 	}
 
-	@GetMapping("/result")
-	public ResponseEntity<MessagePayload> resultPayment(HttpServletRequest request) {
-		Long memberId = authUtil.getMemberId(request);
-		String phoneNumber = memberService.getPhoneNumber(memberId);
-		MessagePayload payload = sqsUtil.receiveAndDeleteMessages(memberId);
-
-		if (payload == null) {
-			return ResponseEntity.status(HttpStatus.OK)
-				.body(MessagePayload.builder().memberId(memberId).message("Payment Result Not Found").build());
-		} else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초");
-            StringBuilder stringBuilder = new StringBuilder();
-			String message = String.format(
-				"[Crews 결제 알림] \\n 결제처: %s \\n 결제금액: %s원 \\n 결제일시: %s \\n 잔액: %s원 \\n",
-				payload.getData().getRecvName(),
-				NumberFormatter.formatCurrency(payload.getData().getAmount()),
-				payload.getData().getTransactionTime().format(formatter),
-				NumberFormatter.formatCurrency(payload.getData().getAfterAmt())
-			);
-			try {
-				MessageUtil.send(AESUtil.decrypt(phoneNumber), message);
-			} catch (Exception e) {
-				log.info("결제 알림 전송이 실패했습니다.", e);
-				return ResponseEntity.ok(payload);
-			}
-			return ResponseEntity.ok(payload);
-		}
-	}
+//	@GetMapping("/result")
+//	public ResponseEntity<MessagePayload> resultPayment(HttpServletRequest request) {
+//		Long memberId = authUtil.getMemberId(request);
+//		String phoneNumber = memberService.getPhoneNumber(memberId);
+//		MessagePayload payload = sqsUtil.receiveAndDeleteMessages(memberId);
+//
+//		if (payload == null) {
+//			return ResponseEntity.status(HttpStatus.OK)
+//				.body(MessagePayload.builder().memberId(memberId).message("Payment Result Not Found").build());
+//		} else {
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초");
+//            StringBuilder stringBuilder = new StringBuilder();
+//			String message = String.format(
+//				"[Crews 결제 알림] \\n 결제처: %s \\n 결제금액: %s원 \\n 결제일시: %s \\n 잔액: %s원 \\n",
+//				payload.getData().getRecvName(),
+//				NumberFormatter.formatCurrency(payload.getData().getAmount()),
+//				payload.getData().getTransactionTime().format(formatter),
+//				NumberFormatter.formatCurrency(payload.getData().getAfterAmt())
+//			);
+//			try {
+//				MessageUtil.send(AESUtil.decrypt(phoneNumber), message);
+//			} catch (Exception e) {
+//				log.info("결제 알림 전송이 실패했습니다.", e);
+//				return ResponseEntity.ok(payload);
+//			}
+//			return ResponseEntity.ok(payload);
+//		}
+//	}
 
 	@GetMapping("/execute")
 	public ResponseEntity<String> executePayment(
