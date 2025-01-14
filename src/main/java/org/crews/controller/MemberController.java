@@ -16,6 +16,7 @@ import org.crews.utils.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -216,9 +217,9 @@ public class MemberController {
 
 
     @GetMapping("/me/my-accounts")
-    public ResponseEntity<List<AccountsResponse>> getMyAccounts(HttpServletRequest request) {
+    public ResponseEntity<Mono<List<AccountsResponse>>> getMyAccounts(HttpServletRequest request) {
         Long memberId = authUtil.getMemberId(request);
-        List<AccountsResponse> accountsResponses = memberService.getMyAccounts(memberId);
+        Mono<List<AccountsResponse>> accountsResponses = memberService.getMyAccounts(memberId);
         return ResponseEntity.ok(accountsResponses);
     }
 
@@ -242,7 +243,7 @@ public class MemberController {
             List<AccountResponse> accounts = memberService.getAccountInfoFromCore(memberId);
             return ResponseEntity.ok(accounts); // 성공 시 200 OK
         } catch (CustomException e) {
-           throw e;
+            throw e;
         }
     }
 

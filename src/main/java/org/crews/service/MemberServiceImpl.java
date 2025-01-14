@@ -312,29 +312,34 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public List<AccountsResponse> getMyAccounts(Long memberId) {
+    public Mono<List<AccountsResponse>> getMyAccounts(Long memberId) {
         List<Account> personalAccounts = accountRepository.findAccountsByMemberId(memberId);
-
-        if (!personalAccounts.isEmpty()) {
-            BalanceRequest balanceRequest = BalanceRequest.from(personalAccounts);
-
-            try {
-                List<FintechBalancePairResponse> fintechBalancePairResponseList = coreService.balanceLoad(balanceRequest);
-
-                Map<String, BigDecimal> balanceMap = fintechBalancePairResponseList.stream().collect(Collectors.toMap(FintechBalancePairResponse::getFintechNumber, FintechBalancePairResponse::getBalance, (existing, replacement) -> replacement));
-
-                personalAccounts.forEach(account -> {
-                    BigDecimal updatedBalance = balanceMap.get(account.getFintecNumber());
-                    if (updatedBalance != null) {
-                        account.setBalance(updatedBalance);
-                    }
-                });
-            } catch (Exception e) {
-                log.error("코어 서비스에서 잔액을 불러오는 중 오류 발생. memberId {}: {}", memberId, e.getMessage());
-            }
+        if (personalAccounts.isEmpty()) {
+            log.info("회원 '{}'에 대한 계좌 정보가 없습니다.", memberId);
+            return Mono.just(List.of());
         }
-        log.info("회원 '{}'가 등록된 본인계좌 조회 하였습니다.", memberId);
-        return personalAccounts.stream().map(AccountsResponse::from).toList();
+        BalanceRequest balanceRequest = BalanceRequest.from(personalAccounts);
+
+        return coreService.balanceLoad(balanceRequest) // 비동기 호출
+                .doOnError(e -> log.error("코어 서비스에서 잔액을 불러오는 중 오류 발생. memberId {}: {}", memberId, e.getMessage()))
+                .map(fintechBalancePairResponseList -> {
+                    Map<String, BigDecimal> balanceMap = fintechBalancePairResponseList.stream()
+                            .collect(Collectors.toMap(FintechBalancePairResponse::getFintechNumber, FintechBalancePairResponse::getBalance));
+
+                    personalAccounts.forEach(account -> {
+                        BigDecimal updatedBalance = balanceMap.get(account.getFintecNumber());
+                        if (updatedBalance != null) {
+                            account.setBalance(updatedBalance);
+                        }
+                    });
+
+                    log.info("회원 '{}'가 등록된 본인계좌 조회 하였습니다.", memberId);
+                    return personalAccounts.stream().map(AccountsResponse::from).toList();
+                })
+                .onErrorResume(e -> {
+                    log.warn("잔액 갱신 실패로 인해 빈 데이터를 반환합니다.");
+                    return Mono.just(personalAccounts.stream().map(AccountsResponse::from).toList());
+                });
     }
 
     @Override

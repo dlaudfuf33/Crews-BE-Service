@@ -51,48 +51,31 @@ public class CoreService {
         this.secretKey = secretKey; // secretKey 주입
     }
 
-    // 사용자의 등록 계좌 잔액 갱신 - 블로킹 방식
+    // 사용자의 등록 계좌 잔액 갱신 - 논-블로킹 방식
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackBalanceLoad")
-    public List<FintechBalancePairResponse> balanceLoad(BalanceRequest balanceRequest) {
-        try {
-            log.info("등록 계좌 잔액 갱신 - AccessKey: {}, SecretKey: {}", accessKey, secretKey);
-            validateKeys();
+    public Mono<List<FintechBalancePairResponse>> balanceLoad(BalanceRequest balanceRequest) {
+        log.info("등록 계좌 잔액 갱신 - AccessKey: {}, SecretKey: {}", accessKey, secretKey);
 
-            // WebClient 호출 및 응답 처리
-            List<FintechBalancePairResponse> response = webClient.post()
-                    .uri(REFRESH_BALANCE)
-                    .headers(headers -> {
-                        headers.set(HEADER_ACCESS_KEY, accessKey);
-                        headers.set(HEADER_SECRET_KEY, secretKey);
-                    })
-                    .bodyValue(balanceRequest)
-                    .retrieve()
-                    .bodyToFlux(FintechBalancePairResponse.class) // 리스트 형태로 응답 매핑
-                    .collectList() // Mono<List<FintechBalancePairResponse>>로 변환
-                    .block(); // 블로킹 방식
+        validateKeys();
 
-            // 응답이 null이거나 비어 있는 경우 처리
-            if (response == null || response.isEmpty()) {
-                log.warn("응답이 null이거나 빈 리스트입니다.");
-                return List.of();
-            }
-
-            // 로깅: 총 수신된 데이터 건수
-            log.info("응답 데이터 수신 완료: 총 {}건 처리", response.size());
-            return response;
-
-        } catch (IllegalArgumentException e) {
-            log.error("필수 인자가 누락되었습니다: {}", e.getMessage());
-            throw new CustomException(ErrorCode.REQUIRED_NOT_NULL, e);
-
-        } catch (WebClientResponseException e) {
-            log.error("API 호출 중 오류 발생: {}", e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            log.error("예상치 못한 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.UNKNOWN_EXCEPTION, e);
-        }
+        return webClient.post()
+                .uri(REFRESH_BALANCE)
+                .headers(headers -> {
+                    headers.set(HEADER_ACCESS_KEY, accessKey);
+                    headers.set(HEADER_SECRET_KEY, secretKey);
+                })
+                .bodyValue(balanceRequest)
+                .retrieve()
+                .bodyToFlux(FintechBalancePairResponse.class)
+                .collectList() // 비동기
+                .doOnNext(response -> log.info("응답 데이터 수신 완료: 총 {}건 처리", response.size()))
+                .doOnError(e -> log.error("API 호출 중 오류 발생: {}", e.getMessage(), e))
+                .onErrorResume(e -> {
+                    log.warn("WebClient 호출 실패로 빈 리스트 반환: {}", e.getMessage());
+                    return Mono.just(List.of());
+                });
     }
+
 
     // 사용자의 모든 계좌 조회 - 블로킹 방식
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackFindCoreSideAccounts")
@@ -250,6 +233,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackAccountIssued")
     public AccountIssuedResponse accountIssued(ProductInfoRequest productInfoRequest) {
         try {
@@ -271,6 +255,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackCardIssued")
     public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
         try {
@@ -292,6 +277,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackCardRemove")
     public MessageResponse cardRemove(CoreCardRemoveRequest coreCardRemoveRequest) {
         try {
@@ -357,6 +343,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetWithdrawHistory")
     public TransactionDetailResponse getWithdrawHistory(WithdrawTransactionRequest withdrawTransactionRequest) {
         try {
@@ -379,6 +366,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackTransferFee")
     public TransferApiResponse transferFee(TransferRequest transferRequest) {
         try {
@@ -401,6 +389,7 @@ public class CoreService {
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
         }
     }
+
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackGetAllProducts")
     public ProductAllResponse getAllProducts() {
         try {

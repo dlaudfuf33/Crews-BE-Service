@@ -4,6 +4,7 @@ import org.crews.dto.core.AccountResponse;
 import org.crews.dto.request.*;
 import org.crews.dto.response.*;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public interface MemberService {
 
     void deleteMyAgitsCards(Long memberId, CardDeleteRequest cardDeleteRequest);
 
-    List<AccountsResponse> getMyAccounts(Long memberId);
+    Mono<List<AccountsResponse>> getMyAccounts(Long memberId);
 
     void deleteMyAccounts(Long memberId, AccountDeleteRequest cardDeleteRequest);
 
