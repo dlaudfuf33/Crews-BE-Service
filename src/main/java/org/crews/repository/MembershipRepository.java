@@ -18,6 +18,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findByAgitAndAgitRole(Agit agit, AgitRole role);
 
     Optional<Membership> findByMemberAndAgit(Member member, Agit agit);
+
     @EntityGraph(attributePaths = {"member"})
     List<Membership> findByAgit(Agit agit);
 
@@ -44,12 +45,20 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Long countByAgitAndAgitRoleLike(Agit build, AgitRole agitRole);
 
     @Query("""
-    SELECT m
-    FROM Membership m
-    LEFT JOIN FETCH m.member
-    WHERE m.agit.id = :agitId AND m.agitRole <> :agitRole
-""")
+                SELECT m
+                FROM Membership m
+                LEFT JOIN FETCH m.member
+                WHERE m.agit.id = :agitId AND m.agitRole <> :agitRole
+            """)
     List<Membership> findByAgitIdAndAgitRoleNot(@Param("agitId") Long agitId, @Param("agitRole") AgitRole agitRole);
+
+    @Query("SELECT m FROM Membership m " +
+            "JOIN FETCH m.agit a " +
+            "WHERE a.id = :agitId AND m.agitRole = :agitRole")
+    List<Membership> findByAgitIdAndAgitRoleTemp(
+            @Param("agitId") Long agitId,
+            @Param("agitRole") AgitRole agitRole
+    );
 
     @Query("SELECT m FROM Membership m " +
             "JOIN FETCH m.agit a " +
@@ -80,15 +89,15 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     List<Membership> findMembershipsWithDetailsByMemberId(Long memberId);
 
     @Query("""
-    SELECT m
-    FROM Membership m
-    LEFT JOIN FETCH m.member
-    LEFT JOIN FETCH m.agit a
-    LEFT JOIN FETCH a.agitAndAccount aa
-    LEFT JOIN FETCH aa.account acc
-    LEFT JOIN FETCH acc.bank
-    WHERE m.member.id = :memberId AND m.agit.id = :agitId
-""")
+                SELECT m
+                FROM Membership m
+                LEFT JOIN FETCH m.member
+                LEFT JOIN FETCH m.agit a
+                LEFT JOIN FETCH a.agitAndAccount aa
+                LEFT JOIN FETCH aa.account acc
+                LEFT JOIN FETCH acc.bank
+                WHERE m.member.id = :memberId AND m.agit.id = :agitId
+            """)
     Optional<Membership> findByMemberIdAndAgitId(@Param("memberId") Long memberId, @Param("agitId") Long agitId);
 
 }
