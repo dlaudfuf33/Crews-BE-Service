@@ -96,7 +96,28 @@ public class AgitController {
         return ResponseEntity.status(HttpStatus.OK).body(agitmanageResponse);
     }
 
-    @PostMapping("/{agits-id}/manage/accounts")
+    @GetMapping("/{agits-id}/manage/details")
+    public ResponseEntity<AgitManageResponse> accountManage(@PathVariable("agits-id") Long agitId, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        AgitRole agitRole = agitService.getAgitRole(agitId, memberId);
+        if(agitRole.equals(AgitRole.TEMP)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(AgitManageResponse.builder().message("접근 권한이 없습니다.").build());
+        }
+        AgitManageResponse agitMemberResponse = agitService.getMembers(agitId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(agitMemberResponse);
+    }
+    @GetMapping("/{agits-id}/manage/approve")
+    public ResponseEntity<AgitManageResponse> memberManage(@PathVariable("agits-id") Long agitId, HttpServletRequest request){
+        Long memberId = authUtil.getMemberId(request);
+        AgitRole agitRole = agitService.getAgitRole(agitId, memberId);
+        if(agitRole.equals(AgitRole.TEMP)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(AgitManageResponse.builder().message("접근 권한이 없습니다.").build());
+        }
+        AgitManageResponse agitTempResponse = agitService.getTemps(agitId);
+        return ResponseEntity.status(HttpStatus.OK).body(agitTempResponse);
+    }
+    @PostMapping("/{agits-id}/manage/details")
     public ResponseEntity<MembershipResponse> accountAuthorization(
             @PathVariable("agits-id") Long agitId, @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request
     ){
@@ -105,7 +126,7 @@ public class AgitController {
         return ResponseEntity.ok().body(membershipResponse);
     }
 
-    @PostMapping("/{agits-id}/manage/members")
+    @PostMapping("/{agits-id}/manage/approve")
     public ResponseEntity<MembershipResponse> memberAuthorization(
             @PathVariable("agits-id") Long agitId,
             @RequestBody AgitAuthorRequest agitAuthorRequest, HttpServletRequest request

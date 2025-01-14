@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -208,7 +209,37 @@ public class AgitService {
 
         return AgitSliceResponse.of(agitSlice);
     }
+    public AgitManageResponse getMembers(Long agitId){
+        // TEMP가 아닌 모든 멤버 가져오기
+        List<Membership> membershipList = membershipRepository.findByAgitIdAndAgitRoleNot(agitId, AgitRole.TEMP);
 
+        // DTO로 변환
+        List<AgitManageMemberResponse> memberResponses = membershipList.stream()
+                .map(membership -> AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()))
+                .toList();
+
+        return AgitManageResponse.builder()
+                .members(memberResponses)
+                .currentMember((long) membershipList.size()) // 현재 멤버 수
+                .message("Agit Role이 TEMP가 아닌 멤버 리스트입니다.")
+                .build();
+    }
+
+    public AgitManageResponse getTemps(Long agitId){
+        // TEMP 역할의 멤버 가져오기
+        List<Membership> tempMemberships = membershipRepository.findByAgitIdAndAgitRole(agitId, AgitRole.TEMP);
+
+        // DTO로 변환
+        List<AgitManageMemberResponse> memberResponses = tempMemberships.stream()
+                .map(membership -> AgitManageMemberResponse.from(membership.getMember(), membership.getAgitRole()))
+                .collect(Collectors.toList());
+
+        return AgitManageResponse.builder()
+                .members(memberResponses)
+                .currentMember((long) memberResponses.size())
+                .message("TEMP 역할 멤버 리스트입니다.")
+                .build();
+    }
     public AgitManageResponse getAgitMember(Long agitId, AgitRole agitRole) {
         List<Membership> membershipList = membershipRepository.findTop3ByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);
         Long totalMembership = membershipRepository.countByAgitAndAgitRoleNot(Agit.builder().id(agitId).build(), AgitRole.TEMP);

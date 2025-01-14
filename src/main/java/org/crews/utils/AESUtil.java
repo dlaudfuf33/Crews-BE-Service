@@ -46,6 +46,10 @@ public class AESUtil {
                 throw new AESUtilException("SecretKey 또는 IV가 설정되지 않았습니다.");
             }
 
+            if (!isBase64(encryptedData)) {
+                return encryptedData; // 암호화된 데이터가 아니면 입력값 그대로 반환
+            }
+
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             SecretKeySpec keySpec = new SecretKeySpec(aesConfig.getSecretKey().getBytes(), "AES");
 
@@ -57,6 +61,14 @@ public class AESUtil {
             return new String(cipher.doFinal(decodedBytes));
         } catch (Exception e) {
             throw new AESUtilException("데이터 복호화 중 오류 발생", e);
+        }
+    }
+    private static boolean isBase64(String data) {
+        try {
+            Base64.getDecoder().decode(data);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
