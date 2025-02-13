@@ -45,10 +45,10 @@ public class CoreService {
             @Value("${bank.core.access-key}") String accessKey,
             @Value("${bank.core.secret-key}") String secretKey) {
         this.webClient = WebClient.builder()
-                .baseUrl(coreUrl) // baseUrl 주입
+                .baseUrl(coreUrl)
                 .build();
-        this.accessKey = accessKey; // accessKey 주입
-        this.secretKey = secretKey; // secretKey 주입
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
     }
 
     // 사용자의 등록 계좌 잔액 갱신 - 논-블로킹 방식
@@ -67,7 +67,14 @@ public class CoreService {
                 .bodyValue(balanceRequest)
                 .retrieve()
                 .bodyToFlux(FintechBalancePairResponse.class)
-                .collectList() // 비동기
+
+                .collectList()
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                            log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                            return retrySignal.failure();
+                        })
+                )
                 .doOnNext(response -> log.info("응답 데이터 수신 완료: 총 {}건 처리", response.size()))
                 .doOnError(e -> log.error("API 호출 중 오류 발생: {}", e.getMessage(), e))
                 .onErrorResume(e -> {
@@ -81,7 +88,6 @@ public class CoreService {
     @CircuitBreaker(name = "coreService", fallbackMethod = "fallbackFindCoreSideAccounts")
     public List<AccountResponse> findCoreSideAccounts(MemberToCoreRequest memberDto) {
         try {
-            // Null 체크
             if (memberDto == null || memberDto.getCi() == null) {
                 log.info("입력 값이 null: {}", memberDto);
                 throw new CustomException(ErrorCode.REQUIRED_NOT_NULL);
@@ -99,8 +105,8 @@ public class CoreService {
                     })
                     .bodyValue(memberDto)
                     .retrieve()
-                    .bodyToMono(AccountsInfoResponse.class) // 응답 매핑
-                    .block(); // 블로킹 방식
+                    .bodyToMono(AccountsInfoResponse.class)
+                    .block();
 
             if (response == null || response.getAccounts() == null) {
                 log.warn("응답이 null입니다. 빈 리스트를 반환합니다.");
@@ -149,6 +155,12 @@ public class CoreService {
                     .bodyValue(fintechNumRequest)
                     .retrieve()
                     .bodyToMono(AccountsInfoResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
 
             if (response == null || response.getAccounts().isEmpty()) {
@@ -159,7 +171,7 @@ public class CoreService {
             log.info("응답 데이터 수신 완료: 총 {}건 중 {}건 처리", response.getAccounts().get(0).getAccountNumber(), response.getAccounts().get(0).getFintechUseNum());
             log.info("응답 데이터 수신 완료: 총 {}건 중 {}건 처리", response.getTotalCount(), response.getAccounts().size());
 
-            // AttachResponse 리스트 반환
+
             return response.getAccounts().stream()
                     .<AttachResponse>map(accountInfo -> AttachResponse.builder()
                             .customerName(accountInfo.getCustomerName())
@@ -199,9 +211,10 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(commonRequest) //
+                    .bodyValue(commonRequest)
                     .retrieve()
                     .bodyToMono(AccountOneResponse.class)
+                    .timeout(Duration.ofSeconds(5))
                     .block();
         } catch (WebClientResponseException ex) {
             log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
@@ -218,10 +231,10 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(ciRequest) //
+                    .bodyValue(ciRequest)
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
-                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5)) // 재시도 로직 설정
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
                             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                 log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
                                 return retrySignal.failure();
@@ -243,9 +256,15 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(productInfoRequest) //
+                    .bodyValue(productInfoRequest)
                     .retrieve()
                     .bodyToMono(AccountIssuedResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new CustomException(ErrorCode.WRONG_RESPONSE);
@@ -268,6 +287,12 @@ public class CoreService {
                     .bodyValue(commonRequest)
                     .retrieve()
                     .bodyToMono(CardIssuedResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new CustomException(ErrorCode.WRONG_RESPONSE);
@@ -290,6 +315,12 @@ public class CoreService {
                     .bodyValue(coreCardRemoveRequest)
                     .retrieve()
                     .bodyToMono(MessageResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -312,6 +343,12 @@ public class CoreService {
                     .bodyValue(ci)
                     .retrieve()
                     .bodyToMono(AccountInfoResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -334,6 +371,12 @@ public class CoreService {
                     .bodyValue(transactionDetailRequest)
                     .retrieve()
                     .bodyToMono(TransactionDetailResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -356,6 +399,12 @@ public class CoreService {
                     .bodyValue(withdrawTransactionRequest)
                     .retrieve()
                     .bodyToMono(TransactionDetailResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null) {
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -379,6 +428,12 @@ public class CoreService {
                     .bodyValue(transferRequest)
                     .retrieve()
                     .bodyToMono(TransferApiResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null) {
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -401,6 +456,12 @@ public class CoreService {
                     })
                     .retrieve()
                     .bodyToMono(ProductAllResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -424,6 +485,12 @@ public class CoreService {
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<ApiResponse<TransferResponse>>() {
                     })
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
         } catch (WebClientResponseException ex) {
             log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
@@ -440,19 +507,19 @@ public class CoreService {
                         headers.set(HEADER_ACCESS_KEY, accessKey);
                         headers.set(HEADER_SECRET_KEY, secretKey);
                     })
-                    .bodyValue(balanceInfoRequest) //
+                    .bodyValue(balanceInfoRequest)
                     .retrieve()
                     .bodyToMono(BalanceInfoResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
         } catch (WebClientResponseException ex) {
             log.warn(WEBCLIENT_COMMUNICATION_ERROR + "{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
-        }
-    }
-
-    private void validateKeys() {
-        if (accessKey == null || secretKey == null) {
-            throw new CustomException(ErrorCode.REQUIRED_NOT_NULL, "AccessKey 또는 SecretKey가 설정되지 않았습니다.");
         }
     }
 
@@ -468,6 +535,12 @@ public class CoreService {
                     .bodyValue(accountInfoOfDate)
                     .retrieve()
                     .bodyToMono(TransactionDetailResponse.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(5))
+                            .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                log.info("재시도 횟수 초과. 마지막 오류: {}", retrySignal.failure().getMessage());
+                                return retrySignal.failure();
+                            })
+                    )
                     .block();
             if (response == null)
                 throw new IllegalStateException("잘못된 응답값 입니다.");
@@ -475,6 +548,12 @@ public class CoreService {
         } catch (WebClientResponseException ex) {
             log.warn("클라이언트 통신 중 오류가 발생했습니다.{}", ex.getMessage());
             throw new WebServerException(ex.getResponseBodyAsString(), ex);
+        }
+    }
+
+    private void validateKeys() {
+        if (accessKey == null || secretKey == null) {
+            throw new CustomException(ErrorCode.REQUIRED_NOT_NULL, "AccessKey 또는 SecretKey가 설정되지 않았습니다.");
         }
     }
 
