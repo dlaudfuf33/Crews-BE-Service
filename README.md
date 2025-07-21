@@ -1,6 +1,7 @@
 # CREWS - 소모임 관리 및 금융 서비스 플랫폼
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/dlaudfuf33/CREWS)
+<img width="635" height="240" alt="이명렬-포트폴리오 2 0" src="https://github.com/user-attachments/assets/888ce682-4e57-40ec-93c4-341919932b97" />
 
 **CREWS**는 코어 뱅킹 시스템을 기반으로 한 금융 서비스를 결합하여, 복잡하고 번거로웠던 소모임 관리를 혁신하는 플랫폼입니다. 사용자는 하나의 앱에서 모임 일정, 자산, 회비 납부 및 정산 내역을 통합 관리하며, 안전하고 편리한 금융 기능을 활용할 수 있습니다.
 
@@ -28,33 +29,8 @@ CREWS는 이러한 문제들을 **디지털화**하여 해결하고, **하나의
 
 CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 **서비스 지향 아키텍처(SOA)**를 채택했습니다. 비금융 서비스와 핵심 금융 기능을 독립된 서버로 구축하여 시스템의 안정성, 확장성, 유지보수성을 극대화했습니다.
 
-```mermaid
-graph TD
-    subgraph "User Interface"
-        A[Next.js - Vercel]
-    end
+![mama](https://github.com/user-attachments/assets/bdb54032-e7c4-4390-b4ae-6b7694ee4bb1)
 
-    subgraph "AWS Cloud Infrastructure"
-        B[Service Server - Elastic Beanstalk]
-        C[Core Banking Server - Elastic Beanstalk]
-        D[AWS SQS]
-        E[AWS RDS - MySQL]
-        F[AWS S3]
-        G[AWS CloudFront]
-    end
-
-    A --"API Request (모임 관리, 인증 등)"--> B
-    B --"금융 기능 요청 (계좌 조회, 이체)"--> C
-    B --"비동기 작업 (결제 처리)"--> D
-    D --"순차 처리"--> C
-    C --"DB Read/Write"--> E
-    B --"DB Read/Write"--> E
-    A --"Static Assets"--> G
-    G --"Origin"--> F
-
-    style B fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#ccf,stroke:#333,stroke-width:2px
-```
 
 - **Service Server (Spring Boot):** 사용자 인증/인가, 모임 관리 등 핵심 비즈니스 로직을 담당합니다.
 - **Core Banking Server (Spring Boot):** 계좌 관리, 이체 처리 등 민감한 금융 기능을 독립적으로 수행하는 BaaS(Banking as a Service) 서버입니다.
