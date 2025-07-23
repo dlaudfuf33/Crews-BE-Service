@@ -1,6 +1,6 @@
 # CREWS - 소모임 관리 및 금융 서비스 플랫폼
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/dlaudfuf33/CREWS)
+
 <img width="635" height="240" alt="이명렬-포트폴리오 2 0" src="https://github.com/user-attachments/assets/888ce682-4e57-40ec-93c4-341919932b97" />
 
 CREWS는 코어 뱅킹 기반의 금융 서비스를 포함한 소모임 관리 플랫폼입니다. 사용자는 모임 일정, 자산, 회비 등을 통합 관리하며, 금융 서비스를 활용한 다양한 기능을 제공받을 수 있습니다.
