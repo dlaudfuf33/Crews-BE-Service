@@ -3,14 +3,15 @@
 
 <img width="800" height="600" alt="이명렬-포트폴리오 2 0" src="https://github.com/user-attachments/assets/888ce682-4e57-40ec-93c4-341919932b97" />
 
-CREWS는 코어 뱅킹 기반의 금융 서비스를 포함한 소모임 관리 플랫폼입니다. 사용자는 모임 일정, 자산, 회비 등을 통합 관리하며, 금융 서비스를 활용한 다양한 기능을 제공받을 수 있습니다.
+CREWS는 코어 뱅킹 기반의 금융 서비스를 포함한 소모임 관리 플랫폼입니다.   
+사용자는 모임 일정, 자산, 회비 등을 통합 관리하며, 금융 서비스를 활용한 다양한 기능을 제공받을 수 있습니다.
 
-기존 소모임 운영은 회비 납부, 추적, 독촉, 회비 소비 내역 확인 등 여러 과정이 번거롭고 복잡하며, 소모임 플랫폼과 은행 앱 등 다양한 서비스를 번갈아 사용하는 불편함이 있었습니다.
-CREWS는 이러한 문제를 해결하기 위해 소모임 운영과 회비 관리의 디지털화를 목표로, 한 플랫폼에서 모든 과정을 쉽고 간편하게 처리할 수 있도록 설계 및 개발되었습니다.
+기존 소모임 운영은 회비 납부, 추적, 독촉, 회비 소비 내역 확인 등 여러 과정이 번거롭고 복잡하며 소모임 플랫폼과 은행 앱 등 다양한 서비스를 번갈아 사용하는 불편함이 있었습니다.   
+CREWS는 이러한 문제를 해결하기 위해 소모임 운영과 회비 관리의 통합을 목표로 한 플랫폼에서 모든 과정을 쉽고 간편하게 처리할 수 있도록 설계 및 개발되었습니다.
 
 <br>
 
-우리 FISA 팀 프로젝트 (5인)
+팀 프로젝트 (5인)
 - **진행 기간**: 2024.10 ~ 2024.12
 - **역할 및 기여**: 백엔드 팀원
   - 금융 서버 구축 및 API 설계/개발
@@ -19,14 +20,14 @@ CREWS는 이러한 문제를 해결하기 위해 소모임 운영과 회비 관�
   - 서버 간 통신(WebClient) 및 인증 구조 설계 ( API Key)
   - 비관적 락, 동시성 제어 등 데이터 정합성 보장 구조 설계 및 테스트
   - 인프라 구성 및 배포 파이프라인 일부 참여 (RDS, S3)
+
 <br>
 
  ## 📄 관련 문서
-
 - 📘 [API 명세서 (Notion)](https://www.notion.so/API-15be63ca457b815ea1c1e595615a27a2)
 - 📊 [프로젝트 산출물 (Google Slides)](https://docs.google.com/presentation/d/1-G7xTWYEvxLWTMyvDsN9TML6ZjyK_W37D171g1ZZweM/edit?usp=sharing)
+- 🗓️ [데일리 스크럼 기록 (Notion)](https://www.notion.so/15be63ca457b81699860cca4b617bcfd?v=15be63ca457b810b8719000cfcbee85f)
 <br>
-
 
 ## 🛠️ 사용 기술
 
@@ -57,17 +58,70 @@ CREWS는 이러한 문제를 해결하기 위해 소모임 운영과 회비 관�
 <br>
 
 
-## 📜 시스템 아키텍처
+## 📜 아키텍처
 
-CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 **서비스 지향 아키텍처(SOA)**를 채택했습니다. 비금융 서비스와 핵심 금융 기능을 독립된 서버로 구축하여 시스템의 안정성, 확장성, 유지보수성을 극대화했습니다.
+CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 비금융 서비스와 핵심 금융 기능을 독립된 서버로 구축
 
 ![mama](https://github.com/user-attachments/assets/bdb54032-e7c4-4390-b4ae-6b7694ee4bb1)
 
 
-- **Service Server (Spring Boot):** 사용자 인증/인가, 모임 관리 등 핵심 비즈니스 로직을 담당합니다.
-- **Core Banking Server (Spring Boot):** 계좌 관리, 이체 처리 등 민감한 금융 기능을 독립적으로 수행하는 BaaS(Banking as a Service) 서버입니다.
-- **AWS SQS:** 결제와 같이 트래픽이 집중될 수 있는 작업을 비동기 메시지 큐로 처리하여 시스템 부하를 분산시키고 안정성을 보장합니다.
-- **Resilience4j Circuit Breaker:** 서버 간 통신 장애가 발생할 경우, 장애 전파를 막고 시스템이 안정적으로 대체 동작을 수행하도록 합니다.
+### 📌 프론트 서버 (Vercel + Next.js)
+
+- 정적 자산 배포 및 클라이언트 사이드 렌더링을 담당
+- API 요청은 Vercel 프록시를 통해 Spring 기반 백엔드 서버로 전달
+- 사용자 인터페이스(UI)와 사용자 경험(UX)을 빠르게 전달하기 위해 전역 CDN 환경(Vercel Edge Network + CloudFront)을 활용
+
+---
+
+### 📌 서비스 서버 (Spring Boot - Elastic Beanstalk)
+
+- 사용자 인증/인가, 모임/게시글 관리, 알림 등 비즈니스 로직의 중심 역할 담당
+- 클라이언트로부터 받은 요청 중 금융 처리가 필요한 경우, 내부적으로 BaaS 서버에 API 요청을 위임
+- 장애 발생 시에도 서비스 가용성을 확보하기 위해 `Resilience4j` 기반 서킷 브레이커 패턴 적용
+
+---
+
+### 📌 BaaS 서버 (Spring Boot - Elastic Beanstalk)
+
+- 금융 기능만을 독립적으로 담당하는 Core Banking Server
+- 주요 기능:
+  - 계좌 생성, 삭제, 조회
+  - 잔액 변경(입출금), 이체 트랜잭션 관리
+- 민감한 금융 로직과 데이터를 외부로부터 분리함으로써 보안성 강화
+
+---
+
+### 📌 RDS (MySQL) - 데이터베이스 분리
+
+- **RDS Service DB**: 서비스 서버 전용 데이터베이스
+  - 사용자 정보, 모임, 게시글, 알림, 인증 기록 등 관리
+- **RDS BaaS DB**: BaaS 서버 전용 데이터베이스
+  - 계좌, 잔액, 거래 기록, 금융 관련 로그 등 보관
+
+> 📎 DB 수준에서도 분리되어 있어, 하나의 시스템에 장애가 발생하더라도 나머지 시스템은 독립적 운영 가능
+
+---
+
+### 📌 AWS SQS (Simple Queue Service)
+
+- 결제 완료 시점을 예측할 수 없기 때문에 비동기 메시지 큐 방식 처리
+- 서버 간 직접 호출이 아닌, 큐를 통한 이벤트 기반 처리를 통해 장애 전파를 차단
+
+---
+
+### 📌 Amazon S3 + CloudFront (정적 파일 저장소 + CDN)
+
+- 이미지, 영수증, 첨부 파일 등 미디어 리소스는 S3에 저장/관리
+- CloudFront를 통해 어디서든 빠른 다운로드 및 캐시 최적화된 정적 파일 제공 가능
+
+---
+
+### 📌 WebClient + Resilience4j 기반 서버 간 통신 보호
+
+- Service ↔ BaaS 서버 간 통신은 WebClient 기반 처리
+- 장애가 감지되면 `Resilience4j Circuit Breaker`가 작동하여 fallback을 수행
+- API 호출 실패가 전체 시스템으로 확산되는 상황 차단
+
 
 <br>
 
@@ -96,6 +150,8 @@ CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 **서비
 
 ---
 
+<br>   
+
 ### 서버 간 통신 및 보안 구조
 서비스 서버와 금융 서버가 분리되어 있었지만, 안전한 인증 및 효율적인 통신 방식이 미정인 상태였습니다.   
 특히 금융 기능은 보안이 중요한 만큼, 외부 노출을 최소화하면서 신뢰할 수 있는 방식으로만 접근 가능해야 했습니다.
@@ -113,12 +169,7 @@ CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 **서비
 
 ---
 
-### 장애 대응 구조
-
-- 서킷 브레이커 적용 (Resilience4j 기반)
-- 장애 시 fallback 처리 및 회복 지연 전략
-
----
+<br>   
 
 ### 데이터 정합성 및 동시성 제어 전략
 
@@ -142,15 +193,14 @@ CREWS는 서비스의 역할과 책임을 명확히 분리하기 위해 **서비
 
 **대안 비교**
 
-| 전략 | 장점 | 단점 | 평가 |
-|------|------|------|------|
-| 낙관적 락 | 데드락 없음, 성능 우수 | 충돌 시 롤백 빈번 → 이체에 부적합 | ❌ |
-| 비관적 락 | 정합성 보장 | 데드락 가능성, 성능 저하 | ✅ |
-| 작업 큐 처리 | 동시성 완전 제거 | 실시간 처리 불가, SPOF 발생 우려 | ❌ |
-| 분산 락 | 다중 노드 제어 | 단일 노드에 과도, 구현 복잡 | ❌ |
+| 전략 | 장점 | 단점 |
+|------|------|------|
+| 낙관적 락 | 데드락 없음 | 충돌 시 롤백 빈번 → 이체에 부적합 |
+| 비관적 락 | 정합성 보장 | 데드락 가능성  |
+| 작업 큐 처리 | 동시성 완전 제거 | 실시간 처리 불가, SPOF 발생 우려 |
+| 분산 락 | 다중 노드 제어 | 단일 노드에 과도, 구현 복잡 |
 
 ---
-
 
 
 **최종 선택 및 적용 방식**
@@ -226,10 +276,6 @@ public TransferResponse execute(TransferRequest transferRequest) {
     }
 ```
 
----
-
-
-
 
 **성능 및 정합성 검증**
 
@@ -265,11 +311,13 @@ public TransferResponse execute(TransferRequest transferRequest) {
   > 1,000건 이상 요청에도 **데이터 오류 없음**
 
 
+---
 
+<br>   
 
 ### 조회 성능 개선 - DB 인덱싱 도입
 
-**문제 상황**  
+**문제 인식**  
 - 핀테크 이용번호(`fintec_number`) 및 계좌번호(`account_number`) 기반으로 자주 조회되는 쿼리가 존재했으나, 해당 컬럼에 인덱스가 없어 조회 성능 저하 발생.
 
 **해결 방법**  
@@ -291,38 +339,74 @@ public TransferResponse execute(TransferRequest transferRequest) {
 > 적용 결과, 평균 28% 이상의 응답 속도 향상을 달성하여 데이터 접근 병목 현상이 크게 완화되었습니다.
 
 
+---
 
-### 장애 전파 차단 전략
-**문제 인식**  
-- 잦은 계좌 조회, 사용자별 핀테크 번호 조회 요청이 발생하며 데이터 접근 병목이 예상됨  
-- 외부 API 장애 발생 시 전체 서비스로 장애 전파 가능성 존재
+<br>   
+
+## 장애 전파 차단을 위한 서킷 브레이커 패턴 도입 과정
+
+### 문제 인식
+
+서비스 서버는 금융 데이터를 관리하는 별도의 코어 모듈(BaaS Core)과 분리되어 있으며, 주기적으로 코어 API를 호출해 사용자 계좌 정보를 가져옵니다. 그러나 코어 모듈이 일시적으로 과부하 상태이거나 배포 중일 경우, 다음과 같은 위험이 발생합니다:
+
+- 서비스 모듈이 대기 상태에 빠지며 응답이 지연됨
+- 하나의 API 장애가 전체 서비스 장애로 확산되는 **Cascading Failure** 발생 가능
 
 ---
 
-**인덱싱 전략 도입 (DB 조회 성능 개선)**  
-- **원인**: `account_number`, `fintec_number` 컬럼의 조건 검색 빈도가 높아 성능 저하 발생  
-- **해결**: 해당 컬럼에 인덱스 생성하여 쿼리 실행 속도 향상  
-- **효과**:  
-  - 평균 조회 응답 속도 감소 (약 80% 개선)  
-  - 복합 키 조합 없이 단일 컬럼 기준으로 빠르게 조회 가능
+### 해결 과제
+
+- **외부 또는 코어 모듈의 장애를 격리**하여 서비스 전체의 안정성을 보장
+- 사용자는 최소한의 안내 또는 캐시 응답을 받아 경험 손실 최소화
+- 시스템은 장애 복구를 위한 여유를 확보하고 자동 복구 시도 가능해야 함
 
 ---
 
-**서킷 브레이커 적용 (장애 전파 차단)**  
-- **상황**: 외부 금융 API 응답 지연/실패 시 전체 서비스 지연 유발 가능  
-- **도입 기술**: `Spring Cloud Circuit Breaker` 기반 서킷 브레이커 패턴 적용  
-- **동작 방식**:
-  - 실패 비율이 임계치를 초과하면 자동으로 회로 차단(open)  
-  - 일정 시간 후 반-닫힘 상태로 복구 시도(half-open)  
-  - 복구 성공 시 정상 상태로 전환(closed), 실패 시 차단 유지  
-  - 대체 로직(fallback) 적용하여 사용자 경험 최소화  
-- **효과**:
-  - 외부 장애로부터 내부 서비스 보호
-  - API 응답 타임아웃 및 장애 감지 로직 단순화
+### 기술 선택 및 기반 구성
+
+- **Resilience4j** 라이브러리를 도입하여 서킷 브레이커 패턴 구현
+- **Spring Cloud Circuit Breaker** 어노테이션 방식으로 연동
+- 장애 발생 시 대체 로직 수행을 위한 `fallbackMethod` 함께 정의
+
+```java
+@CircuitBreaker(
+  name = "coreService", 
+  fallbackMethod = "fallbackFindCoreSideAccounts"
+)
+public List<AccountResponse> findCoreSideAccounts(MemberToCoreRequest memberDto) {
+    // WebClient로 외부 API 호출
+    AccountsInfoResponse response = webClient.post()
+        .uri("/v1/accounts/info")
+        .headers(headers -> {
+            headers.set("ACCESS_KEY", accessKey);
+            headers.set("SECRET_KEY", secretKey);
+        })
+        .bodyValue(memberDto)
+        .retrieve()
+        .bodyToMono(AccountsInfoResponse.class)
+        .block();
+
+    return response.toAccounts();
+}
+```
+
+### Fallback
+- 장애 발생 원인을 로그로 남기고 사용자에게는 서버 에러 응답을 명확하게 전달
+```java
+public List<AccountResponse> fallbackFindCoreSideAccounts(
+    MemberToCoreRequest request, Throwable throwable) {
+
+    log.error("Fallback triggered for findCoreSideAccounts. Request: {}, Reason: {}", 
+              request, throwable.getMessage());
+
+    throw new CustomException(ErrorCode.CORE_SERVER_EXCEPTION);
+}
+```
 
 
 ---
 
+<br>   
 
 ## 🔖 커밋 메시지 컨벤션
 
